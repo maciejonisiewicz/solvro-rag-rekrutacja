@@ -68,7 +68,7 @@
     "query": "How can controlled text generation be achieved via Language Model Arithmetic to customize style and vocabulary?",
     "has_data": true,
     "target_paper_id": "SLw9fp4yI6",
-    "target_review_id": "qLlG2bPTFf",
+    "target_review_id": null,
     "justification": "Praca 'Controlled Text Generation via Language Model Arithmetic' (SLw9fp4yI6) dotyczy bezpośrednio sterowania generacją tekstu i dostosowywania stylu oraz słownictwa za pomocą arytmetyki na modelach językowych."
   },
   {
@@ -76,7 +76,7 @@
     "query": "Classification with a reject option for a fixed predictor in NLP applied to decontextualization",
     "has_data": true,
     "target_paper_id": "dCHbFDsCZz",
-    "target_review_id": "0hp45EzgNz",
+    "target_review_id": null,
     "justification": "Praca 'Learning to Reject with a Fixed Predictor: Application to Decontextualization' (dCHbFDsCZz) bada klasyfikację z opcją odrzucenia (reject option) dla zamrożonego predyktora w NLP."
   },
   {

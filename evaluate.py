@@ -1,11 +1,21 @@
+"""Evaluation utilities for the OpenReview literature-review RAG.
+
+The ground-truth dataset is read from data/eval_questions.json and is never
+regenerated as a side effect of running evaluation.
+"""
+
 import json
 import math
 from pathlib import Path
+from typing import Any
+
 from pydantic import BaseModel
+
 from agent_rag import LiteratureReviewAssistant
 from rag_system import LiteratureReviewRAG
 
 SIMILARITY_THRESHOLD = 0.38
+EVALUATION_VERSION = 2
 
 
 class GroundTruthQuestion(BaseModel):
@@ -20,9 +30,10 @@ class GroundTruthQuestion(BaseModel):
 class MethodMetrics(BaseModel):
     method_name: str
     paper_hit_at_5: float
-    review_hit_at_5: float
-    review_mrr: float
-    ndcg_at_5: float
+    # None means that review-level evaluation is not meaningful for this method.
+    review_hit_at_5: float | None
+    review_mrr: float | None
+    ndcg_at_5: float | None
 
 
 class DiversityAnalysis(BaseModel):
@@ -38,17 +49,22 @@ class QuestionEvalDetail(BaseModel):
     id: int
     query: str
     target_paper_id: str
-    target_review_id: str
+    target_review_id: str | None
+    vector_paper_rank: int | None = None
+    bm25_paper_rank: int | None = None
+    hybrid_paper_rank: int | None = None
+    agent_paper_rank: int | None = None
+    abstract_only_paper_rank: int | None = None
     vector_review_rank: int | None
     bm25_review_rank: int | None
     hybrid_review_rank: int | None
     agent_review_rank: int | None
     abstract_only_review_rank: int | None
-    vector_review_hit_at_5: bool
-    bm25_review_hit_at_5: bool
-    hybrid_review_hit_at_5: bool
-    agent_review_hit_at_5: bool
-    abstract_only_hit_at_5: bool
+    vector_review_hit_at_5: bool | None
+    bm25_review_hit_at_5: bool | None
+    hybrid_review_hit_at_5: bool | None
+    agent_review_hit_at_5: bool | None
+    abstract_only_hit_at_5: bool | None
 
 
 class UnanswerableEvalDetail(BaseModel):
@@ -89,12 +105,16 @@ class EvaluationMetrics(BaseModel):
     agent_review_hit_at_5: float
     agent_review_mrr: float
     agent_ndcg_at_5: float
-    abstracts_only_review_hit_at_5: float
-    abstracts_only_review_mrr: float
     unanswerable_rejection_accuracy: float
+    abstracts_only_paper_hit_at_5: float = 0.0
+    # Review metrics for abstract-only retrieval are deliberately N/A.
+    abstracts_only_review_hit_at_5: float | None = None
+    abstracts_only_review_mrr: float | None = None
+    abstracts_only_ndcg_at_5: float | None = None
 
 
 class FullEvaluationReport(BaseModel):
+    evaluation_version: int = EVALUATION_VERSION
     metrics: EvaluationMetrics
     method_comparison: list[MethodMetrics]
     diversity_analysis: DiversityAnalysis
@@ -103,426 +123,449 @@ class FullEvaluationReport(BaseModel):
     failure_cases: list[FailureCaseDetail]
 
 
-def create_ground_truth_dataset(
-    reviews_path: str = "data/reviews.json",
-    output_path: str = "data/eval_questions.json",
+def load_ground_truth_dataset(
+    path: str | Path = "data/eval_questions.json",
 ) -> list[GroundTruthQuestion]:
-    reviews_file = Path(reviews_path)
-    output_file = Path(output_path)
+    """Load and validate the fixed, manually annotated evaluation set."""
+    questions_path = Path(path)
+    if not questions_path.exists():
+        raise FileNotFoundError(
+            f"Evaluation dataset not found: {questions_path}. "
+            "Create and manually annotate the dataset before running evaluation."
+        )
 
-    reviews = json.loads(reviews_file.read_text(encoding="utf-8"))
-    paper_to_reviews: dict[str, list[str]] = {}
-    for r in reviews:
-        pid = r["paper_id"]
-        paper_to_reviews.setdefault(pid, []).append(r["review_id"])
+    raw_questions = json.loads(questions_path.read_text(encoding="utf-8"))
+    questions = [GroundTruthQuestion.model_validate(item) for item in raw_questions]
 
-    questions_data = [
-        {
-            "id": 1,
-            "query": "Approximating Minimum Bayes Risk decoding with matrix completion, where a reviewer notes experiments only use EN-DE and EN-RU on PaLM 8B",
-            "has_data": True,
-            "target_paper_id": "8iPobEKUUA",
-            "target_review_id": "JK5vOYx9o7",
-            "justification": (
-                "Praca 'Efficient Minimum Bayes Risk Decoding using Low-Rank Matrix Completion Algorithms' (8iPobEKUUA) "
-                "opisuje redukcję kosztu dekodowania MBR, a recenzja JK5vOYx9o7 zarzuca ograniczenie eksperymentów "
-                "tylko do dwóch par językowych (EN-DE, EN-RU) oraz jednego modelu PaLM 8B."
-            ),
-        },
-        {
-            "id": 2,
-            "query": "Reducing the computational cost of training language models by gradually growing model depth in stages, criticized for only testing small 1B and 2B models",
-            "has_data": True,
-            "target_paper_id": "3ZAfFoAcUI",
-            "target_review_id": "ZvGNUwLc4R",
-            "justification": (
-                "Praca 'On the Inductive Bias of Stacking Towards Improving Reasoning' (3ZAfFoAcUI) bada przyspieszenie "
-                "treningu przez stopniowe powiększanie głębokości modelu, a recenzent ZvGNUwLc4R wskazuje, że testowane "
-                "modele (1B i 2B) są zbyt małe w porównaniu do modeli 7B i 13B."
-            ),
-        },
-        {
-            "id": 3,
-            "query": "Iterative trial-and-error prompting strategy for LLM reasoning criticized by a reviewer for being restricted to binary trees instead of graph structures",
-            "has_data": True,
-            "target_paper_id": "qBL04XXex6",
-            "target_review_id": "w7bvJ5iRWP",
-            "justification": (
-                "Publikacja 'Boosting of Thoughts' (qBL04XXex6) proponuje iteracyjne uczenie na błędach w promptingu, "
-                "a recenzja w7bvJ5iRWP punktuje ograniczenie struktury wyłącznie do drzew binarnych."
-            ),
-        },
-        {
-            "id": 4,
-            "query": "Which review criticizes the use of Rouge-L in Equation 3 as too weak for free-generation results and suggests replacing it with an entailment model?",
-            "has_data": True,
-            "target_paper_id": "AqN23oqraW",
-            "target_review_id": "2mTTJZa647",
-            "justification": (
-                "Recenzja 2mTTJZa647 do pracy 'KoLA' (AqN23oqraW) w sekcji Weaknesses wprost krytykuje użycie metryki "
-                "Rouge-L w Równaniu 3 dla wolnej generacji tekstu i proponuje zastąpienie jej modelem entailment."
-            ),
-        },
-        {
-            "id": 5,
-            "query": "Evaluating Transformer language models on learning compositional discrete algorithms, where a reviewer questions why the PEN and PERM datasets are needed",
-            "has_data": True,
-            "target_paper_id": "x7AD0343Jz",
-            "target_review_id": "9DIRWfvxxd",
-            "justification": (
-                "Praca 'Limits of Transformer Language Models on Learning to Compose Algorithms' (x7AD0343Jz) bada "
-                "zadania kompozycyjne, a recenzja 9DIRWfvxxd kwestionuje celowość wprowadzenia zbiorów PEN i PERM."
-            ),
-        },
-        {
-            "id": 6,
-            "query": "Reviewer criticism that baseline comparisons for digital agents are unfair because RAG methods were omitted and CodeActAgent was not fine-tuned out-of-the-box",
-            "has_data": True,
-            "target_paper_id": "KjNEzWRIqn",
-            "target_review_id": "7iDVZTIfsM",
-            "justification": (
-                "Recenzent 7iDVZTIfsM w pracy 'Synatra' (KjNEzWRIqn) zarzuca nieuczciwe porównanie eksperymentalne, "
-                "wskazując na pominięcie metod RAG oraz brak odpowiedniego fine-tuningu dla AgentLM i CodeActAgent."
-            ),
-        },
-        {
-            "id": 7,
-            "query": "Using pseudo-programs and program emulation for language model reasoning, where a reviewer criticizes the lack of a precise definition of soft reasoning",
-            "has_data": True,
-            "target_paper_id": "te6VagJf6G",
-            "target_review_id": "ru4zfozGZq",
-            "justification": (
-                "Praca 'Learning to Reason via Program Generation, Emulation, and Search' (te6VagJf6G) wprowadza pojęcie "
-                "pseudo-programów, a recenzent ru4zfozGZq wskazuje na brak precyzyjnej definicji i słabą motywację."
-            ),
-        },
-        {
-            "id": 8,
-            "query": "Combining automaton-inspired Reward Machines with Deep RL in noisy environments, criticized for unclear performance without ground-truth RMs",
-            "has_data": True,
-            "target_paper_id": "Cc0ckJlJF2",
-            "target_review_id": "jOmNHO0jCQ",
-            "justification": (
-                "Praca 'Reward Machines for Deep RL in Noisy and Uncertain Environments' (Cc0ckJlJF2) analizuje RM w zaszumionym "
-                "środowisku, a recenzja jOmNHO0jCQ pyta o działanie metody bez dostępu do ground-truth RMs."
-            ),
-        },
-        {
-            "id": 9,
-            "query": "How can controlled text generation be achieved via Language Model Arithmetic to customize style and vocabulary?",
-            "has_data": True,
-            "target_paper_id": "SLw9fp4yI6",
-            "target_review_id": paper_to_reviews.get("SLw9fp4yI6", [""])[0],
-            "justification": (
-                "Praca 'Controlled Text Generation via Language Model Arithmetic' (SLw9fp4yI6) dotyczy bezpośrednio "
-                "sterowania generacją tekstu i dostosowywania stylu oraz słownictwa za pomocą arytmetyki na modelach językowych."
-            ),
-        },
-        {
-            "id": 10,
-            "query": "Classification with a reject option for a fixed predictor in NLP applied to decontextualization",
-            "has_data": True,
-            "target_paper_id": "dCHbFDsCZz",
-            "target_review_id": paper_to_reviews.get("dCHbFDsCZz", [""])[0],
-            "justification": (
-                "Praca 'Learning to Reject with a Fixed Predictor: Application to Decontextualization' (dCHbFDsCZz) "
-                "bada klasyfikację z opcją odrzucenia (reject option) dla zamrożonego predyktora w NLP."
-            ),
-        },
-        {
-            "id": 11,
-            "query": "Why AI is completely useless in modern society?",
-            "has_data": False,
-            "target_paper_id": None,
-            "target_review_id": None,
-            "justification": (
-                "Pytanie publicystyczne spoza zakresu prac naukowych ICLR/NeurIPS 2024. "
-                "System powinien wykryć niskie podobieństwo (< 0.38) i poinformować o braku danych."
-            ),
-        },
-        {
-            "id": 12,
-            "query": "What are the best surgical techniques for knee ligament reconstruction in professional athletes?",
-            "has_data": False,
-            "target_paper_id": None,
-            "target_review_id": None,
-            "justification": (
-                "Pytanie z dziedziny medycyny/ortopedii — całkowity brak powiązanych publikacji w bazie ML. "
-                "System powinien zwrócić komunikat o braku podstaw do odpowiedzi."
-            ),
-        },
-    ]
+    if not questions:
+        raise ValueError("Evaluation dataset is empty.")
 
-    questions = [GroundTruthQuestion(**q) for q in questions_data]
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    output_file.write_text(
-        json.dumps([q.model_dump() for q in questions], ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
+    ids = [question.id for question in questions]
+    if len(ids) != len(set(ids)):
+        raise ValueError("Evaluation dataset contains duplicate question IDs.")
+
+    if any(question.has_data and not question.target_paper_id for question in questions):
+        raise ValueError("Every answerable question must define target_paper_id.")
+
+    if any(not question.has_data and question.target_paper_id for question in questions):
+        raise ValueError(
+            "Questions marked has_data=False must not define target_paper_id."
+        )
+
     return questions
 
 
-def find_rank_of_target(
-    results: list[dict],
-    target_paper_id: str,
-    target_review_id: str,
-) -> tuple[int | None, int | None]:
-    review_rank = None
-    for idx, res in enumerate(results, 1):
-        if res["metadata"]["review_id"] == target_review_id:
-            review_rank = idx
-            break
+def validate_ground_truth(
+    questions: list[GroundTruthQuestion], rag: LiteratureReviewRAG
+) -> None:
+    """Fail early when manually annotated IDs do not match the local corpus."""
+    paper_ids = set(rag.papers)
+    review_by_id = {review["review_id"]: review for review in rag.reviews}
 
-    seen_papers: list[str] = []
-    paper_rank = None
-    for res in results:
-        pid = res["metadata"]["paper_id"]
-        if pid not in seen_papers:
-            seen_papers.append(pid)
-            if pid == target_paper_id:
-                paper_rank = len(seen_papers)
+    for question in questions:
+        if not question.has_data:
+            if question.target_review_id is not None:
+                raise ValueError(
+                    f"Q{question.id:02d} is unanswerable but defines target_review_id."
+                )
+            continue
+
+        if question.target_paper_id not in paper_ids:
+            raise ValueError(
+                f"Q{question.id:02d}: unknown target_paper_id "
+                f"{question.target_paper_id!r}."
+            )
+
+        if question.target_review_id is not None:
+            target_review = review_by_id.get(question.target_review_id)
+            if target_review is None:
+                raise ValueError(
+                    f"Q{question.id:02d}: unknown target_review_id "
+                    f"{question.target_review_id!r}."
+                )
+            if target_review["paper_id"] != question.target_paper_id:
+                raise ValueError(
+                    f"Q{question.id:02d}: target_review_id belongs to a different paper."
+                )
+
+
+def find_rank_of_target(
+    results: list[dict[str, Any]],
+    target_paper_id: str,
+    target_review_id: str | None,
+) -> tuple[int | None, int | None]:
+    """Return (review rank, deduplicated paper rank); ranks are 1-based."""
+    review_rank = None
+    if target_review_id is not None:
+        for rank, result in enumerate(results, start=1):
+            if result["metadata"]["review_id"] == target_review_id:
+                review_rank = rank
                 break
+
+    seen_papers: set[str] = set()
+    paper_rank = None
+    for result in results:
+        paper_id = result["metadata"]["paper_id"]
+        if paper_id in seen_papers:
+            continue
+        seen_papers.add(paper_id)
+        if paper_id == target_paper_id:
+            paper_rank = len(seen_papers)
+            break
 
     return review_rank, paper_rank
 
 
 def compute_ndcg_at_k(
-    results: list[dict],
+    results: list[dict[str, Any]],
     target_paper_id: str,
-    target_review_id: str,
+    target_review_id: str | None,
+    relevant_review_ids: set[str],
     k: int = 5,
-) -> float:
-    dcg = 0.0
-    for idx, res in enumerate(results[:k], 1):
-        rev_id = res["metadata"]["review_id"]
-        pap_id = res["metadata"]["paper_id"]
-        rel = 2.0 if rev_id == target_review_id else (1.0 if pap_id == target_paper_id else 0.0)
-        if rel > 0:
-            dcg += (2.0**rel - 1.0) / math.log2(idx + 1.0)
+) -> float | None:
+    """Compute review-level nDCG with qrels derived from annotated paper/review IDs.
 
-    ideal_rels = [2.0, 1.0, 1.0, 1.0, 0.0][:k]
-    idcg = sum((2.0**r - 1.0) / math.log2(idx + 1.0) for idx, r in enumerate(ideal_rels, 1) if r > 0)
-    return dcg / idcg if idcg > 0 else 0.0
+    Relevance policy: target review = 2; other reviews of the target paper = 1;
+    all other documents = 0. This reflects the current evaluation protocol and
+    should be revisited if each individual review is manually labelled.
+    """
+    if target_review_id is None:
+        return None
+
+    qrels = set(relevant_review_ids)
+    qrels.add(target_review_id)
+
+    dcg = 0.0
+    for rank, result in enumerate(results[:k], start=1):
+        metadata = result["metadata"]
+        review_id = metadata["review_id"]
+        paper_id = metadata["paper_id"]
+
+        if review_id == target_review_id and paper_id == target_paper_id:
+            relevance = 2
+        elif review_id in qrels and paper_id == target_paper_id:
+            relevance = 1
+        else:
+            relevance = 0
+
+        if relevance:
+            dcg += (2**relevance - 1) / math.log2(rank + 1)
+
+    ideal_relevances = sorted(
+        [2 if review_id == target_review_id else 1 for review_id in qrels],
+        reverse=True,
+    )[:k]
+    idcg = sum(
+        (2**relevance - 1) / math.log2(rank + 1)
+        for rank, relevance in enumerate(ideal_relevances, start=1)
+    )
+
+    return dcg / idcg if idcg else 0.0
+
+
+def _safe_ratio(numerator: float, denominator: int) -> float:
+    return numerator / denominator if denominator else 0.0
+
+
+def _review_metric_or_none(value: float, denominator: int) -> float | None:
+    return round(value / denominator, 3) if denominator else None
 
 
 def run_evaluation(rag: LiteratureReviewRAG | None = None) -> FullEvaluationReport:
-    questions = create_ground_truth_dataset()
+    questions = load_ground_truth_dataset()
     rag_engine = rag or LiteratureReviewRAG()
-    assistant = LiteratureReviewAssistant(similarity_threshold=SIMILARITY_THRESHOLD, top_k=5, max_steps=3)
-    assistant.rag = rag_engine
+    validate_ground_truth(questions, rag_engine)
 
-    answerable = [q for q in questions if q.has_data]
-    unanswerable = [q for q in questions if not q.has_data]
+    answerable = [question for question in questions if question.has_data]
+    unanswerable = [question for question in questions if not question.has_data]
+    review_questions = [
+        question for question in answerable if question.target_review_id is not None
+    ]
+    paper_denominator = len(answerable)
+    review_denominator = len(review_questions)
 
-    stats = {
-        m: {"pap_hits": 0, "rev_hits": 0, "rr_sum": 0.0, "ndcg_sum": 0.0}
-        for m in ["vector", "bm25", "hybrid", "agent", "abstracts"]
+    if paper_denominator == 0:
+        raise ValueError("Evaluation requires at least one answerable question.")
+
+    stats: dict[str, dict[str, float]] = {
+        method: {"paper_hits": 0, "review_hits": 0, "rr_sum": 0.0, "ndcg_sum": 0.0}
+        for method in ("vector", "bm25", "hybrid", "agent", "abstracts")
     }
 
-    recommended_papers_set: set[str] = set()
-    conf_counts = {"ICLR 2024": 0, "NeurIPS 2024": 0}
-    unique_papers_per_query_counts: list[int] = []
+    reviews_by_paper: dict[str, set[str]] = {}
+    for review in rag_engine.reviews:
+        reviews_by_paper.setdefault(review["paper_id"], set()).add(review["review_id"])
 
+    recommended_papers: set[str] = set()
+    conference_counts = {"ICLR 2024": 0, "NeurIPS 2024": 0}
+    unique_papers_per_query: list[int] = []
     failure_cases: list[FailureCaseDetail] = []
-    detailed_report: list[QuestionEvalDetail] = []
+    detailed_results: list[QuestionEvalDetail] = []
 
-    for q in answerable:
-        assert q.target_paper_id and q.target_review_id
-        vec_res = rag_engine.search_vector(q.query, top_k=20)
-        bm25_res = rag_engine.search_bm25(q.query, top_k=20)
-        hyb_res = rag_engine.search_hybrid(q.query, top_k=20)
-        abs_res = rag_engine.search_abstracts_only(q.query, top_k=20)
+    # Reuse the already initialized RAG engine; do not load a second embedding model.
+    assistant = LiteratureReviewAssistant(
+        similarity_threshold=SIMILARITY_THRESHOLD,
+        top_k=5,
+        max_steps=3,
+        rag=rag_engine,
+    )
+    # Keep evaluation traces separate from a user's latest interactive query.
+    assistant.context_log_path = Path("data/evaluation_last_query_context.json")
+    assistant.trace_log_path = Path("data/evaluation_agent_trace_log.json")
 
-        agent_payload = assistant.run_agent(q.query)
-        agent_res = [
+    for question in answerable:
+        assert question.target_paper_id is not None
+        target_paper_id = question.target_paper_id
+        target_review_id = question.target_review_id
+
+        # Retrieve the full small corpus so paper-level deduplication and ranks
+        # are not distorted by an arbitrary 20-document cutoff.
+        retrieval_k = max(len(rag_engine.reviews), len(rag_engine.papers), 1)
+        vector_results = rag_engine.search_vector(question.query, top_k=retrieval_k)
+        bm25_results = rag_engine.search_bm25(question.query, top_k=retrieval_k)
+        hybrid_results = rag_engine.search_hybrid(question.query, top_k=retrieval_k)
+        abstract_results = rag_engine.search_abstracts_only(question.query, top_k=retrieval_k)
+
+        agent_payload = assistant.run_agent(question.query)
+        agent_results = [
             {
-                "score": s.similarity_score,
+                "score": source.similarity_score,
                 "metadata": {
-                    "review_id": s.review_id,
-                    "paper_id": s.paper_id,
-                    "conference": s.conference,
-                    "title": s.title,
+                    "review_id": source.review_id,
+                    "paper_id": source.paper_id,
+                    "conference": source.conference,
+                    "title": source.title,
                 },
             }
-            for s in agent_payload.sources
+            for source in agent_payload.sources
         ]
 
-        top5_vec = vec_res[:5]
-        unique_in_q = {r["metadata"]["paper_id"] for r in top5_vec}
-        unique_papers_per_query_counts.append(len(unique_in_q))
-        for r in top5_vec:
-            recommended_papers_set.add(r["metadata"]["paper_id"])
-            c_name = r["metadata"]["conference"]
-            if c_name in conf_counts:
-                conf_counts[c_name] += 1
+        vector_top5 = vector_results[:5]
+        unique_for_query = {item["metadata"]["paper_id"] for item in vector_top5}
+        unique_papers_per_query.append(len(unique_for_query))
+        for item in vector_top5:
+            metadata = item["metadata"]
+            recommended_papers.add(metadata["paper_id"])
+            conference = metadata["conference"]
+            if conference in conference_counts:
+                conference_counts[conference] += 1
 
-        method_outputs = {
-            "vector": vec_res,
-            "bm25": bm25_res,
-            "hybrid": hyb_res,
-            "agent": agent_res,
-            "abstracts": abs_res,
+        method_outputs: dict[str, list[dict[str, Any]]] = {
+            "vector": vector_results,
+            "bm25": bm25_results,
+            "hybrid": hybrid_results,
+            "agent": agent_results,
+            "abstracts": abstract_results,
         }
 
         ranks: dict[str, tuple[int | None, int | None]] = {}
-        hits: dict[str, tuple[bool, bool]] = {}
+        hits: dict[str, tuple[bool | None, bool]] = {}
 
-        for m_name, res_list in method_outputs.items():
-            r_rank, p_rank = find_rank_of_target(res_list, q.target_paper_id, q.target_review_id)
-            ranks[m_name] = (r_rank, p_rank)
-            r_hit = r_rank is not None and r_rank <= 5
-            p_hit = p_rank is not None and p_rank <= 5
-            hits[m_name] = (r_hit, p_hit)
+        for method, results in method_outputs.items():
+            # Abstract-only documents represent papers; their inherited review IDs
+            # are arbitrary metadata and must never be scored as review retrieval.
+            method_target_review = (
+                None if method == "abstracts" else target_review_id
+            )
+            review_rank, paper_rank = find_rank_of_target(
+                results, target_paper_id, method_target_review
+            )
+            ranks[method] = (review_rank, paper_rank)
 
-            if p_hit:
-                stats[m_name]["pap_hits"] += 1
-            if r_hit:
-                stats[m_name]["rev_hits"] += 1
-            stats[m_name]["rr_sum"] += (1.0 / r_rank) if r_rank else 0.0
-            stats[m_name]["ndcg_sum"] += compute_ndcg_at_k(res_list, q.target_paper_id, q.target_review_id, k=5)
+            review_hit: bool | None
+            if method == "abstracts" or target_review_id is None:
+                review_hit = None
+            else:
+                review_hit = review_rank is not None and review_rank <= 5
 
-        if not hits["vector"][0] or not hits["bm25"][0]:
+            paper_hit = paper_rank is not None and paper_rank <= 5
+            hits[method] = (review_hit, paper_hit)
+
+            if paper_hit:
+                stats[method]["paper_hits"] += 1
+
+            if review_hit is not None:
+                if review_hit:
+                    stats[method]["review_hits"] += 1
+                    # MRR@5: a target outside the first five contributes zero.
+                    stats[method]["rr_sum"] += 1.0 / review_rank
+                relevant_ids = reviews_by_paper.get(target_paper_id, set())
+                ndcg = compute_ndcg_at_k(
+                    results,
+                    target_paper_id,
+                    target_review_id,
+                    relevant_review_ids=relevant_ids,
+                    k=5,
+                )
+                if ndcg is not None:
+                    stats[method]["ndcg_sum"] += ndcg
+
+        # Failure analysis is only meaningful when a specific review was annotated.
+        if target_review_id is not None and (
+            hits["vector"][0] is False or hits["bm25"][0] is False
+        ):
+            if question.id == 4:
+                probable_cause = (
+                    "Q04 asks for a specific technical criticism (ROUGE-L in Equation 3). "
+                    "Dense retrieval can under-rank a rare exact term; compare the lexical "
+                    "and hybrid rankings rather than assuming the hybrid method fixed it."
+                )
+            else:
+                probable_cause = (
+                    "The target review was not in the Top-5 for at least one baseline. "
+                    "Inspect the query wording, relevant review fields, and the ranks from "
+                    "the vector, BM25, hybrid, and agent methods."
+                )
+
             failure_cases.append(
                 FailureCaseDetail(
-                    question_id=q.id,
-                    query=q.query,
-                    expected_paper_id=q.target_paper_id,
-                    expected_review_id=q.target_review_id,
+                    question_id=question.id,
+                    query=question.query,
+                    expected_paper_id=target_paper_id,
+                    expected_review_id=target_review_id,
                     vector_review_rank=ranks["vector"][0],
                     bm25_review_rank=ranks["bm25"][0],
                     hybrid_review_rank=ranks["hybrid"][0],
                     agent_review_rank=ranks["agent"][0],
-                    vector_top1_title=vec_res[0]["metadata"]["title"] if vec_res else None,
-                    bm25_top1_title=bm25_res[0]["metadata"]["title"] if bm25_res else None,
-                    probable_cause=(
-                        "Zapytanie dotyczy szczegółowego zarzutu metodologicznego wewnątrz jednej recenzji "
-                        "(np. 'Rouge-L w Równaniu 3') bez podania tytułu pracy. Model osadzeń (all-MiniLM-L6-v2) "
-                        "kompresuje całą recenzję do pojedynczego wektora 384D, przez co rzadka nazwa metryki "
-                        "ginie w ogólnym temacie ewaluacji tekstu (pozycja #7). Zastosowanie Wyszukiwania Hybrydowego RRF "
-                        "oraz Agenta z narzędziami naprawia ten błąd i awansuje właściwą recenzję na pozycję #1."
+                    vector_top1_title=(
+                        vector_results[0]["metadata"]["title"] if vector_results else None
                     ),
+                    bm25_top1_title=(
+                        bm25_results[0]["metadata"]["title"] if bm25_results else None
+                    ),
+                    probable_cause=probable_cause,
                 )
             )
 
-        detailed_report.append(
+        detailed_results.append(
             QuestionEvalDetail(
-                id=q.id,
-                query=q.query,
-                target_paper_id=q.target_paper_id,
-                target_review_id=q.target_review_id,
+                id=question.id,
+                query=question.query,
+                target_paper_id=target_paper_id,
+                target_review_id=target_review_id,
+                vector_paper_rank=ranks["vector"][1],
+                bm25_paper_rank=ranks["bm25"][1],
+                hybrid_paper_rank=ranks["hybrid"][1],
+                agent_paper_rank=ranks["agent"][1],
+                abstract_only_paper_rank=ranks["abstracts"][1],
                 vector_review_rank=ranks["vector"][0],
                 bm25_review_rank=ranks["bm25"][0],
                 hybrid_review_rank=ranks["hybrid"][0],
                 agent_review_rank=ranks["agent"][0],
-                abstract_only_review_rank=ranks["abstracts"][0],
+                abstract_only_review_rank=None,
                 vector_review_hit_at_5=hits["vector"][0],
                 bm25_review_hit_at_5=hits["bm25"][0],
                 hybrid_review_hit_at_5=hits["hybrid"][0],
                 agent_review_hit_at_5=hits["agent"][0],
-                abstract_only_hit_at_5=hits["abstracts"][0],
+                abstract_only_hit_at_5=None,
             )
         )
 
     unanswerable_results: list[UnanswerableEvalDetail] = []
     unanswerable_correct = 0
-    for q in unanswerable:
-        vec_res = rag_engine.search_vector(q.query, top_k=1)
-        top_score = round(vec_res[0]["score"], 3) if vec_res else 0.0
+    for question in unanswerable:
+        vector_results = rag_engine.search_vector(question.query, top_k=1)
+        top_score = round(float(vector_results[0]["score"]), 3) if vector_results else 0.0
         rejected = top_score < SIMILARITY_THRESHOLD
-        if rejected:
-            unanswerable_correct += 1
+        unanswerable_correct += int(rejected)
         unanswerable_results.append(
             UnanswerableEvalDetail(
-                id=q.id,
-                query=q.query,
+                id=question.id,
+                query=question.query,
                 max_similarity_score=top_score,
                 threshold=SIMILARITY_THRESHOLD,
                 correctly_rejected=rejected,
             )
         )
 
-    n = len(answerable)
-    total_top5_slots = sum(conf_counts.values()) or 1
-    total_db_papers = len(rag_engine.papers)
-
+    total_top5_slots = sum(conference_counts.values())
+    total_papers_in_db = len(rag_engine.papers)
     diversity = DiversityAnalysis(
-        total_papers_in_db=total_db_papers,
-        unique_papers_recommended_top5=len(recommended_papers_set),
-        catalog_coverage_ratio=round(len(recommended_papers_set) / total_db_papers, 3),
-        iclr_2024_share_in_top5=round(conf_counts["ICLR 2024"] / total_top5_slots, 3),
-        neurips_2024_share_in_top5=round(conf_counts["NeurIPS 2024"] / total_top5_slots, 3),
-        avg_unique_papers_per_query_top5=round(sum(unique_papers_per_query_counts) / n, 2),
+        total_papers_in_db=total_papers_in_db,
+        unique_papers_recommended_top5=len(recommended_papers),
+        catalog_coverage_ratio=round(
+            _safe_ratio(len(recommended_papers), total_papers_in_db), 3
+        ),
+        iclr_2024_share_in_top5=round(
+            _safe_ratio(conference_counts["ICLR 2024"], total_top5_slots), 3
+        ),
+        neurips_2024_share_in_top5=round(
+            _safe_ratio(conference_counts["NeurIPS 2024"], total_top5_slots), 3
+        ),
+        avg_unique_papers_per_query_top5=round(
+            _safe_ratio(sum(unique_papers_per_query), len(unique_papers_per_query)), 2
+        ),
     )
 
     metrics = EvaluationMetrics(
-        evaluation_unit="Review-level (1 doc = 1 unique review_id) & Paper-level (deduplicated paper_id)",
-        vector_paper_hit_at_5=stats["vector"]["pap_hits"] / n,
-        vector_review_hit_at_5=stats["vector"]["rev_hits"] / n,
-        vector_review_mrr=round(stats["vector"]["rr_sum"] / n, 3),
-        vector_ndcg_at_5=round(stats["vector"]["ndcg_sum"] / n, 3),
-        bm25_paper_hit_at_5=stats["bm25"]["pap_hits"] / n,
-        bm25_review_hit_at_5=stats["bm25"]["rev_hits"] / n,
-        bm25_review_mrr=round(stats["bm25"]["rr_sum"] / n, 3),
-        bm25_ndcg_at_5=round(stats["bm25"]["ndcg_sum"] / n, 3),
-        hybrid_review_hit_at_5=stats["hybrid"]["rev_hits"] / n,
-        hybrid_review_mrr=round(stats["hybrid"]["rr_sum"] / n, 3),
-        hybrid_ndcg_at_5=round(stats["hybrid"]["ndcg_sum"] / n, 3),
-        agent_review_hit_at_5=stats["agent"]["rev_hits"] / n,
-        agent_review_mrr=round(stats["agent"]["rr_sum"] / n, 3),
-        agent_ndcg_at_5=round(stats["agent"]["ndcg_sum"] / n, 3),
-        abstracts_only_review_hit_at_5=stats["abstracts"]["rev_hits"] / n,
-        abstracts_only_review_mrr=round(stats["abstracts"]["rr_sum"] / n, 3),
-        unanswerable_rejection_accuracy=unanswerable_correct / len(unanswerable),
+        evaluation_unit=(
+            f"Paper-level Hit@5 uses all {paper_denominator} answerable questions; "
+            f"review-level Hit@5/MRR/nDCG@5 use only {review_denominator} questions "
+            "with a manually annotated target review. Abstract-only review metrics are N/A."
+        ),
+        vector_paper_hit_at_5=_safe_ratio(stats["vector"]["paper_hits"], paper_denominator),
+        vector_review_hit_at_5=_safe_ratio(stats["vector"]["review_hits"], review_denominator),
+        vector_review_mrr=round(_safe_ratio(stats["vector"]["rr_sum"], review_denominator), 3),
+        vector_ndcg_at_5=round(_safe_ratio(stats["vector"]["ndcg_sum"], review_denominator), 3),
+        bm25_paper_hit_at_5=_safe_ratio(stats["bm25"]["paper_hits"], paper_denominator),
+        bm25_review_hit_at_5=_safe_ratio(stats["bm25"]["review_hits"], review_denominator),
+        bm25_review_mrr=round(_safe_ratio(stats["bm25"]["rr_sum"], review_denominator), 3),
+        bm25_ndcg_at_5=round(_safe_ratio(stats["bm25"]["ndcg_sum"], review_denominator), 3),
+        hybrid_review_hit_at_5=_safe_ratio(stats["hybrid"]["review_hits"], review_denominator),
+        hybrid_review_mrr=round(_safe_ratio(stats["hybrid"]["rr_sum"], review_denominator), 3),
+        hybrid_ndcg_at_5=round(_safe_ratio(stats["hybrid"]["ndcg_sum"], review_denominator), 3),
+        agent_review_hit_at_5=_safe_ratio(stats["agent"]["review_hits"], review_denominator),
+        agent_review_mrr=round(_safe_ratio(stats["agent"]["rr_sum"], review_denominator), 3),
+        agent_ndcg_at_5=round(_safe_ratio(stats["agent"]["ndcg_sum"], review_denominator), 3),
+        unanswerable_rejection_accuracy=_safe_ratio(
+            unanswerable_correct, len(unanswerable)
+        ),
+        abstracts_only_paper_hit_at_5=_safe_ratio(
+            stats["abstracts"]["paper_hits"], paper_denominator
+        ),
+        abstracts_only_review_hit_at_5=None,
+        abstracts_only_review_mrr=None,
+        abstracts_only_ndcg_at_5=None,
     )
 
+    def method_metrics(name: str, label: str, has_review_metric: bool = True) -> MethodMetrics:
+        return MethodMetrics(
+            method_name=label,
+            paper_hit_at_5=_safe_ratio(stats[name]["paper_hits"], paper_denominator),
+            review_hit_at_5=(
+                _review_metric_or_none(stats[name]["review_hits"], review_denominator)
+                if has_review_metric else None
+            ),
+            review_mrr=(
+                _review_metric_or_none(stats[name]["rr_sum"], review_denominator)
+                if has_review_metric else None
+            ),
+            ndcg_at_5=(
+                _review_metric_or_none(stats[name]["ndcg_sum"], review_denominator)
+                if has_review_metric else None
+            ),
+        )
+
     method_comparison = [
-        MethodMetrics(
-            method_name="1. Wyszukiwanie Wektorowe (ChromaDB)",
-            paper_hit_at_5=stats["vector"]["pap_hits"] / n,
-            review_hit_at_5=stats["vector"]["rev_hits"] / n,
-            review_mrr=round(stats["vector"]["rr_sum"] / n, 3),
-            ndcg_at_5=round(stats["vector"]["ndcg_sum"] / n, 3),
-        ),
-        MethodMetrics(
-            method_name="2. Baseline (BM25 - Abstrakty + Recenzje)",
-            paper_hit_at_5=stats["bm25"]["pap_hits"] / n,
-            review_hit_at_5=stats["bm25"]["rev_hits"] / n,
-            review_mrr=round(stats["bm25"]["rr_sum"] / n, 3),
-            ndcg_at_5=round(stats["bm25"]["ndcg_sum"] / n, 3),
-        ),
-        MethodMetrics(
-            method_name="3. Wyszukiwanie Hybrydowe (RRF: Wektor + BM25)",
-            paper_hit_at_5=stats["hybrid"]["pap_hits"] / n,
-            review_hit_at_5=stats["hybrid"]["rev_hits"] / n,
-            review_mrr=round(stats["hybrid"]["rr_sum"] / n, 3),
-            ndcg_at_5=round(stats["hybrid"]["ndcg_sum"] / n, 3),
-        ),
-        MethodMetrics(
-            method_name="4. Agent z narzędziami (Limit=3 kroki)",
-            paper_hit_at_5=stats["agent"]["pap_hits"] / n,
-            review_hit_at_5=stats["agent"]["rev_hits"] / n,
-            review_mrr=round(stats["agent"]["rr_sum"] / n, 3),
-            ndcg_at_5=round(stats["agent"]["ndcg_sum"] / n, 3),
-        ),
-        MethodMetrics(
-            method_name="5. Tylko Abstrakty (Bez recenzji - Ablacja)",
-            paper_hit_at_5=stats["abstracts"]["pap_hits"] / n,
-            review_hit_at_5=stats["abstracts"]["rev_hits"] / n,
-            review_mrr=round(stats["abstracts"]["rr_sum"] / n, 3),
-            ndcg_at_5=round(stats["abstracts"]["ndcg_sum"] / n, 3),
-        ),
+        method_metrics("vector", "1. Wyszukiwanie Wektorowe (ChromaDB)"),
+        method_metrics("bm25", "2. Baseline (BM25 - Abstrakty + Recenzje)"),
+        method_metrics("hybrid", "3. Wyszukiwanie Hybrydowe (RRF: Wektor + BM25)"),
+        method_metrics("agent", "4. Agent deterministyczny z narzędziami (limit 3 kroki)"),
+        method_metrics("abstracts", "5. Tylko Abstrakty (bez recenzji)", has_review_metric=False),
     ]
 
     report = FullEvaluationReport(
+        evaluation_version=EVALUATION_VERSION,
         metrics=metrics,
         method_comparison=method_comparison,
         diversity_analysis=diversity,
-        questions_results=detailed_report,
+        questions_results=detailed_results,
         unanswerable_results=unanswerable_results,
         failure_cases=failure_cases,
     )
 
     report_path = Path("data/eval_results.json")
+    report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(
         json.dumps(report.model_dump(), ensure_ascii=False, indent=2),
         encoding="utf-8",
@@ -531,24 +574,49 @@ def run_evaluation(rag: LiteratureReviewRAG | None = None) -> FullEvaluationRepo
 
 
 def print_console_report(report: FullEvaluationReport) -> None:
-    print("\n" + "=" * 95)
-    print(" PORÓWNANIE WSZYSTKICH METOD RETRIEVALU (HIT@5, MRR, nDCG@5)")
-    print("=" * 95)
-    for mc in report.method_comparison:
+    def percentage(value: float | None) -> str:
+        return "N/A" if value is None else f"{value * 100:5.1f}%"
+
+    def decimal(value: float | None) -> str:
+        return "N/A" if value is None else f"{value:.3f}"
+
+    print("\n" + "=" * 100)
+    print(" RETRIEVAL EVALUATION (paper-level and review-level metrics)")
+    print("=" * 100)
+    print(report.metrics.evaluation_unit)
+    for method in report.method_comparison:
         print(
-            f" * {mc.method_name:<45} | Hit@5 (Rev): {mc.review_hit_at_5*100:5.1f}% | "
-            f"MRR: {mc.review_mrr:.3f} | nDCG@5: {mc.ndcg_at_5:.3f}"
+            f" * {method.method_name:<50} | "
+            f"Paper Hit@5: {percentage(method.paper_hit_at_5)} | "
+            f"Review Hit@5: {percentage(method.review_hit_at_5)} | "
+            f"MRR@5: {decimal(method.review_mrr)} | nDCG@5: {decimal(method.ndcg_at_5)}"
         )
 
-    div = report.diversity_analysis
-    print("\n" + "=" * 95)
-    print(" ANALIZA RÓŻNORODNOŚCI I WPŁYWU DOBORU PRÓBY (TOP-5)")
-    print("=" * 95)
-    print(f" * Unikalne polecone publikacje: {div.unique_papers_recommended_top5}/{div.total_papers_in_db} ({div.catalog_coverage_ratio*100:.1f}% pokrycia bazy)")
-    print(f" * Średnia liczba unikalnych prac w Top-5 na zapytanie: {div.avg_unique_papers_per_query_top5}")
-    print(f" * Rozkład konferencji w wynikach Top-5: ICLR 2024 = {div.iclr_2024_share_in_top5*100:.1f}% | NeurIPS 2024 = {div.neurips_2024_share_in_top5*100:.1f}%")
+    metrics = report.metrics
+    print(
+        "\nUnanswerable rejection accuracy: "
+        f"{percentage(metrics.unanswerable_rejection_accuracy)}"
+    )
+    print("\nUnanswerable query details:")
+    for result in report.unanswerable_results:
+        status = "REJECTED" if result.correctly_rejected else "NOT REJECTED"
+        print(
+            f" Q{result.id:02d}: score={result.max_similarity_score:.3f}, "
+            f"threshold={result.threshold:.2f} -> {status}"
+        )
+
+    if report.failure_cases:
+        print("\nReview-level failure cases:")
+        for failure in report.failure_cases:
+            print(
+                f" Q{failure.question_id:02d}: expected review {failure.expected_review_id}; "
+                f"vector rank={failure.vector_review_rank}, "
+                f"BM25 rank={failure.bm25_review_rank}, "
+                f"hybrid rank={failure.hybrid_review_rank}, "
+                f"agent rank={failure.agent_review_rank}"
+            )
+            print(f"  Possible cause: {failure.probable_cause}")
 
 
 if __name__ == "__main__":
-    eval_report = run_evaluation()
-    print_console_report(eval_report)
+    print_console_report(run_evaluation())

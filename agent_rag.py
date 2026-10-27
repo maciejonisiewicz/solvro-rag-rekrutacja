@@ -1,14 +1,26 @@
+from __future__ import annotations
+
 import json
 import re
 from pathlib import Path
-from pydantic import BaseModel
+from typing import Any
+
+from pydantic import BaseModel, Field
+
 from rag_system import LiteratureReviewRAG
 
 
 STOPWORDS = {
-    "which", "what", "where", "when", "how", "does", "do", "is", "are", "the",
-    "a", "an", "in", "on", "of", "for", "to", "with", "and", "or", "by", "from",
-    "that", "this", "why", "can", "be", "as", "too", "it", "its", "their", "about",
+    # English stopwords
+    "which", "what", "where", "when", "how", "does", "do", "is", "are",
+    "the", "a", "an", "in", "on", "of", "for", "to", "with", "and",
+    "or", "by", "from", "that", "this", "why", "can", "be", "as", "too",
+    "it", "its", "their", "about", "using", "use", "based", "paper",
+    "review", "reviews", "reviewer", "reviewers", "method", "methods",
+    # Common Polish stopwords (the corpus itself is primarily English)
+    "jak", "jaki", "jaka", "jakie", "czy", "oraz", "dla", "jest", "są",
+    "się", "na", "do", "z", "w", "i", "lub", "to", "że", "który",
+    "która", "które", "oraz", "nad", "pod", "przez",
 }
 
 
@@ -20,10 +32,14 @@ class RetrievedSource(BaseModel):
     paper_url: str
     review_url: str
     rating: str
+    # Kept for compatibility with the existing Streamlit UI. This is the
+    # retrieval method's score, not always cosine similarity (e.g. for RRF).
     similarity_score: float
     author_abstract: str
     reviewer_strengths: str
     reviewer_weaknesses: str
+    score_type: str = "cosine_similarity"
+    is_supplementary: bool = False
 
 
 class AgentStep(BaseModel):
@@ -44,6 +60,9 @@ class RAGQueryPayload(BaseModel):
     agent_trace: list[AgentStep]
     sources: list[RetrievedSource]
     constructed_prompt: str | None
+    # Supplementary reviews are kept separate from ranked retrieval results,
+    # so they cannot artificially improve or worsen review ranking metrics.
+    supplementary_sources: list[RetrievedSource] = Field(default_factory=list)
 
 
 class LiteratureReviewAssistant:
@@ -52,80 +71,205 @@ class LiteratureReviewAssistant:
         similarity_threshold: float = 0.38,
         top_k: int = 4,
         max_steps: int = 3,
+        rag: LiteratureReviewRAG | None = None,
+        data_dir: str | Path = "data",
     ) -> None:
-        self.rag = LiteratureReviewRAG()
+        self.rag = rag if rag is not None else LiteratureReviewRAG(data_dir=data_dir)
         self.similarity_threshold = similarity_threshold
         self.top_k = top_k
-        self.max_steps = max_steps
-        self.context_log_path = Path("data/last_query_context.json")
-        self.trace_log_path = Path("data/agent_trace_log.json")
+        self.max_steps = max(1, max_steps)
+        self.context_log_path = Path(data_dir) / "last_query_context.json"
+        self.trace_log_path = Path(data_dir) / "agent_trace_log.json"
 
-    def _to_sources(self, raw_results: list[dict]) -> list[RetrievedSource]:
-        return [
-            RetrievedSource(
-                review_id=res["metadata"]["review_id"],
-                paper_id=res["metadata"]["paper_id"],
-                conference=res["metadata"]["conference"],
-                title=res["metadata"]["title"],
-                paper_url=res["metadata"]["paper_url"],
-                review_url=res["metadata"]["review_url"],
-                rating=str(res["metadata"]["rating"]),
-                similarity_score=round(float(res["score"]), 4),
-                author_abstract=res["metadata"]["author_abstract"],
-                reviewer_strengths=res["metadata"]["reviewer_strengths"],
-                reviewer_weaknesses=res["metadata"]["reviewer_weaknesses"],
+    def _to_sources(
+        self,
+        raw_results: list[dict[str, Any]],
+        *,
+        score_type: str = "cosine_similarity",
+        supplementary: bool = False,
+    ) -> list[RetrievedSource]:
+        sources: list[RetrievedSource] = []
+        for result in raw_results:
+            metadata = result.get("metadata", {})
+            sources.append(
+                RetrievedSource(
+                    review_id=str(metadata.get("review_id", "")),
+                    paper_id=str(metadata.get("paper_id", "")),
+                    conference=str(metadata.get("conference", "Unknown")),
+                    title=str(metadata.get("title", "Untitled")),
+                    paper_url=str(metadata.get("paper_url", "")),
+                    review_url=str(metadata.get("review_url", "")),
+                    rating=str(metadata.get("rating", "N/A")),
+                    similarity_score=round(float(result.get("score", 0.0)), 4),
+                    author_abstract=str(metadata.get("author_abstract", "")),
+                    reviewer_strengths=str(metadata.get("reviewer_strengths", "")),
+                    reviewer_weaknesses=str(metadata.get("reviewer_weaknesses", "")),
+                    score_type=str(result.get("score_type", score_type)),
+                    is_supplementary=bool(supplementary),
+                )
             )
-            for res in raw_results
-        ]
+        return sources
 
     def _refine_query_keywords(self, query: str) -> str:
-        tokens = re.findall(r"[A-Za-z0-9\-]+", query)
-        kept = [t for t in tokens if t.lower() not in STOPWORDS and len(t) > 1]
+        # Keep technical terms such as ROUGE-L, KV-cache, PaLM 8B and Unicode
+        # letters; remove only low-information tokens.
+        tokens = re.findall(r"[^\W_]+(?:-[^\W_]+)*", query, flags=re.UNICODE)
+        kept = [
+            token
+            for token in tokens
+            if token.casefold() not in STOPWORDS and len(token) > 1
+        ]
         return " ".join(kept) if kept else query
 
-    def build_prompt(self, query: str, sources: list[RetrievedSource]) -> str:
-        context_blocks = [
-            (
-                f"[SOURCE {idx}]\n"
-                f"Paper Title: {src.title} ({src.conference})\n"
-                f"Paper ID: {src.paper_id} | Review ID: {src.review_id}\n"
-                f"Review Link: {src.review_url}\n"
-                f"Reviewer Rating: {src.rating}\n"
-                f"Author Claims (Abstract): {src.author_abstract}\n"
-                f"Reviewer Strengths: {src.reviewer_strengths}\n"
-                f"Reviewer Weaknesses & Limitations: {src.reviewer_weaknesses}"
+    @staticmethod
+    def _technical_terms(query: str) -> list[str]:
+        patterns = (
+            r"\b[A-Z]{3,}(?:-[A-Z0-9]+)*\b",      # ROUGE-L, LLM, BM25
+            r"\b[A-Za-z0-9]+-[A-Za-z0-9-]+\b",   # KV-cache, fine-tuning
+            r"\b[A-Za-z]*\d+[A-Za-z0-9]*\b",    # 8B, PaLM8B, 2024
+            r"\b(?:equation|eq\.?|figure|fig\.?|table|tab\.?)\s*\d+\b",
+        )
+        found: list[str] = []
+        for pattern in patterns:
+            found.extend(re.findall(pattern, query, flags=re.IGNORECASE if "equation" in pattern else 0))
+        # Preserve order and avoid duplicate tokens.
+        return list(dict.fromkeys(term.strip() for term in found if term.strip()))
+
+    @staticmethod
+    def _normalize_match_text(text: str) -> str:
+        """Normalize punctuation so ROUGE-L and free-generation match consistently."""
+        return re.sub(r"[^\w]+", " ", text.casefold(), flags=re.UNICODE).strip()
+
+    def _exact_term_matches(
+        self,
+        query: str,
+        result: dict[str, Any],
+    ) -> list[str]:
+        """Return distinctive technical query terms found in one retrieved review."""
+        terms = [term for term in self._technical_terms(query) if not term.isdigit()]
+        metadata = result.get("metadata", {})
+        searchable_text = self._normalize_match_text(
+            " ".join(
+                [
+                    str(metadata.get("title", "")),
+                    str(result.get("text_snippet", "")),
+                ]
             )
-            for idx, src in enumerate(sources, 1)
+        )
+        padded_text = f" {searchable_text} "
+        matched: list[str] = []
+        for term in terms:
+            normalized_term = self._normalize_match_text(term)
+            if normalized_term and f" {normalized_term} " in padded_text:
+                matched.append(term)
+        return matched
+
+    def _rerank_by_exact_terms(
+        self,
+        query: str,
+        results: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        """Move documents matching exact technical terms above generic semantic matches.
+
+        The original retrieval score is preserved. Original order breaks ties, so
+        this is a deterministic reranking heuristic, not a calibrated score.
+        """
+        if not results or not self._technical_terms(query):
+            return results
+
+        decorated = [
+            (index, result, len(self._exact_term_matches(query, result)))
+            for index, result in enumerate(results)
         ]
-        joined_context = "\n\n".join(context_blocks)
+        if not any(match_count > 0 for _, _, match_count in decorated):
+            return results
+
+        decorated.sort(key=lambda item: (-item[2], item[0]))
+        return [result for _, result, _ in decorated]
+
+    def _has_exact_technical_match(
+        self,
+        query: str,
+        results: list[dict[str, Any]],
+    ) -> bool:
+        # A lexical fallback is accepted only when a distinctive term appears
+        # in at least one retrieved review, not merely in unrelated metadata.
+        return any(self._exact_term_matches(query, item) for item in results)
+
+    def build_prompt(
+        self,
+        query: str,
+        sources: list[RetrievedSource],
+        supplementary_sources: list[RetrievedSource] | None = None,
+    ) -> str:
+        supplementary_sources = supplementary_sources or []
+        all_sources = [(source, False) for source in sources] + [
+            (source, True) for source in supplementary_sources
+        ]
+
+        context_blocks: list[str] = []
+        for idx, (source, supplementary) in enumerate(all_sources, 1):
+            source_kind = (
+                "SUPPLEMENTARY REVIEW — retrieved because it belongs to a cited paper; "
+                "not ranked by query relevance"
+                if supplementary
+                else f"RETRIEVAL RESULT — score type: {source.score_type}"
+            )
+            context_blocks.append(
+                f"[SOURCE {idx}] {source_kind}\n"
+                f"Paper Title: {source.title} ({source.conference})\n"
+                f"Paper ID: {source.paper_id} | Review ID: {source.review_id}\n"
+                f"Paper Link: {source.paper_url}\n"
+                f"Review Link: {source.review_url}\n"
+                f"Reviewer Rating (original field value): {source.rating}\n"
+                f"Author Claims (Abstract): {source.author_abstract}\n"
+                f"Reviewer Strengths: {source.reviewer_strengths}\n"
+                f"Reviewer Weaknesses & Limitations: {source.reviewer_weaknesses}"
+            )
+
+        joined_context = "\n\n".join(context_blocks) if context_blocks else "[NO SOURCES RETRIEVED]"
         return (
-            "You are a machine learning literature review assistant. "
-            "Answer the user question strictly based on the provided OpenReview sources.\n"
+            "You are a machine-learning literature review assistant. "
+            "Answer strictly from the provided OpenReview context.\n"
             "Rules:\n"
-            "1. Explicitly distinguish between author claims (from abstracts) and reviewer opinions.\n"
-            "2. Cite every claim with [SOURCE X], including the paper title and direct OpenReview link.\n"
-            "3. Do not extrapolate beyond the provided text. If sources conflict, highlight the discrepancy.\n\n"
+            "1. Clearly distinguish author claims (abstracts) from reviewer opinions.\n"
+            "2. Cite every factual claim with [SOURCE X] and include the paper/review link.\n"
+            "3. Do not infer details absent from the source text.\n"
+            "4. If sources disagree, describe the disagreement rather than choosing a side.\n"
+            "5. A supplementary review provides context about the same paper but was not ranked by query relevance.\n"
+            "6. If the evidence is insufficient, explicitly say so.\n\n"
             f"CONTEXT:\n{joined_context}\n\n"
             f"USER QUESTION:\n{query}\n\n"
             "ANSWER:"
         )
 
-    def process_query(self, query: str, conference: str | None = None) -> RAGQueryPayload:
+    def process_query(
+        self,
+        query: str,
+        conference: str | None = None,
+    ) -> RAGQueryPayload:
         raw_results = self.rag.search_vector(
             query=query,
             top_k=self.top_k,
             conference_filter=conference,
         )
-        sources = self._to_sources(raw_results)
-        has_data = bool(sources) and sources[0].similarity_score >= self.similarity_threshold
-        prompt = self.build_prompt(query, sources) if has_data else None
+        top_score = float(raw_results[0]["score"]) if raw_results else 0.0
+        has_data = bool(raw_results) and top_score >= self.similarity_threshold
 
+        sources = self._to_sources(raw_results[: self.top_k], score_type="cosine_similarity") if has_data else []
+        prompt = self.build_prompt(query, sources) if has_data else None
         step = AgentStep(
             step_number=1,
             tool_name="vector_search",
             tool_input=query,
-            observation=f"Returned {len(sources)} results; top similarity={sources[0].similarity_score if sources else 0.0}",
-            decision="Single-step search completed.",
+            observation=(
+                f"Returned {len(raw_results)} results; top cosine similarity={top_score:.4f}."
+            ),
+            decision=(
+                "Accept semantic retrieval and build source-grounded prompt."
+                if has_data
+                else "Insufficient semantic similarity; report missing evidence."
+            ),
         )
 
         payload = RAGQueryPayload(
@@ -136,126 +280,179 @@ class LiteratureReviewAssistant:
             max_steps_limit=1,
             steps_taken=1,
             agent_trace=[step],
-            sources=sources if has_data else [],
+            sources=sources,
             constructed_prompt=prompt,
         )
         self._save_logs(payload)
         return payload
 
-    def run_agent(self, query: str, conference: str | None = None) -> RAGQueryPayload:
+    def run_agent(
+        self,
+        query: str,
+        conference: str | None = None,
+    ) -> RAGQueryPayload:
         trace: list[AgentStep] = []
+        supplementary_sources: list[RetrievedSource] = []
         steps_taken = 0
+        candidate_k = max(self.top_k * 4, 20)
 
+        # Step 1: semantic retrieval.
         steps_taken += 1
-        vec_raw = self.rag.search_vector(query=query, top_k=self.top_k, conference_filter=conference)
-        top_vec_score = round(float(vec_raw[0]["score"]), 4) if vec_raw else 0.0
-
-        if top_vec_score < self.similarity_threshold:
-            trace.append(
-                AgentStep(
-                    step_number=steps_taken,
-                    tool_name="vector_search",
-                    tool_input=query,
-                    observation=f"Top semantic similarity ({top_vec_score}) is below threshold ({self.similarity_threshold}).",
-                    decision="Abort and report insufficient data in database.",
-                )
-            )
-            payload = RAGQueryPayload(
-                query=query,
-                conference_filter=conference,
-                has_sufficient_data=False,
-                similarity_threshold=self.similarity_threshold,
-                max_steps_limit=self.max_steps,
-                steps_taken=steps_taken,
-                agent_trace=trace,
-                sources=[],
-                constructed_prompt=None,
-            )
-            self._save_logs(payload)
-            return payload
-
-        needs_refinement = top_vec_score < 0.55 or any(char.isdigit() or "-" in char for char in query)
+        vector_results = self.rag.search_vector(
+            query=query,
+            top_k=candidate_k,
+            conference_filter=conference,
+        )
+        top_vector_score = float(vector_results[0]["score"]) if vector_results else 0.0
+        technical_terms = self._technical_terms(query)
+        needs_hybrid = (
+            not vector_results
+            or top_vector_score < max(0.55, self.similarity_threshold)
+            or bool(technical_terms)
+        )
         trace.append(
             AgentStep(
                 step_number=steps_taken,
                 tool_name="vector_search",
                 tool_input=query,
-                observation=f"Found {len(vec_raw)} semantic candidates (top score={top_vec_score}).",
+                observation=(
+                    f"Returned {len(vector_results)} semantic candidates; "
+                    f"top cosine similarity={top_vector_score:.4f}."
+                ),
                 decision=(
-                    "Refine query keywords and run hybrid RRF search to capture exact technical terms."
-                    if needs_refinement and steps_taken < self.max_steps
-                    else "Semantic confidence high; proceed with vector results."
+                    "Run hybrid retrieval because the semantic score is modest or the query contains exact technical terms."
+                    if needs_hybrid and steps_taken < self.max_steps
+                    else (
+                        "Step limit reached; continue with the available semantic candidates."
+                        if needs_hybrid
+                        else "Semantic retrieval is strong enough; hybrid search is not needed."
+                    )
                 ),
             )
         )
 
-        current_raw = vec_raw
-
-        if needs_refinement and steps_taken < self.max_steps:
+        current_results = vector_results
+        exact_technical_match = False
+        if needs_hybrid and steps_taken < self.max_steps:
+            # Step 2: refine the query while preserving technical terminology,
+            # then fuse semantic and lexical rankings using the RAG engine.
             steps_taken += 1
             refined_query = self._refine_query_keywords(query)
-            hybrid_raw = self.rag.search_hybrid(
+            hybrid_results = self.rag.search_hybrid(
                 query=refined_query,
-                top_k=self.top_k,
+                top_k=candidate_k,
                 conference_filter=conference,
             )
-            merged_by_id: dict[str, dict] = {}
-            for item in hybrid_raw + vec_raw:
-                rid = item["metadata"]["review_id"]
-                if rid not in merged_by_id:
-                    merged_by_id[rid] = item
-            current_raw = list(merged_by_id.values())[: self.top_k]
+            exact_technical_match = self._has_exact_technical_match(query, hybrid_results)
+            if hybrid_results:
+                current_results = self._rerank_by_exact_terms(query, hybrid_results)
+
+            top_after_rerank = current_results[0] if current_results else None
+            top_after_rerank_matches = (
+                self._exact_term_matches(query, top_after_rerank)
+                if top_after_rerank is not None
+                else []
+            )
+            top_after_rerank_title = (
+                str(top_after_rerank.get("metadata", {}).get("title", "Unknown"))
+                if top_after_rerank is not None
+                else "no result"
+            )
 
             trace.append(
                 AgentStep(
                     step_number=steps_taken,
                     tool_name="refine_and_hybrid_search",
                     tool_input=refined_query,
-                    observation=f"Hybrid RRF re-ranked candidates; top paper is '{current_raw[0]['metadata']['title']}'.",
+                    observation=(
+                        f"Hybrid search returned {len(hybrid_results)} candidates; "
+                        f"exact technical-term match={'yes' if exact_technical_match else 'no'}; "
+                        f"top after exact-term reranking='{top_after_rerank_title}' "
+                        f"({len(top_after_rerank_matches)} technical-term matches)."
+                    ),
                     decision=(
-                        "Check if additional reviews for the top paper should be fetched."
-                        if steps_taken < self.max_steps
-                        else "Step limit reached; finalize context."
+                        "Continue with source-grounded context."
+                        if top_vector_score >= self.similarity_threshold or exact_technical_match
+                        else "No adequate semantic score or distinctive exact-term match; abstain if no other evidence is available."
                     ),
                 )
             )
 
-        if steps_taken < self.max_steps and current_raw:
-            top_paper_id = current_raw[0]["metadata"]["paper_id"]
-            existing_rev_ids = {r["metadata"]["review_id"] for r in current_raw}
-            paper_reviews = self.rag.get_reviews_for_paper(top_paper_id)
-            extra_reviews = [r for r in paper_reviews if r["metadata"]["review_id"] not in existing_rev_ids]
+        has_data = bool(current_results) and (
+            top_vector_score >= self.similarity_threshold or exact_technical_match
+        )
+
+        ranked_results = current_results[: self.top_k] if has_data else []
+        sources = self._to_sources(
+            ranked_results,
+            score_type="rrf" if needs_hybrid and len(trace) >= 2 else "cosine_similarity",
+        )
+
+        # Step 3: optionally attach another official review of the leading paper.
+        # It is stored separately and never inserted into the ranked list, so it
+        # cannot fabricate a retrieval score or alter Hit@5/MRR/nDCG rankings.
+        if has_data and sources and steps_taken < self.max_steps:
+            # If the query contains distinctive technical terms, only enrich the
+            # context when the leading ranked review matches at least one of them.
+            # This avoids fetching another review from an obviously unrelated top paper.
+            top_ranked_raw = current_results[0] if current_results else {}
+            top_matches_terms = bool(self._exact_term_matches(query, top_ranked_raw))
+            allow_supplementary = not technical_terms or top_matches_terms
+
+            top_paper_id = sources[0].paper_id
+            current_review_ids = {source.review_id for source in sources}
+            paper_reviews = self.rag.get_reviews_for_paper(top_paper_id) if allow_supplementary else []
+            extra_reviews = [
+                result
+                for result in paper_reviews
+                if result.get("metadata", {}).get("review_id") not in current_review_ids
+            ]
+
+            if technical_terms and not top_matches_terms and trace:
+                # Do not spend the last agent step enriching an unrelated paper.
+                trace[-1].decision = (
+                    "The leading result lacks the query's distinctive technical terms; "
+                    "skip supplementary retrieval and keep the ranked results."
+                )
 
             if extra_reviews:
                 steps_taken += 1
-                supplementary = extra_reviews[0]
-                supplementary["score"] = current_raw[0]["score"]
-                current_raw = current_raw[: max(1, self.top_k - 1)] + [supplementary]
+                selected_extra = extra_reviews[0]
+                selected_extra = {**selected_extra, "score": 0.0, "score_type": "supplementary"}
+                supplementary_sources = self._to_sources(
+                    [selected_extra],
+                    score_type="supplementary",
+                    supplementary=True,
+                )
                 trace.append(
                     AgentStep(
                         step_number=steps_taken,
-                        tool_name="fetch_additional_paper_reviews",
+                        tool_name="fetch_additional_paper_review",
                         tool_input=top_paper_id,
-                        observation=f"Fetched supplementary review {supplementary['metadata']['review_id']} for paper {top_paper_id}.",
-                        decision="Context enriched with multi-reviewer perspective; finish execution.",
+                        observation=(
+                            f"Attached review {supplementary_sources[0].review_id} from the leading paper "
+                            "as supplementary context; it is not part of the ranked retrieval results."
+                        ),
+                        decision="Keep supplementary evidence separate and finalize the prompt.",
                     )
                 )
 
-        sources = self._to_sources(current_raw)
-        if sources and sources[0].similarity_score < self.similarity_threshold:
-            sources[0].similarity_score = top_vec_score
-
-        prompt = self.build_prompt(query, sources)
+        prompt = (
+            self.build_prompt(query, sources, supplementary_sources)
+            if has_data
+            else None
+        )
         payload = RAGQueryPayload(
             query=query,
             conference_filter=conference,
-            has_sufficient_data=True,
+            has_sufficient_data=has_data,
             similarity_threshold=self.similarity_threshold,
             max_steps_limit=self.max_steps,
             steps_taken=steps_taken,
             agent_trace=trace,
             sources=sources,
             constructed_prompt=prompt,
+            supplementary_sources=supplementary_sources,
         )
         self._save_logs(payload)
         return payload
@@ -267,13 +464,16 @@ class LiteratureReviewAssistant:
             encoding="utf-8",
         )
         self.trace_log_path.write_text(
-            json.dumps([step.model_dump() for step in payload.agent_trace], ensure_ascii=False, indent=2),
+            json.dumps(
+                [step.model_dump() for step in payload.agent_trace],
+                ensure_ascii=False,
+                indent=2,
+            ),
             encoding="utf-8",
         )
 
     def answer_query(self, query: str, conference: str | None = None) -> None:
         payload = self.run_agent(query, conference)
-
         print(f"\nPRZEBIEG AGENTA (Kroki: {payload.steps_taken}/{payload.max_steps_limit}):")
         for step in payload.agent_trace:
             print(f"  [Krok {step.step_number}] Narzędzie: {step.tool_name}('{step.tool_input}')")
@@ -286,16 +486,26 @@ class LiteratureReviewAssistant:
 
         print("\nZESTAWIENIE: DEKLARACJE AUTORÓW VS OPINIE RECENZENTÓW")
         print("=" * 80)
-        for idx, src in enumerate(payload.sources, 1):
-            print(f"ŹRÓDŁO [{idx}] | {src.conference} | Score: {src.similarity_score:.3f}")
-            print(f"Tytuł: {src.title}")
-            print(f"Link do recenzji (ID: {src.review_id}): {src.review_url}")
-            print(f"Ocena recenzenta: {src.rating}")
+        for idx, source in enumerate(payload.sources, 1):
+            print(
+                f"ŹRÓDŁO [{idx}] | {source.conference} | "
+                f"{source.score_type}: {source.similarity_score:.4f}"
+            )
+            print(f"Tytuł: {source.title}")
+            print(f"Link do recenzji (ID: {source.review_id}): {source.review_url}")
+            print(f"Ocena recenzenta: {source.rating}")
             print("-" * 80)
-            print(f"  [AUTORZY - Abstrakt]: {src.author_abstract[:250]}...")
-            print(f"  [RECENZENT - Zalety]: {src.reviewer_strengths}")
-            print(f"  [RECENZENT - Zarzuty/Ograniczenia]: {src.reviewer_weaknesses}")
+            print(f"  [AUTORZY - Abstrakt]: {source.author_abstract[:250]}...")
+            print(f"  [RECENZENT - Zalety]: {source.reviewer_strengths}")
+            print(f"  [RECENZENT - Zarzuty/Ograniczenia]: {source.reviewer_weaknesses}")
             print("=" * 80)
+
+        if payload.supplementary_sources:
+            print("\nRECENZJE UZUPEŁNIAJĄCE (nie są pozycjonowane według trafności zapytania):")
+            for source in payload.supplementary_sources:
+                print(f"- {source.title} | review_id={source.review_id} | {source.review_url}")
+
+        print("\nPrompt z kontekstem został zapisany w data/last_query_context.json.")
 
 
 if __name__ == "__main__":
@@ -303,9 +513,10 @@ if __name__ == "__main__":
     while True:
         try:
             user_query = input("\nPodaj pytanie badawcze ('exit' aby zakończyć): ").strip()
-            if user_query.lower() in {"exit", "quit"}:
+            if user_query.casefold() in {"exit", "quit"}:
                 break
             if user_query:
                 assistant.answer_query(user_query)
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, EOFError):
+            print("\nZamykanie asystenta.")
             break

@@ -1,59 +1,62 @@
 {
+  "evaluation_version": 2,
   "metrics": {
-    "evaluation_unit": "Review-level (1 doc = 1 unique review_id) & Paper-level (deduplicated paper_id)",
+    "evaluation_unit": "Paper-level Hit@5 uses all 10 answerable questions; review-level Hit@5/MRR/nDCG@5 use only 8 questions with a manually annotated target review. Abstract-only review metrics are N/A.",
     "vector_paper_hit_at_5": 1.0,
-    "vector_review_hit_at_5": 0.9,
-    "vector_review_mrr": 0.531,
-    "vector_ndcg_at_5": 0.649,
+    "vector_review_hit_at_5": 0.875,
+    "vector_review_mrr": 0.542,
+    "vector_ndcg_at_5": 0.615,
     "bm25_paper_hit_at_5": 1.0,
     "bm25_review_hit_at_5": 1.0,
-    "bm25_review_mrr": 0.808,
-    "bm25_ndcg_at_5": 0.901,
+    "bm25_review_mrr": 0.917,
+    "bm25_ndcg_at_5": 0.93,
     "hybrid_review_hit_at_5": 1.0,
-    "hybrid_review_mrr": 0.792,
-    "hybrid_ndcg_at_5": 0.85,
+    "hybrid_review_mrr": 0.906,
+    "hybrid_ndcg_at_5": 0.87,
     "agent_review_hit_at_5": 1.0,
-    "agent_review_mrr": 0.708,
-    "agent_ndcg_at_5": 0.851,
-    "abstracts_only_review_hit_at_5": 0.2,
-    "abstracts_only_review_mrr": 0.2,
-    "unanswerable_rejection_accuracy": 1.0
+    "agent_review_mrr": 1.0,
+    "agent_ndcg_at_5": 0.903,
+    "unanswerable_rejection_accuracy": 1.0,
+    "abstracts_only_paper_hit_at_5": 0.9,
+    "abstracts_only_review_hit_at_5": null,
+    "abstracts_only_review_mrr": null,
+    "abstracts_only_ndcg_at_5": null
   },
   "method_comparison": [
     {
       "method_name": "1. Wyszukiwanie Wektorowe (ChromaDB)",
       "paper_hit_at_5": 1.0,
-      "review_hit_at_5": 0.9,
-      "review_mrr": 0.531,
-      "ndcg_at_5": 0.649
+      "review_hit_at_5": 0.875,
+      "review_mrr": 0.542,
+      "ndcg_at_5": 0.615
     },
     {
       "method_name": "2. Baseline (BM25 - Abstrakty + Recenzje)",
       "paper_hit_at_5": 1.0,
       "review_hit_at_5": 1.0,
-      "review_mrr": 0.808,
-      "ndcg_at_5": 0.901
+      "review_mrr": 0.917,
+      "ndcg_at_5": 0.93
     },
     {
       "method_name": "3. Wyszukiwanie Hybrydowe (RRF: Wektor + BM25)",
       "paper_hit_at_5": 1.0,
       "review_hit_at_5": 1.0,
-      "review_mrr": 0.792,
-      "ndcg_at_5": 0.85
+      "review_mrr": 0.906,
+      "ndcg_at_5": 0.87
     },
     {
-      "method_name": "4. Agent z narzędziami (Limit=3 kroki)",
+      "method_name": "4. Agent deterministyczny z narzędziami (limit 3 kroki)",
       "paper_hit_at_5": 1.0,
       "review_hit_at_5": 1.0,
-      "review_mrr": 0.708,
-      "ndcg_at_5": 0.851
+      "review_mrr": 1.0,
+      "ndcg_at_5": 0.903
     },
     {
-      "method_name": "5. Tylko Abstrakty (Bez recenzji - Ablacja)",
+      "method_name": "5. Tylko Abstrakty (bez recenzji)",
       "paper_hit_at_5": 0.9,
-      "review_hit_at_5": 0.2,
-      "review_mrr": 0.2,
-      "ndcg_at_5": 0.285
+      "review_hit_at_5": null,
+      "review_mrr": null,
+      "ndcg_at_5": null
     }
   ],
   "diversity_analysis": {
@@ -70,22 +73,32 @@
       "query": "Approximating Minimum Bayes Risk decoding with matrix completion, where a reviewer notes experiments only use EN-DE and EN-RU on PaLM 8B",
       "target_paper_id": "8iPobEKUUA",
       "target_review_id": "JK5vOYx9o7",
+      "vector_paper_rank": 1,
+      "bm25_paper_rank": 1,
+      "hybrid_paper_rank": 1,
+      "agent_paper_rank": 1,
+      "abstract_only_paper_rank": 1,
       "vector_review_rank": 4,
       "bm25_review_rank": 3,
       "hybrid_review_rank": 4,
-      "agent_review_rank": 4,
+      "agent_review_rank": 1,
       "abstract_only_review_rank": null,
       "vector_review_hit_at_5": true,
       "bm25_review_hit_at_5": true,
       "hybrid_review_hit_at_5": true,
       "agent_review_hit_at_5": true,
-      "abstract_only_hit_at_5": false
+      "abstract_only_hit_at_5": null
     },
     {
       "id": 2,
       "query": "Reducing the computational cost of training language models by gradually growing model depth in stages, criticized for only testing small 1B and 2B models",
       "target_paper_id": "3ZAfFoAcUI",
       "target_review_id": "ZvGNUwLc4R",
+      "vector_paper_rank": 3,
+      "bm25_paper_rank": 1,
+      "hybrid_paper_rank": 1,
+      "agent_paper_rank": 1,
+      "abstract_only_paper_rank": 1,
       "vector_review_rank": 3,
       "bm25_review_rank": 1,
       "hybrid_review_rank": 1,
@@ -95,29 +108,39 @@
       "bm25_review_hit_at_5": true,
       "hybrid_review_hit_at_5": true,
       "agent_review_hit_at_5": true,
-      "abstract_only_hit_at_5": false
+      "abstract_only_hit_at_5": null
     },
     {
       "id": 3,
       "query": "Iterative trial-and-error prompting strategy for LLM reasoning criticized by a reviewer for being restricted to binary trees instead of graph structures",
       "target_paper_id": "qBL04XXex6",
       "target_review_id": "w7bvJ5iRWP",
+      "vector_paper_rank": 2,
+      "bm25_paper_rank": 1,
+      "hybrid_paper_rank": 1,
+      "agent_paper_rank": 1,
+      "abstract_only_paper_rank": 1,
       "vector_review_rank": 4,
       "bm25_review_rank": 1,
       "hybrid_review_rank": 1,
-      "agent_review_rank": 2,
+      "agent_review_rank": 1,
       "abstract_only_review_rank": null,
       "vector_review_hit_at_5": true,
       "bm25_review_hit_at_5": true,
       "hybrid_review_hit_at_5": true,
       "agent_review_hit_at_5": true,
-      "abstract_only_hit_at_5": false
+      "abstract_only_hit_at_5": null
     },
     {
       "id": 4,
       "query": "Which review criticizes the use of Rouge-L in Equation 3 as too weak for free-generation results and suggests replacing it with an entailment model?",
       "target_paper_id": "AqN23oqraW",
       "target_review_id": "2mTTJZa647",
+      "vector_paper_rank": 5,
+      "bm25_paper_rank": 1,
+      "hybrid_paper_rank": 1,
+      "agent_paper_rank": 1,
+      "abstract_only_paper_rank": 51,
       "vector_review_rank": 7,
       "bm25_review_rank": 1,
       "hybrid_review_rank": 1,
@@ -127,29 +150,39 @@
       "bm25_review_hit_at_5": true,
       "hybrid_review_hit_at_5": true,
       "agent_review_hit_at_5": true,
-      "abstract_only_hit_at_5": false
+      "abstract_only_hit_at_5": null
     },
     {
       "id": 5,
       "query": "Evaluating Transformer language models on learning compositional discrete algorithms, where a reviewer questions why the PEN and PERM datasets are needed",
       "target_paper_id": "x7AD0343Jz",
       "target_review_id": "9DIRWfvxxd",
+      "vector_paper_rank": 1,
+      "bm25_paper_rank": 1,
+      "hybrid_paper_rank": 1,
+      "agent_paper_rank": 1,
+      "abstract_only_paper_rank": 1,
       "vector_review_rank": 2,
       "bm25_review_rank": 1,
       "hybrid_review_rank": 1,
-      "agent_review_rank": 2,
+      "agent_review_rank": 1,
       "abstract_only_review_rank": null,
       "vector_review_hit_at_5": true,
       "bm25_review_hit_at_5": true,
       "hybrid_review_hit_at_5": true,
       "agent_review_hit_at_5": true,
-      "abstract_only_hit_at_5": false
+      "abstract_only_hit_at_5": null
     },
     {
       "id": 6,
       "query": "Reviewer criticism that baseline comparisons for digital agents are unfair because RAG methods were omitted and CodeActAgent was not fine-tuned out-of-the-box",
       "target_paper_id": "KjNEzWRIqn",
       "target_review_id": "7iDVZTIfsM",
+      "vector_paper_rank": 1,
+      "bm25_paper_rank": 1,
+      "hybrid_paper_rank": 1,
+      "agent_paper_rank": 1,
+      "abstract_only_paper_rank": 1,
       "vector_review_rank": 1,
       "bm25_review_rank": 1,
       "hybrid_review_rank": 1,
@@ -159,13 +192,18 @@
       "bm25_review_hit_at_5": true,
       "hybrid_review_hit_at_5": true,
       "agent_review_hit_at_5": true,
-      "abstract_only_hit_at_5": false
+      "abstract_only_hit_at_5": null
     },
     {
       "id": 7,
       "query": "Using pseudo-programs and program emulation for language model reasoning, where a reviewer criticizes the lack of a precise definition of soft reasoning",
       "target_paper_id": "te6VagJf6G",
       "target_review_id": "ru4zfozGZq",
+      "vector_paper_rank": 1,
+      "bm25_paper_rank": 1,
+      "hybrid_paper_rank": 1,
+      "agent_paper_rank": 1,
+      "abstract_only_paper_rank": 1,
       "vector_review_rank": 1,
       "bm25_review_rank": 1,
       "hybrid_review_rank": 1,
@@ -175,13 +213,18 @@
       "bm25_review_hit_at_5": true,
       "hybrid_review_hit_at_5": true,
       "agent_review_hit_at_5": true,
-      "abstract_only_hit_at_5": false
+      "abstract_only_hit_at_5": null
     },
     {
       "id": 8,
       "query": "Combining automaton-inspired Reward Machines with Deep RL in noisy environments, criticized for unclear performance without ground-truth RMs",
       "target_paper_id": "Cc0ckJlJF2",
       "target_review_id": "jOmNHO0jCQ",
+      "vector_paper_rank": 1,
+      "bm25_paper_rank": 1,
+      "hybrid_paper_rank": 1,
+      "agent_paper_rank": 1,
+      "abstract_only_paper_rank": 1,
       "vector_review_rank": 1,
       "bm25_review_rank": 1,
       "hybrid_review_rank": 1,
@@ -191,39 +234,49 @@
       "bm25_review_hit_at_5": true,
       "hybrid_review_hit_at_5": true,
       "agent_review_hit_at_5": true,
-      "abstract_only_hit_at_5": false
+      "abstract_only_hit_at_5": null
     },
     {
       "id": 9,
       "query": "How can controlled text generation be achieved via Language Model Arithmetic to customize style and vocabulary?",
       "target_paper_id": "SLw9fp4yI6",
-      "target_review_id": "qLlG2bPTFf",
-      "vector_review_rank": 2,
-      "bm25_review_rank": 4,
-      "hybrid_review_rank": 3,
-      "agent_review_rank": 2,
-      "abstract_only_review_rank": 1,
-      "vector_review_hit_at_5": true,
-      "bm25_review_hit_at_5": true,
-      "hybrid_review_hit_at_5": true,
-      "agent_review_hit_at_5": true,
-      "abstract_only_hit_at_5": true
+      "target_review_id": null,
+      "vector_paper_rank": 1,
+      "bm25_paper_rank": 1,
+      "hybrid_paper_rank": 1,
+      "agent_paper_rank": 1,
+      "abstract_only_paper_rank": 1,
+      "vector_review_rank": null,
+      "bm25_review_rank": null,
+      "hybrid_review_rank": null,
+      "agent_review_rank": null,
+      "abstract_only_review_rank": null,
+      "vector_review_hit_at_5": null,
+      "bm25_review_hit_at_5": null,
+      "hybrid_review_hit_at_5": null,
+      "agent_review_hit_at_5": null,
+      "abstract_only_hit_at_5": null
     },
     {
       "id": 10,
       "query": "Classification with a reject option for a fixed predictor in NLP applied to decontextualization",
       "target_paper_id": "dCHbFDsCZz",
-      "target_review_id": "0hp45EzgNz",
-      "vector_review_rank": 3,
-      "bm25_review_rank": 2,
-      "hybrid_review_rank": 3,
-      "agent_review_rank": 3,
-      "abstract_only_review_rank": 1,
-      "vector_review_hit_at_5": true,
-      "bm25_review_hit_at_5": true,
-      "hybrid_review_hit_at_5": true,
-      "agent_review_hit_at_5": true,
-      "abstract_only_hit_at_5": true
+      "target_review_id": null,
+      "vector_paper_rank": 1,
+      "bm25_paper_rank": 1,
+      "hybrid_paper_rank": 1,
+      "agent_paper_rank": 1,
+      "abstract_only_paper_rank": 1,
+      "vector_review_rank": null,
+      "bm25_review_rank": null,
+      "hybrid_review_rank": null,
+      "agent_review_rank": null,
+      "abstract_only_review_rank": null,
+      "vector_review_hit_at_5": null,
+      "bm25_review_hit_at_5": null,
+      "hybrid_review_hit_at_5": null,
+      "agent_review_hit_at_5": null,
+      "abstract_only_hit_at_5": null
     }
   ],
   "unanswerable_results": [
@@ -254,7 +307,7 @@
       "agent_review_rank": 1,
       "vector_top1_title": "Controlled Text Generation via Language Model Arithmetic",
       "bm25_top1_title": "KoLA: Carefully Benchmarking World Knowledge of Large Language Models",
-      "probable_cause": "Zapytanie dotyczy szczegółowego zarzutu metodologicznego wewnątrz jednej recenzji (np. 'Rouge-L w Równaniu 3') bez podania tytułu pracy. Model osadzeń (all-MiniLM-L6-v2) kompresuje całą recenzję do pojedynczego wektora 384D, przez co rzadka nazwa metryki ginie w ogólnym temacie ewaluacji tekstu (pozycja #7). Zastosowanie Wyszukiwania Hybrydowego RRF oraz Agenta z narzędziami naprawia ten błąd i awansuje właściwą recenzję na pozycję #1."
+      "probable_cause": "Q04 asks for a specific technical criticism (ROUGE-L in Equation 3). Dense retrieval can under-rank a rare exact term; compare the lexical and hybrid rankings rather than assuming the hybrid method fixed it."
     }
   ]
 }
