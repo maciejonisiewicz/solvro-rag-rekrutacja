@@ -73,24 +73,28 @@ Ten przykład pokazuje ograniczenie dopasowania semantycznego dla rzadkich, dok�
 
 Przy progu podobieństwa **0.38** oba pytania zostały prawidłowo odrzucone: Q11 (wynik 0.292) i Q12 (0.168). Lokalna skuteczność odrzucenia: **2/2**.
 
+
 ## Struktura projektu
 
 ```text
-app.py                 # interfejs Streamlit
-agent_rag.py           # deterministyczny agent i kontekst źródłowy
-rag_system.py          # wyszukiwanie wektorowe, BM25 i hybrydowe
-evaluate.py            # metryki i raport ewaluacji
-fetch_data.py          # pobieranie danych z OpenReview
-requirements.txt       # zależności
-README.md              # dokumentacja
-data/
-  papers.json
-  reviews.json
-  sampling_metadata.json
-  eval_questions.json
-  eval_results.json
-  chroma_db/
+solvro-rag-rekrutacja/
+├── app.py                 # Interfejs Streamlit
+├── agent_rag.py           # Agent deterministyczny i kontekst źródłowy
+├── rag_system.py          # ChromaDB, BM25 i wyszukiwanie hybrydowe
+├── evaluate.py            # Ewaluacja i analiza błędów
+├── fetch_data.py          # Pobieranie danych z OpenReview
+├── requirements.txt       # Zależności Pythona
+├── README.md              # Dokumentacja projektu
+└── data/
+    ├── papers.json
+    ├── reviews.json
+    ├── sampling_metadata.json
+    ├── eval_questions.json
+    └── eval_results.json
 ```
+
+Indeks ChromaDB jest generowany lokalnie przy pierwszym uruchomieniu. Pliki indeksu i logi działania nie są przechowywane w repozytorium.
+  
 
 ## Ograniczenia i możliwe rozwinięcia
 
