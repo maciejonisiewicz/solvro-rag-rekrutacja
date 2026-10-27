@@ -21,26 +21,54 @@ Aplikacja do przeszukiwania publikacji naukowych i oficjalnych recenzji z konfer
 
 Aplikacja pokazuje tytuły prac, identyfikatory i odnośniki OpenReview, fragmenty abstraktów i ocen recenzentów, przebieg narzędzi agenta oraz kontekst do ewentualnej generacji odpowiedzi.
 
+
 ## Instalacja i uruchomienie
 
-Wymagany Python i zależności z `requirements.txt`. W katalogu projektu:
+Projekt został przetestowany lokalnie na **Pythonie 3.14.0** (macOS). Do uruchomienia potrzebne są Python, Git oraz połączenie z internetem przy pierwszym pobraniu modelu embeddingowego.
+
+### 1. Pobranie repozytorium
 
 ```bash
-python -m venv .venv
+git clone https://github.com/maciejonisiewicz/solvro-rag-rekrutacja.git
+cd solvro-rag-rekrutacja
+```
+
+### 2. Utworzenie środowiska i instalacja zależności
+
+**macOS / Linux:**
+
+```bash
+python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
+```
+
+**Windows (PowerShell):**
+
+```powershell
+py -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+```
+
+### 3. Uruchomienie aplikacji
+
+```bash
 python -m streamlit run app.py --server.fileWatcherType none
 ```
 
-Na Windows aktywacja środowiska wygląda inaczej (`.venv\Scripts\activate`). Pierwsze uruchomienie może wymagać pobrania modelu embeddingowego. Dane i indeks lokalny muszą być dostępne w katalogu `data/`.
+Otwórz w przeglądarce adres wyświetlony przez Streamlit (zwykle `http://localhost:8501`).
 
-Aby ponownie wykonać ewaluację, użyj zakładki **Ewaluacja** w aplikacji lub uruchom:
+Dane publikacji i recenzji są dołączone w katalogu `data/`. **Nie trzeba pobierać ich ponownie.** Przy pierwszym uruchomieniu indeks ChromaDB jest budowany lokalnie na podstawie zapisanych danych. Model embeddingowy może zostać pobrany z Hugging Face. Opcja `--server.fileWatcherType none` pozwala ominąć problemy obserwatora plików w niektórych środowiskach.
+
+### 4. Powtórzenie ewaluacji
 
 ```bash
 python evaluate.py
 ```
 
-Zbiór pytań referencyjnych znajduje się w `data/eval_questions.json`, a zapis wyników w `data/eval_results.json`. Uruchomienie ewaluacji nie powinno nadpisywać ręcznie oznaczonego ground truth.
+Ewaluację można też uruchomić z poziomu aplikacji. Pytania referencyjne znajdują się w `data/eval_questions.json`, a zapisane wyniki w `data/eval_results.json`. Ponowne uruchomienie ewaluacji nie powinno nadpisywać ręcznie oznaczonego ground truth.
+
 
 ## Metodologia ewaluacji
 
