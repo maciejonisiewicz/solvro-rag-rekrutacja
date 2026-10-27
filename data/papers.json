@@ -1,0 +1,1377 @@
+[
+  {
+    "paper_id": "rhgIgTSSxW",
+    "title": "TabR: Tabular Deep Learning Meets Nearest Neighbors",
+    "abstract": "Deep learning (DL) models for tabular data problems (e.g. classification, regression) are currently receiving increasingly more attention from researchers.\nHowever, despite the recent efforts, the non-DL algorithms based on gradient-boosted decision trees (GBDT) remain a strong go-to solution for these problems.\nOne of the research directions aimed at improving the position of tabular DL involves designing so-called retrieval-augmented models.\nFor a target object, such models retrieve other objects (e.g. the nearest neighbors) from the available training data and use their features and labels to make a better prediction.\n\nIn this work, we present TabR -- essentially, a feed-forward network with a custom k-Nearest-Neighbors-like component in the middle.\nOn a set of public benchmarks with datasets up to several million objects, TabR marks a big step forward for tabular DL: it demonstrates the best average performance among tabular DL models, becomes the new state-of-the-art on several datasets, and even outperforms GBDT models on the recently proposed \"GBDT-friendly\" benchmark (see Figure 1).\nAmong the important findings and technical details powering TabR, the main ones lie in the attention-like mechanism that is responsible for retrieving the nearest neighbors and extracting valuable signal from them.\nIn addition to the higher performance, TabR is simple and significantly more efficient compared to prior retrieval-based tabular DL models.",
+    "keywords": [
+      "tabular",
+      "tabular data",
+      "architecture",
+      "deep learning",
+      "neural networks"
+    ],
+    "primary_area": "general machine learning (i.e., none of the above)",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=rhgIgTSSxW",
+    "review_count": 4
+  },
+  {
+    "paper_id": "qBL04XXex6",
+    "title": "Boosting of Thoughts: Trial-and-Error Problem Solving with Large Language Models",
+    "abstract": "The reasoning performance of Large Language Models (LLMs) on a wide range of problems critically relies on chain-of-thought prompting, which involves providing a few chain of thought demonstrations as exemplars in prompts. Recent work, e.g., Tree of Thoughts, has pointed out the importance of exploration and self-evaluation in reasoning step selection for complex problem solving. In this paper, we present Boosting of Thoughts (BoT), an automated prompting framework for problem solving with LLMs by iteratively exploring and self-evaluating many trees of thoughts in order to acquire an ensemble of trial-and-error reasoning experiences, which will serve as a new form of prompting to solve the complex problem. Starting from a simple prompt without requiring examples, BoT iteratively explores and evaluates a large collection of reasoning steps, and more importantly, uses error analysis obtained from the LLM on them to explicitly revise prompting, which in turn enhances reasoning step generation, until a final answer is attained. Our experiments with GPT-4 and Llama2 across extensive complex mathematical problems demonstrate that BoT consistently achieves higher or comparable problem-solving rates than other advanced prompting approaches.",
+    "keywords": [
+      "Large Language Models; Prompt Engineering; Boosting Mechanism;"
+    ],
+    "primary_area": "generative models",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=qBL04XXex6",
+    "review_count": 5
+  },
+  {
+    "paper_id": "kmn0BhQk7p",
+    "title": "Beyond Memorization: Violating Privacy via Inference with Large Language Models",
+    "abstract": "Current privacy research on large language models (LLMs) primarily focuses on the issue of extracting memorized training data. At the same time, models’ inference capabilities have increased drastically. This raises the key question of whether current LLMs could violate individuals’ privacy by inferring personal attributes from text given at inference time. In this work, we present the first comprehensive study on the capabilities of pretrained LLMs to infer personal attributes from text. We construct a dataset consisting of real Reddit profiles, and show that current LLMs can infer a wide range of personal attributes (e.g., location, income, sex), achieving up to 85% top-1 and 95% top-3 accuracy at a fraction of the cost (100x) and time (240x) required by humans. As people increasingly interact with LLM-powered chatbots across all aspects of life, we also explore the emerging threat of privacy-invasive chatbots trying to extract personal information through seemingly benign questions. Finally, we show that common mitigations, i.e., text anonymization and model alignment, are currently ineffective at protecting user privacy against LLM inference. Our findings highlight that current LLMs can infer personal data at a previously unattainable scale. In the absence of working defenses, we advocate for a broader discussion around LLM privacy implications beyond memorization, striving for stronger and wider privacy protection.",
+    "keywords": [
+      "Privacy",
+      "Large Language Models"
+    ],
+    "primary_area": "societal considerations including fairness, safety, privacy",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=kmn0BhQk7p",
+    "review_count": 5
+  },
+  {
+    "paper_id": "i8PjQT3Uig",
+    "title": "Locality Sensitive Sparse Encoding for Learning World Models Online",
+    "abstract": "Acquiring an accurate world model $\\textit{online}$ for model-based reinforcement learning (MBRL) is challenging due to data nonstationarity, which typically causes catastrophic forgetting for neural networks (NNs). From the online learning perspective, a Follow-The-Leader (FTL) world model is desirable, which optimally fits all previous experiences at each round. Unfortunately, NN-based models need re-training on all accumulated data at every interaction step to achieve FTL, which is computationally expensive for lifelong agents. In this paper, we revisit models that can achieve FTL with incremental updates. Specifically, our world model is a linear regression model supported by nonlinear random features. The linear part ensures efficient FTL update while the nonlinear random feature empowers the fitting of complex environments. To best trade off model capacity and computation efficiency, we introduce a locality sensitive sparse encoding, which allows us to conduct efficient sparse updates even with very high dimensional nonlinear features. We validate the representation power of our encoding and verify that it allows efficient online learning under data covariate shift. We also show, in the Dyna MBRL setting, that our world models learned online using a $\\textit{single pass}$ of trajectory data either surpass or match the performance of deep world models trained with replay and other continual learning methods.",
+    "keywords": [
+      "model-based rl",
+      "online learning",
+      "incremental learning",
+      "catastrophic forgetting"
+    ],
+    "primary_area": "reinforcement learning",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=i8PjQT3Uig",
+    "review_count": 3
+  },
+  {
+    "paper_id": "eepoE7iLpL",
+    "title": "Enhancing Neural Subset Selection: Integrating Background Information into Set Representations",
+    "abstract": "Learning neural subset selection tasks, such as compound selection in AI-aided drug discovery, have become increasingly pivotal across diverse applications. The existing methodologies in the field primarily concentrate on constructing models that capture the relationship between utility function values and subsets within their respective supersets. However, these approaches tend to overlook the valuable information contained within the superset when utilizing neural networks to model set functions. In this work, we address this oversight by adopting a probabilistic perspective. Our theoretical findings demonstrate that when the target value is conditioned on both the input set and subset, it is essential to incorporate an invariant sufficient statistic of the superset into the subset of interest for effective learning. This ensures that the output value remains invariant to permutations of the subset and its corresponding superset, enabling identification of the specific superset from which the subset originated. Motivated by these insights, we propose a simple yet effective information aggregation module designed to merge the representations of subsets and supersets from a permutation invariance perspective. Comprehensive empirical evaluations across diverse tasks and datasets validate the enhanced efficacy of our approach over conventional methods, underscoring the practicality and potency of our proposed strategies in real-world contexts.",
+    "keywords": [
+      "Neural Set Function",
+      "Hierarchical Structure",
+      "Invariance",
+      "Subset Selection"
+    ],
+    "primary_area": "representation learning for computer vision, audio, language, and other modalities",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=eepoE7iLpL",
+    "review_count": 3
+  },
+  {
+    "paper_id": "lK2V2E2MNv",
+    "title": "Bridging Vision and Language Spaces with Assignment Prediction",
+    "abstract": "This paper introduces VLAP, a novel approach that bridges pretrained vision models and large language models (LLMs) to make frozen LLMs understand the visual world. VLAP transforms the embedding space of pretrained vision models into the LLMs' word embedding space using a single linear layer for efficient and general-purpose visual and language understanding. Specifically, we harness well-established word embeddings to bridge two modality embedding spaces. The visual and text representations are simultaneously assigned to a set of word embeddings within pretrained LLMs by formulating the assigning procedure as an optimal transport problem. We predict the assignment of one modality from the representation of another modality data, enforcing consistent assignments for paired multimodal data. This allows vision and language representations to contain the same information, grounding the frozen LLMs' word embedding space in visual data. Moreover, a robust semantic taxonomy of LLMs can be preserved with visual data since the LLMs interpret and reason linguistic information from correlations between word embeddings. Experimental results show that VLAP achieves substantial improvements over the previous linear transformation-based approaches across a range of vision-language tasks, including image captioning, visual question answering, and cross-modal retrieval. We also demonstrate the learned visual representations hold a semantic taxonomy of LLMs, making visual semantic arithmetic possible.",
+    "keywords": [
+      "Multimodal learning",
+      "vision-language tasks",
+      "frozen LLMs",
+      "optimal transport",
+      "assignment prediction"
+    ],
+    "primary_area": "representation learning for computer vision, audio, language, and other modalities",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=lK2V2E2MNv",
+    "review_count": 5
+  },
+  {
+    "paper_id": "gtkFw6sZGS",
+    "title": "Generative Judge for Evaluating Alignment",
+    "abstract": "The rapid development of Large Language Models (LLMs) has substantially expanded the range of tasks they can address. In the field of Natural Language Processing (NLP), researchers have shifted their focus from conventional NLP tasks (e.g., sequence tagging and parsing) towards tasks that revolve around aligning with human needs (e.g., brainstorming and email writing). This shift in task distribution imposes new requirements on evaluating these aligned models regarding *generality* (i.e., assessing performance across diverse scenarios), *flexibility* (i.e., examining under different protocols), and *interpretability* (i.e., scrutinizing models with explanations). In this paper, we propose a generative judge with 13B parameters, **Auto-J**, designed to address these challenges. Our model is trained on user queries and LLM-generated responses under massive real-world scenarios and accommodates diverse evaluation protocols (e.g., pairwise response comparison and single-response evaluation) with well-structured natural language critiques. To demonstrate the efficacy of our approach, we construct a new testbed covering 58 different scenarios. Experimentally, **Auto-J** outperforms a series of strong competitors, including both open-source and closed-source models, by a large margin. We also provide detailed analysis and case studies to further reveal the potential of our method and make a variety of resources public at https://github.com/GAIR-NLP/auto-j.",
+    "keywords": [
+      "Generative",
+      "Evaluation",
+      "Alignment"
+    ],
+    "primary_area": "generative models",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=gtkFw6sZGS",
+    "review_count": 3
+  },
+  {
+    "paper_id": "7vVWiCrFnd",
+    "title": "Rethinking and Extending the Probabilistic Inference Capacity of GNNs",
+    "abstract": "Designing expressive Graph Neural Networks (GNNs) is an important topic in graph machine learning fields. Despite the existence of numerous approaches proposed to enhance GNNs based on Weisfeiler-Lehman (WL) tests, what GNNs can and cannot learn still lacks a deeper understanding. This paper adopts a fundamentally different approach to examine the expressive power of GNNs from a probabilistic perspective. By establishing connections between GNNs' predictions and the central inference problems of probabilistic graphical models (PGMs), we can analyze previous GNN variants with a novel hierarchical framework and gain new insights into their node-level and link-level behaviors. Additionally, we introduce novel methods that can provably enhance GNNs' ability to capture complex dependencies and make complex predictions. Experiments on both synthetic and real-world datasets demonstrate the effectiveness of our approaches.",
+    "keywords": [
+      "graph neural networks",
+      "expressiveness",
+      "approximate inference"
+    ],
+    "primary_area": "learning on graphs and other geometries & topologies",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=7vVWiCrFnd",
+    "review_count": 5
+  },
+  {
+    "paper_id": "SLw9fp4yI6",
+    "title": "Controlled Text Generation via Language Model Arithmetic",
+    "abstract": "As Large Language Models (LLMs) are deployed more widely, customization with respect to vocabulary, style, and character becomes more important. In this work, we introduce model arithmetic, a novel inference framework for composing and biasing LLMs without the need for model (re)training or highly specific datasets. In addition, the framework allows for more precise control of generated text than direct prompting and prior controlled text generation (CTG) techniques. Using model arithmetic, we can express prior CTG techniques as simple formulas and naturally extend them to new and more effective formulations. Further, we show that speculative sampling, a technique for efficient LLM sampling, extends to our setting. This enables highly efficient text generation with multiple composed models with only marginal overhead over a single model. Our empirical evaluation demonstrates that model arithmetic allows fine-grained control of generated text while outperforming state-of-the-art on the task of toxicity reduction. We release an open source easy-to-use implementation of our framework at https://github.com/eth-sri/language-model-arithmetic.",
+    "keywords": [
+      "Controlled text generation",
+      "LLM",
+      "Natural Language Processing"
+    ],
+    "primary_area": "generative models",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=SLw9fp4yI6",
+    "review_count": 5
+  },
+  {
+    "paper_id": "My7lkRNnL9",
+    "title": "Forward Learning with Top-Down Feedback: Empirical and Analytical Characterization",
+    "abstract": "\"Forward-only\" algorithms, which train neural networks while avoiding a backward pass, have recently gained attention as a way of solving the biologically unrealistic aspects of backpropagation. Here, we first address compelling challenges related to the \"forward-only\" rules, which include reducing the performance gap with backpropagation and providing an analytical understanding of their dynamics. To this end, we show that the forward-only algorithm with top-down feedback is well-approximated by an \"adaptive-feedback-alignment\" algorithm, and we analytically track its performance during learning in a prototype high-dimensional setting. Then, we compare different versions of forward-only algorithms, focusing on the Forward-Forward and PEPITA frameworks, and we show that they share the same learning principles. Overall, our work unveils the connections between three key neuro-inspired learning rules, providing a link between \"forward-only\" algorithms, i.e., Forward-Forward and PEPITA, and an approximation of backpropagation, i.e., Feedback Alignment.",
+    "keywords": [
+      "Forward-only learning",
+      "Biologically inspired learning",
+      "Artificial neural networks",
+      "Analytical characterization"
+    ],
+    "primary_area": "applications to neuroscience & cognitive science",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=My7lkRNnL9",
+    "review_count": 4
+  },
+  {
+    "paper_id": "BTKAeLqLMw",
+    "title": "What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning",
+    "abstract": "Instruction tuning is a standard technique employed to align large language models to end tasks and user preferences after the initial pretraining phase. Recent research indicates the critical role of data engineering in instruction tuning -- when appropriately selected, only limited data is necessary to achieve superior performance. However, we still lack a principled understanding of what makes good instruction tuning data for alignment, and how we should select data automatically and effectively. In this work, we delve deeply into automatic data selection strategies for alignment. We start with controlled studies to measure data across three dimensions: complexity, quality, and diversity, along which we examine existing methods and introduce novel techniques for enhanced data measurement. Subsequently, we propose a simple strategy to select data samples based on the measurement. We present Deita (short for Data-Efficient Instruction Tuning for Alignment), a series of models fine-tuned from LLaMA models using data samples automatically selected with our proposed approach.  When assessed through both automatic metrics and human evaluation, Deita performs better or on par with the state-of-the-art open-source alignment models such as Vicuna and WizardLM with only 6K training data samples -- 10x less than the data used in the baselines. We anticipate this work to provide clear guidelines and tools on automatic data selection, aiding researchers and practitioners in achieving data-efficient alignment.",
+    "keywords": [
+      "data selection",
+      "instruction tuning",
+      "large language models"
+    ],
+    "primary_area": "general machine learning (i.e., none of the above)",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=BTKAeLqLMw",
+    "review_count": 3
+  },
+  {
+    "paper_id": "AJBkfwXh3u",
+    "title": "Causality-Inspired Spatial-Temporal Explanations for Dynamic Graph Neural Networks",
+    "abstract": "Dynamic Graph Neural Networks (DyGNNs) have gained significant popularity in the research of dynamic graphs, but are limited by the low transparency, such that human-understandable insights can hardly be drawn from their predictions. Although a number of existing research have been devoted to investigating the interpretability of graph neural networks (GNNs), achieving the interpretability of DyGNNs is pivotally challenging due to the complex spatial-temporal correlations in dynamic graphs. To this end, we propose an innovative causality-inspired generative model based on structural causal model (SCM), which explores the underlying philosophies of DyGNN predictions by identifying the trivial, static, and dynamic causal relationships. To reach this goal, two critical tasks need to be accomplished including (1) disentangling the complex causal relationships, and (2) fitting the spatial-temporal explanations of DyGNNs in the SCM architecture. To tackle these challenges, the proposed method incorporates a contrastive learning module to disentangle trivial and causal relationships, and a dynamic correlating module to disentangle dynamic and static causal relationships, respectively. A dynamic VGAE-based framework is further developed, which generates causal-and-dynamic masks for spatial interpretability, and recognizes dynamic relationships along the time horizon through causal invention for temporal interpretability. Comprehensive experiments have been conducted on both synthetic and real-world datasets, where our approach yields substantial improvements, thereby demonstrating significant superiority.",
+    "keywords": [
+      "Dynamic Graph",
+      "Graph Explanation",
+      "Graph Neural Network",
+      "Causal Inference"
+    ],
+    "primary_area": "learning on graphs and other geometries & topologies",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=AJBkfwXh3u",
+    "review_count": 4
+  },
+  {
+    "paper_id": "tmsqb6WpLz",
+    "title": "Dissecting learning and forgetting in language model finetuning",
+    "abstract": "Finetuning language models on domain-specific corpus is a common approach to enhance their domain knowledge and capability. While improving performance on domain tasks, it often brings a side-effect of forgetting of the model's general abilities. In this study, we analyze the effects of finetuning on language models by dissecting its impacts on the modeling of topic, style, and factual knowledge in text. Our method uses instruction-following LLMs such as ChatGPT to auto-generate controlled-variable text examples which we use to probe the model. Our findings reveal that finetuning results in significant shifts in the language model's topic and style priors, while actual knowledge learning only contributes to a small fraction of the total probability change. Analysis shows that the adaptation of topic and style priors behave akin to learning simple features: they are learned rapidly and require little model capacity. They are also learned independently and primarily at the beginning of a text sequence. In contrast, factual knowledge is learned stably but slowly and requires significant model capacity to learn. The research offers insights and understanding into the finer dynamics of learning and forgetting in language models, and can potentially inform future research on improving domain adaptation and addressing the challenges of forgetting in continual learning of language models.",
+    "keywords": [
+      "language models",
+      "domain adaptation",
+      "catastrophic forgetting"
+    ],
+    "primary_area": "transfer learning, meta learning, and lifelong learning",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=tmsqb6WpLz",
+    "review_count": 4
+  },
+  {
+    "paper_id": "TPZRq4FALB",
+    "title": "Test-time Adaptation against Multi-modal Reliability Bias",
+    "abstract": "Test-time adaptation (TTA) has emerged as a new paradigm for reconciling distribution shifts across domains without accessing source data. However, existing TTA methods mainly concentrate on uni-modal tasks, overlooking the complexity of multi-modal scenarios.\nIn this paper, we delve into the multi-modal test-time adaptation and reveal a new challenge named reliability bias. Different from the definition of traditional distribution shifts, reliability bias refers to the information discrepancies across different modalities derived from intra-modal distribution shifts. To solve the challenge, we propose a novel method, dubbed REliable fusion and robust ADaptation (READ). On the one hand, unlike the existing TTA paradigm that mainly repurposes the normalization layers, READ employs a new paradigm that modulates the attention between modalities in a self-adaptive way, supporting reliable fusion against reliability bias. On the other hand, READ adopts a novel objective function for robust multi-modal adaptation, where the contributions of confident predictions could be amplified and the negative impacts of noisy predictions could be mitigated. Moreover, we introduce two new benchmarks to facilitate comprehensive evaluations of multi-modal TTA under reliability bias. Extensive experiments on the benchmarks verify the effectiveness of our method against multi-modal reliability bias. The code and benchmarks are available at https://github.com/XLearning-SCU/2024-ICLR-READ.",
+    "keywords": [
+      "Test-time adaption",
+      "Imbalanced multi-modal learning"
+    ],
+    "primary_area": "unsupervised, self-supervised, semi-supervised, and supervised representation learning",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=TPZRq4FALB",
+    "review_count": 4
+  },
+  {
+    "paper_id": "78iGZdqxYY",
+    "title": "Mirage: Model-agnostic Graph Distillation for Graph Classification",
+    "abstract": "GNNs, like other deep learning models, are data and computation hungry. There is a pressing need to scale training of GNNs on large datasets to enable their usage on low-resource environments. Graph distillation is an effort in that direction with the aim to construct a smaller synthetic training set from the original training data without significantly compromising model performance. While initial efforts are promising, this work is motivated by two key observations: (1) Existing graph distillation algorithms themselves rely on training with the full dataset, which undermines the very premise of graph distillation. (2) The distillation process is specific to the target GNN architecture and hyper-parameters and thus not robust to changes in the modeling pipeline. We circumvent these limitations by designing a distillation algorithm called MIRAGE for graph classification. MIRAGE is built on the insight that a message-passing GNN decomposes the input graph into a multiset of computation trees. Furthermore, the frequency distribution of computation trees is often skewed in nature, enabling us to condense this data into a concise distilled summary. By compressing the computation data itself, as opposed to emulating gradient flows on the original training set—a prevalent approach to date—MIRAGE transforms into an unsupervised and architecture-agnostic distillation algorithm. Extensive benchmarking on real-world datasets underscores MIRAGE’s superiority, showcasing enhanced generalization accuracy, data compression, and distillation efficiency when compared to state-of-the-art baselines.",
+    "keywords": [
+      "graph distillation",
+      "graph classification",
+      "frequent pattern mining"
+    ],
+    "primary_area": "learning on graphs and other geometries & topologies",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=78iGZdqxYY",
+    "review_count": 4
+  },
+  {
+    "paper_id": "9k0krNzvlV",
+    "title": "On the Learnability of Watermarks for Language Models",
+    "abstract": "Watermarking of language model outputs enables statistical detection of model-generated text, which can mitigate harms and misuses of language models. Existing watermarking strategies operate by altering the decoder of an existing language model. In this paper, we ask whether language models can directly learn to generate watermarked text, which would have significant implications for the real-world deployment of watermarks. First, learned watermarks could be used to build open models that naturally generate watermarked text, enabling watermarking for open models, where users can control the decoding procedure. Second, if watermarking is used to determine the provenance of generated text, an adversary can hurt the reputation of a victim model by spoofing its watermark and generating damaging watermarked text. To investigate the learnability of watermarks, we propose watermark distillation, which trains a student model to behave like a teacher model that uses decoding-based watermarking. We test our approach on three decoding-based watermarking strategies and various hyperparameter settings, finding that models can learn to generate watermarked text with high detectability. We also find limitations to learnability, including the loss of watermarking capabilities under fine-tuning on normal text and high sample complexity when learning low-distortion watermarks.",
+    "keywords": [
+      "watermarking",
+      "large language models",
+      "distillation"
+    ],
+    "primary_area": "general machine learning (i.e., none of the above)",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=9k0krNzvlV",
+    "review_count": 4
+  },
+  {
+    "paper_id": "Iyve2ycvGZ",
+    "title": "Bellman Optimal Stepsize Straightening of Flow-Matching Models",
+    "abstract": "Flow matching is a powerful framework for generating high-quality samples in various applications, especially image synthesis. However, the intensive computational demands of these models, especially during the finetuning process and sampling processes, pose significant challenges for low-resource scenarios. This paper introduces Bellman Optimal Stepsize Straightening (BOSS) technique for distilling flow-matching generative models: it aims specifically for a few-step efficient image sampling while adhering to a computational budget constraint. First, this technique involves a dynamic programming algorithm that optimizes the stepsizes of the pretrained network. Then, it refines the velocity network to match the optimal step sizes, aiming to straighten the generation paths. Extensive experimental evaluations across image generation tasks demonstrate the efficacy of BOSS in terms of both resource utilization and image quality. Our results reveal that BOSS achieves substantial gains in efficiency while maintaining competitive sample quality, effectively bridging the gap between low-resource constraints and the demanding requirements of flow-matching generative models. Our paper also fortifies the responsible development of artificial intelligence, offering a more sustainable generative model that reduces computational costs and environmental footprints. Our code can be found at https://github.com/nguyenngocbaocmt02/BOSS.",
+    "keywords": [
+      "flow matching",
+      "generative model",
+      "efficient sampling",
+      "distillation",
+      "responsible ML"
+    ],
+    "primary_area": "generative models",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=Iyve2ycvGZ",
+    "review_count": 3
+  },
+  {
+    "paper_id": "Ebt7JgMHv1",
+    "title": "Is This the Subspace You Are Looking for? An Interpretability Illusion for Subspace Activation Patching",
+    "abstract": "Mechanistic interpretability aims to attribute high-level model behaviors to specific, interpretable learned features. It is hypothesized that these features manifest as directions or low-dimensional subspaces within activation space. Accordingly, recent studies have explored the identification and manipulation of such subspaces to reverse-engineer computations, employing methods such as activation patching. In this work, we demonstrate that naïve approaches to subspace interventions can give rise to interpretability illusions.\n\nSpecifically, even if patching along a subspace has the intended end-to-end causal effect on model behavior, this effect may be achieved by activating \\emph{a dormant parallel pathway} using a component that is \\textit{causally disconnected} from the model output.\nWe demonstrate this in a mathematical example, realize the example empirically in two different settings (the Indirect Object Identification (IOI) task and factual recall), and argue that activating dormant pathways ought to be prevalent in practice.\nIn the context of factual recall, we further show that the illusion is related to rank-1 fact editing, providing a mechanistic explanation for previous work observing an inconsistency between fact editing performance and fact localisation.\n\nHowever, this does not imply that activation patching of subspaces is intrinsically unfit for interpretability.\nTo contextualize our findings, we also show what a success case looks like in a task (IOI) where prior manual circuit analysis allows an understanding of the location of the ground truth feature. We explore the additional evidence needed to argue that a patched subspace is faithful.",
+    "keywords": [
+      "Mechanistic Interpretability",
+      "Natural Language Processing",
+      "Large Language Models"
+    ],
+    "primary_area": "visualization or interpretation of learned representations",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=Ebt7JgMHv1",
+    "review_count": 3
+  },
+  {
+    "paper_id": "lF2aip4Scn",
+    "title": "Demonstration-Regularized RL",
+    "abstract": "Incorporating expert demonstrations has empirically helped to improve the sample efficiency of reinforcement learning (RL). This paper quantifies theoretically to what extent this extra information reduces RL's sample complexity. In particular, we study the demonstration-regularized reinforcement learning framework that leverages the expert demonstrations by $\\mathrm{KL}$-regularization for a policy learned by behavior cloning. Our findings reveal that using $N^{\\mathrm{E}}$ expert demonstrations enables the identification of an optimal policy at a sample complexity of order $\\widetilde{\\mathcal{O}}(\\mathrm{Poly}(S,A,H)/(\\varepsilon^2 N^{\\mathrm{E}}))$ in finite and $\\widetilde{\\mathcal{O}}(\\mathrm{Poly}(d,H)/(\\varepsilon^2 N^{\\mathrm{E}}))$ in linear Markov decision processes, where $\\varepsilon$is the target precision, $H$ the horizon, $A$ the number of action, $S$ the number of states in the finite case and $d$ the dimension of the feature space in the linear case. As a by-product, we provide tight convergence guarantees for the behavior cloning procedure under general assumptions on the policy classes. Additionally, we establish that demonstration-regularized methods are provably efficient for reinforcement learning from human feedback (RLHF). In this respect, we provide theoretical evidence showing the benefits of KL-regularization for RLHF  in tabular and linear MDPs. \nInterestingly, we avoid pessimism injection by employing computationally feasible regularization to handle reward estimation uncertainty, thus setting our approach apart from the prior works.",
+    "keywords": [
+      "reinforcement learning",
+      "regularization in reinforcement leaning",
+      "learning with demonstrations",
+      "reinforcemenet learning with human feedback"
+    ],
+    "primary_area": "reinforcement learning",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=lF2aip4Scn",
+    "review_count": 4
+  },
+  {
+    "paper_id": "vESNKdEMGp",
+    "title": "Multilingual Jailbreak Challenges in Large Language Models",
+    "abstract": "While large language models (LLMs) exhibit remarkable capabilities across a wide range of tasks, they pose potential safety concerns, such as the ``jailbreak'' problem, wherein malicious instructions can manipulate LLMs to exhibit undesirable behavior. Although several preventive measures have been developed to mitigate the potential risks associated with LLMs, they have primarily focused on English. In this study, we reveal the presence of multilingual jailbreak challenges within LLMs and consider two potential risky scenarios: unintentional and intentional. The unintentional scenario involves users querying LLMs using non-English prompts and inadvertently bypassing the safety mechanisms, while the intentional scenario concerns malicious users combining malicious instructions with multilingual prompts to deliberately attack LLMs. The experimental results reveal that in the unintentional scenario, the rate of unsafe content increases as the availability of languages decreases. Specifically, low-resource languages exhibit about three times the likelihood of encountering harmful content compared to high-resource languages, with both ChatGPT and GPT-4. In the intentional scenario, multilingual prompts can exacerbate the negative impact of malicious instructions, with astonishingly high rates of unsafe output: 80.92\\% for ChatGPT and 40.71\\% for GPT-4. To handle such a challenge in the multilingual context, we propose a novel \\textsc{Self-Defense} framework that automatically generates multilingual training data for safety fine-tuning. Experimental results show that ChatGPT fine-tuned with such data can achieve a substantial reduction in unsafe content generation.  Data is available at \\url{https://github.com/DAMO-NLP-SG/multilingual-safety-for-LLMs}.",
+    "keywords": [
+      "multilingual",
+      "safety",
+      "large language models"
+    ],
+    "primary_area": "societal considerations including fairness, safety, privacy",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=vESNKdEMGp",
+    "review_count": 5
+  },
+  {
+    "paper_id": "csukJcpYDe",
+    "title": "Generalized Policy Iteration using Tensor Approximation for Hybrid Control",
+    "abstract": "Control of dynamic systems involving hybrid actions is a challenging task in robotics.  To address this, we present a novel algorithm called Generalized Policy Iteration using Tensor Train (TTPI) that belongs to the class of Approximate Dynamic Programming (ADP). We use a low-rank tensor approximation technique called Tensor Train (TT) to approximate the state-value and advantage function which enables us to efficiently handle hybrid systems. We demonstrate the superiority of our approach over previous baselines for some benchmark problems with hybrid action spaces. Additionally, the robustness and generalization of the policy for hybrid systems are showcased through a real-world robotics experiment involving a non-prehensile manipulation task which is considered to be a highly challenging control problem.",
+    "keywords": [
+      "Optimal Control",
+      "Hybrid Actions",
+      "Robotics",
+      "Approximate Dynamic Programming",
+      "Tensor Approximation"
+    ],
+    "primary_area": "applications to robotics, autonomy, planning",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=csukJcpYDe",
+    "review_count": 4
+  },
+  {
+    "paper_id": "FMMF1a9ifL",
+    "title": "Gradual Optimization Learning for Conformational Energy Minimization",
+    "abstract": "Molecular conformation optimization is crucial to computer-aided drug discovery and materials design.\nTraditional energy minimization techniques rely on iterative optimization methods that use molecular forces calculated by a physical simulator (oracle) as anti-gradients.\nHowever, this is a computationally expensive approach that requires many interactions with a physical simulator.\nOne way to accelerate this procedure is to replace the physical simulator with a neural network.\nDespite recent progress in neural networks for molecular conformation energy prediction, such models are prone to errors due to distribution shift, leading to inaccurate energy minimization.\nWe find that the quality of energy minimization with neural networks can be improved by providing optimization trajectories as additional training data.\nStill, obtaining complete optimization trajectories demands a lot of additional computations.\nTo reduce the required additional data, we present the Gradual Optimization Learning Framework (GOLF) for energy minimization with neural networks.\nThe framework consists of an efficient data-collecting scheme and an external optimizer.\nThe external optimizer utilizes gradients from the energy prediction model to generate optimization trajectories, and the data-collecting scheme selects additional training data to be processed by the physical simulator. \nOur results demonstrate that the neural network trained with GOLF performs \\textit{on par} with the oracle on a benchmark of diverse drug-like molecules using significantly less additional data.",
+    "keywords": [
+      "energy minimization",
+      "conformational optimization",
+      "geometry optimization"
+    ],
+    "primary_area": "applications to physical sciences (physics, chemistry, biology, etc.)",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=FMMF1a9ifL",
+    "review_count": 4
+  },
+  {
+    "paper_id": "KTtEICH4TO",
+    "title": "CORN: Contact-based Object Representation for Nonprehensile Manipulation of General Unseen Objects",
+    "abstract": "Nonprehensile manipulation is essential for manipulating objects that are too thin, large, or otherwise ungraspable in the wild. To sidestep the difficulty of contact modeling in conventional modeling-based approaches, reinforcement learning (RL) has recently emerged as a promising alternative. However, previous RL approaches either lack the ability to generalize over diverse object shapes, or use simple action primitives that limit the diversity of robot motions. Furthermore, using RL over diverse object geometry is challenging due to the high cost of training a policy that takes in high-dimensional sensory inputs. We propose a novel contact-based object representation and pretraining pipeline to tackle this. To enable massively parallel training, we leverage a lightweight patch-based transformer architecture for our encoder that processes point clouds, thus scaling our training across thousands of environments. Compared to learning from scratch, or other shape representation baselines, our representation facilitates both time- and data-efficient learning. We validate the efficacy of our overall system by zero-shot transferring the trained policy to novel real-world objects. We highly recommend the video attached in the supplementary material. Code and videos are available at \\url{https://sites.google.com/view/contact-non-prehensile}.",
+    "keywords": [
+      "pretraining",
+      "robotics",
+      "manipulation",
+      "object representation",
+      "representation learning"
+    ],
+    "primary_area": "applications to robotics, autonomy, planning",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=KTtEICH4TO",
+    "review_count": 4
+  },
+  {
+    "paper_id": "AqN23oqraW",
+    "title": "KoLA: Carefully Benchmarking World Knowledge of Large Language Models",
+    "abstract": "The unprecedented performance of large language models (LLMs) necessitates improvements in evaluations. Rather than merely exploring the breadth of LLM abilities, we believe meticulous and thoughtful designs are essential to thorough, unbiased, and applicable evaluations. Given the importance of world knowledge to LLMs, we construct a Knowledge-oriented LLM Assessment benchmark (KoLA), in which we carefully design three crucial factors: (1) For ability modeling, we mimic human cognition to form a four-level taxonomy of knowledge-related abilities, covering 19 tasks. (2) For data, to ensure fair comparisons, we use both Wikipedia, a corpus prevalently pre-trained by LLMs, along with continuously collected emerging corpora, aiming to evaluate the capacity to handle unseen data and evolving knowledge. (3) For evaluation criteria, we adopt a contrastive system, including overall standard scores for better numerical comparability across tasks and models, and a unique self-contrast metric for automatically evaluating knowledge-creating ability. We evaluate 21 open-source and commercial LLMs and obtain some intriguing findings. The KoLA dataset will be updated every three months to provide timely references for developing LLMs and knowledge-related systems.",
+    "keywords": [
+      "Large Language Model",
+      "World Knowledge",
+      "Evolving Benchmark"
+    ],
+    "primary_area": "datasets and benchmarks",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=AqN23oqraW",
+    "review_count": 4
+  },
+  {
+    "paper_id": "hv3SklibkL",
+    "title": "Graph Parsing Networks",
+    "abstract": "Graph pooling compresses graph information into a compact representation. State-of-the-art graph pooling methods follow a hierarchical approach, which reduces the graph size step-by-step. These methods must balance memory efficiency with preserving node information, depending on whether they use node dropping or node clustering. Additionally, fixed pooling ratios or numbers of pooling layers are predefined for all graphs, which prevents personalized pooling structures from being captured for each individual graph. In this work, inspired by bottom-up grammar induction, we propose an efficient graph parsing algorithm to infer the pooling structure, which then drives graph pooling. The resulting Graph Parsing Network (GPN) adaptively learns personalized pooling structure for each individual graph. GPN benefits from the discrete assignments generated by the graph parsing algorithm, allowing good memory efficiency while preserving node information intact. Experimental results on standard benchmarks demonstrate that GPN outperforms state-of-the-art graph pooling methods in graph classification tasks while being able to achieve competitive performance in node classification tasks. We also conduct a graph reconstruction task to show GPN's ability to preserve node information and measure both memory and time efficiency through relevant tests.",
+    "keywords": [
+      "GNN",
+      "graph pooling",
+      "parsing"
+    ],
+    "primary_area": "learning on graphs and other geometries & topologies",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=hv3SklibkL",
+    "review_count": 4
+  },
+  {
+    "paper_id": "N0nTk5BSvO",
+    "title": "TESTAM: A Time-Enhanced Spatio-Temporal Attention Model with Mixture of Experts",
+    "abstract": "Accurate traffic forecasting is challenging due to the complex dependency on road networks, various types of roads, and the abrupt speed change due to the events. Recent works mainly focus on dynamic spatial modeling with adaptive graph embedding or graph attention having less consideration for temporal characteristics and in-situ modeling. In this paper, we propose a novel deep learning model named TESTAM, which individually models recurring and non-recurring traffic patterns by a mixture-of-experts model with three experts on temporal modeling, spatio-temporal modeling with static graph, and dynamic spatio-temporal dependency modeling with dynamic graph. By introducing different experts and properly routing them, TESTAM could better model various circumstances, including spatially isolated nodes, highly related nodes, and recurring and non-recurring events. For the proper routing, we reformulate a gating problem into a classification problem with pseudo labels. Experimental results on three public traffic network datasets, METR-LA, PEMS-BAY, and EXPY-TKY, demonstrate that TESTAM achieves a better indication and modeling of recurring and non-recurring traffic.",
+    "keywords": [
+      "Traffic Prediction",
+      "Deep Learning",
+      "Spatio-Temporal data modeling"
+    ],
+    "primary_area": "unsupervised, self-supervised, semi-supervised, and supervised representation learning",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=N0nTk5BSvO",
+    "review_count": 4
+  },
+  {
+    "paper_id": "wkbeqr5XhC",
+    "title": "LUM-ViT: Learnable Under-sampling Mask Vision Transformer for Bandwidth Limited Optical Signal Acquisition",
+    "abstract": "Bandwidth constraints during signal acquisition frequently impede real-time detection applications. Hyperspectral data is a notable example, whose vast volume compromises real-time hyperspectral detection. To tackle this hurdle, we introduce a novel approach leveraging pre-acquisition modulation to reduce the acquisition volume. This modulation process is governed by a deep learning model, utilizing prior information. Central to our approach is LUM-ViT, a Vision Transformer variant. Uniquely, LUM-ViT incorporates a learnable under-sampling mask tailored for pre-acquisition modulation. To further optimize for optical calculations, we propose a kernel-level weight binarization technique and a three-stage fine-tuning strategy. Our evaluations reveal that, by sampling a mere 10\\% of the original image pixels, LUM-ViT maintains the accuracy loss within 1.8\\% on the ImageNet classification task. The method sustains near-original accuracy when implemented on real-world optical hardware, demonstrating its practicality. Code will be available at [https://github.com/MaxLLF/LUM-ViT](https://github.com/MaxLLF/LUM-ViT).",
+    "keywords": [
+      "hyperspectral imaging",
+      "optical modulation",
+      "real-time detection",
+      "vision transformer",
+      "pre-acquisition modulation",
+      "learnable mask",
+      "weight binarization"
+    ],
+    "primary_area": "general machine learning (i.e., none of the above)",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=wkbeqr5XhC",
+    "review_count": 3
+  },
+  {
+    "paper_id": "SQpnEfv9WH",
+    "title": "Social-Transmotion: Promptable Human Trajectory Prediction",
+    "abstract": "Accurate human trajectory prediction is crucial for applications such as autonomous vehicles, robotics, and surveillance systems. Yet, existing models often fail to fully leverage the non-verbal social cues human subconsciously communicate when navigating the space.\nTo address this, we introduce *Social-Transmotion*, a generic Transformer-based model that exploits diverse and numerous visual cues to predict human behavior. We translate the idea of a prompt from Natural Language Processing (NLP) to the task of human trajectory prediction, where a prompt can be a sequence of x-y coordinates on the ground, bounding boxes in the image plane, or body pose keypoints in either 2D or 3D.  This, in turn, augments trajectory data, leading to enhanced human trajectory prediction.\nUsing masking technique, our model exhibits flexibility and adaptability by capturing spatiotemporal interactions between agents based on the available visual cues.\nWe delve into the merits of using 2D versus 3D poses, and a limited set of poses. Additionally, we investigate the spatial and temporal attention map to identify which keypoints and time-steps in the sequence are vital for optimizing human trajectory prediction.\nOur approach is validated on multiple datasets, including JTA, JRDB, Pedestrians and Cyclists in Road Traffic, and ETH-UCY.\nThe code is publicly available: [https://github.com/vita-epfl/social-transmotion](https://github.com/vita-epfl/social-transmotion).",
+    "keywords": [
+      "human trajectory prediction",
+      "robot navigation",
+      "autonomous driving",
+      "attention mechanism"
+    ],
+    "primary_area": "applications to robotics, autonomy, planning",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=SQpnEfv9WH",
+    "review_count": 4
+  },
+  {
+    "paper_id": "3SJE1WLB4M",
+    "title": "Generalization error of spectral algorithms",
+    "abstract": "The asymptotically precise estimation of the generalization of kernel methods has recently received attention due to the parallels between neural networks and their associated kernels. However, prior works derive such estimates for training by kernel ridge regression (KRR), whereas neural networks are typically trained with gradient descent (GD). In the present work, we consider the training of kernels with a family of \\emph{spectral algorithms} specified by profile $h(\\lambda)$, and including KRR and GD as special cases. Then, we derive the generalization error as a functional of learning profile $h(\\lambda)$ for two data models: high-dimensional Gaussian and low-dimensional translation-invariant model. \nUnder power-law assumptions on the spectrum of the kernel and target, we use our framework to (i) give full loss asymptotics for both noisy and noiseless observations (ii) show that the loss localizes on certain spectral scales, giving a new perspective on the KRR saturation phenomenon (iii) conjecture, and demonstrate for the considered data models, the universality of the loss w.r.t. non-spectral details of the problem, but only in case of noisy observation.",
+    "keywords": [
+      "gradient descent",
+      "kernel ridge regression",
+      "optimal algorithm",
+      "generalization",
+      "asymptotic error rates",
+      "power-laws"
+    ],
+    "primary_area": "learning theory",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=3SJE1WLB4M",
+    "review_count": 3
+  },
+  {
+    "paper_id": "dCHbFDsCZz",
+    "title": "Learning to Reject with a Fixed Predictor: Application to Decontextualization",
+    "abstract": "We study the problem of classification with a reject option for a fixed predictor, crucial to natural language processing. We introduce a new problem formulation for this scenario, and an algorithm minimizing a new surrogate loss function. We provide a complete theoretical analysis of the surrogate loss function with a strong $H$-consistency guarantee. For evaluation, we choose the \\textit{decontextualization} task, and provide a manually-labelled dataset of $2\\mathord,000$ examples. Our algorithm significantly outperforms the baselines considered, with a $\\sim 25$% improvement in coverage when halving the error rate, which is only $\\sim 3$% away from the theoretical limit.",
+    "keywords": [
+      "Rejection",
+      "abstention",
+      "loss function",
+      "consistency",
+      "learning theory",
+      "decontextualization",
+      "natural language processing"
+    ],
+    "primary_area": "general machine learning (i.e., none of the above)",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=dCHbFDsCZz",
+    "review_count": 3
+  },
+  {
+    "paper_id": "EmQSOi1X2f",
+    "title": "Self-contradictory Hallucinations of Large Language Models: Evaluation, Detection and Mitigation",
+    "abstract": "Large language models (large LMs) are susceptible to producing text that contains hallucinated content. An important instance of this problem is self-contradiction, where the LM generates two contradictory sentences within the same context. In this work, we present a comprehensive investigation into self-contradiction for various instruction-tuned LMs, covering evaluation, detection, and mitigation. Our primary evaluation task is open-domain text generation, but we also demonstrate the applicability of our approach to shorter question answering. Our analysis reveals the prevalence of self-contradictions, e.g., in 17.7% of all sentences produced by ChatGPT. We then propose a novel prompting-based framework designed to effectively detect and mitigate self-contradictions. Our detector achieves high accuracy, e.g., around 80% F1 score when prompting ChatGPT. The mitigation algorithm iteratively refines the generated text to remove contradictory information while preserving text fluency and informativeness. Importantly, our entire framework is applicable to black-box LMs and does not require retrieval of external knowledge. Rather, our method complements retrieval-based methods, as a large portion of self-contradictions (e.g., 35.2% for ChatGPT) cannot be verified using online text. Our approach is practically effective and has been released as a push-button tool to benefit the public at https://chatprotect.ai/.",
+    "keywords": [
+      "language model",
+      "hallucination",
+      "trustworthy artificial intelligence",
+      "reasoning"
+    ],
+    "primary_area": "societal considerations including fairness, safety, privacy",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=EmQSOi1X2f",
+    "review_count": 3
+  },
+  {
+    "paper_id": "Ffjc8ApSbt",
+    "title": "Debiased Collaborative Filtering with Kernel-Based Causal Balancing",
+    "abstract": "Collaborative filtering builds personalized models from the collected user feedback. However, the collected data is observational rather than experimental, leading to various biases in the data, which can significantly affect the learned model. To address this issue, many studies have focused on propensity-based methods to combat the selection bias by reweighting the sample loss, and demonstrate that\nbalancing is important for debiasing both theoretically and empirically. However, there are two questions that still need to be addressed: which function class should be balanced and how to effectively balance that function class? In this paper, we first perform theoretical analysis to show the effect of balancing finite-dimensional function classes on the bias of IPS and DR methods, and based on this, we propose a universal kernel-based balancing method to balance functions on the reproducing kernel Hilbert space. In addition, we propose a novel adaptive causal balancing method during the alternating update between unbiased evaluation and training of the prediction model. Specifically, the prediction loss of the model is projected in the kernel-based covariate function space, and the projection coefficients are used to determine which functions should be prioritized for balancing to reduce the estimation bias. We conduct extensive experiments on three real-world datasets to demonstrate the effectiveness of the proposed approach.",
+    "keywords": [
+      "Recommender System",
+      "Causal Inference",
+      "Bias",
+      "Debias",
+      "Balancing"
+    ],
+    "primary_area": "general machine learning (i.e., none of the above)",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=Ffjc8ApSbt",
+    "review_count": 3
+  },
+  {
+    "paper_id": "AyXIDfvYg8",
+    "title": "Symmetric Neural-Collapse Representations with Supervised Contrastive Loss: The Impact of ReLU and Batching",
+    "abstract": "Supervised contrastive loss (SCL) is a competitive and often superior alternative to the cross-entropy loss for classification. While prior studies have demonstrated that both losses yield symmetric training representations under balanced data, this symmetry breaks under class imbalances. This paper presents an intriguing discovery: the introduction of a ReLU activation at the final layer effectively restores the symmetry in SCL-learned representations. We arrive at this finding analytically, by establishing that the global minimizers of an unconstrained features model with SCL loss and entry-wise non-negativity constraints form an orthogonal frame. Extensive experiments conducted across various datasets, architectures, and imbalance scenarios corroborate our finding.  Importantly, our experiments reveal that the inclusion of the ReLU activation restores symmetry without compromising test accuracy. This constitutes the first geometry characterization of SCL under imbalances. Additionally, our analysis and experiments underscore the pivotal role of batch selection strategies in representation geometry. By proving necessary and sufficient conditions for mini-batch choices that ensure invariant symmetric representations, we introduce batch-binding as an efficient strategy that guarantees these conditions hold.",
+    "keywords": [
+      "Supervised contrastive learning",
+      "neural collapse",
+      "implicit bias",
+      "class imbalance"
+    ],
+    "primary_area": "unsupervised, self-supervised, semi-supervised, and supervised representation learning",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=AyXIDfvYg8",
+    "review_count": 4
+  },
+  {
+    "paper_id": "ADDCErFzev",
+    "title": "Manipulating dropout reveals an optimal balance of efficiency and robustness in biological and machine visual systems",
+    "abstract": "According to the efficient coding hypothesis, neural populations encode information optimally when representations are high-dimensional and uncorrelated. However, such codes may carry a cost in terms of generalization and robustness. Past empirical studies of early visual cortex (V1) in rodents have suggested that this tradeoff indeed constrains sensory representations. However, it remains unclear whether these insights generalize across the hierarchy of the human visual system, and particularly to object representations in high-level occipitotemporal cortex (OTC). To gain new empirical clarity, here we develop a family of object recognition models with parametrically varying dropout proportion $p$, which induces systematically varying dimensionality of internal responses (while controlling all other inductive biases). We find that increasing dropout produces an increasingly smooth, low-dimensional representational space. Optimal robustness to lesioning is observed at around 70% dropout, after which both accuracy and robustness decline. Representational comparison to large-scale 7T fMRI data from occipitotemporal cortex in the Natural Scenes Dataset reveals that this optimal degree of dropout is also associated with maximal emergent neural predictivity. Finally, using new techniques for achieving denoised estimates of the eigenspectrum of human fMRI responses, we compare the rate of eigenspectrum decay between model and brain feature spaces. We observe that the match between model and brain representations is associated with a common balance between efficiency and robustness in the representational space. These results suggest that varying dropout may reveal an optimal point of balance between the efficiency of high-dimensional codes and the robustness of low dimensional codes in hierarchical vision systems.",
+    "keywords": [
+      "Efficient coding",
+      "object representation",
+      "dropout",
+      "robustness",
+      "human fMRI",
+      "occipitotemporal cortex",
+      "cognitive neuroscience",
+      "distributed coding"
+    ],
+    "primary_area": "applications to neuroscience & cognitive science",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=ADDCErFzev",
+    "review_count": 4
+  },
+  {
+    "paper_id": "uz7d2N2zul",
+    "title": "Bayesian Coreset Optimization for Personalized Federated Learning",
+    "abstract": "In a distributed machine learning setting like Federated Learning where there are multiple clients involved which update their individual weights to a single central server, often training on the entire individual client's dataset for each client becomes cumbersome. To address this issue we propose CORESET-PFEDBAYES : a personalized coreset weighted federated learning setup where the training updates for each individual clients are forwarded to the central server based on only individual client coreset based representative data points instead of the entire client data. Through theoretical analysis we present how the average generalization error is minimax optimal up to logarithm bounds (upper bounded by $\\mathcal{O}(n_k^{-\\frac{2 \\beta}{2 \\beta+\\boldsymbol{\\Lambda}}} \\log ^{2 \\delta^{\\prime}}(n_k))$) and lower bounds of $\\mathcal{O}(n_k^{-\\frac{2 \\beta}{2 \\beta+\\boldsymbol{\\Lambda}}})$, and how the overall generalization error on the data likelihood differs from a vanilla Federated Learning setup as a closed form function ${\\boldsymbol{\\Im}}(\\boldsymbol{w}, n_k)$ of the coreset weights $\\boldsymbol{w}$ and coreset sample size $n_k$. \nOur experiments on different benchmark datasets based on a variety of recent personalized federated learning architectures show significant gains as compared to random sampling on the training data followed by federated learning, thereby indicating how intelligently selecting such training samples can help in performance. Additionally, through experiments on medical datasets our proposed method showcases some gains as compared to  other submodular optimization based approaches used for subset selection on client's data.",
+    "keywords": [
+      "federated learning",
+      "personalized federated learning",
+      "bayesian coreset",
+      "submodularity",
+      "variational inference",
+      "coresets",
+      "optimization"
+    ],
+    "primary_area": "general machine learning (i.e., none of the above)",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=uz7d2N2zul",
+    "review_count": 3
+  },
+  {
+    "paper_id": "uREj4ZuGJE",
+    "title": "In-context Autoencoder for Context Compression in a Large Language Model",
+    "abstract": "We propose the In-context Autoencoder (ICAE), leveraging the power of a large language model (LLM) to compress a long context into short compact memory slots that can be directly conditioned on by the LLM for various purposes. ICAE is first pretrained using both autoencoding and language modeling objectives on massive text data, enabling it to generate memory slots that accurately and comprehensively represent the original context. Then, it is fine-tuned on instruction data for producing desirable responses to various prompts. Experiments demonstrate that our lightweight ICAE, introducing about 1% additional parameters, effectively achieves $4\\times$ context compression based on Llama, offering advantages in both improved latency and GPU memory cost during inference, and showing an interesting insight in memorization as well as potential for scalability. These promising results imply a novel perspective on the connection between working memory in cognitive science and representation learning in LLMs, revealing ICAE's significant implications in addressing the long context problem and suggesting further research in LLM context management. Our data, code and models are available at https://github.com/getao/icae.",
+    "keywords": [
+      "large language model",
+      "context compression",
+      "in-context autoencoder",
+      "pretraining",
+      "fine-tuning",
+      "Llama",
+      "GPT",
+      "memorization"
+    ],
+    "primary_area": "representation learning for computer vision, audio, language, and other modalities",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=uREj4ZuGJE",
+    "review_count": 4
+  },
+  {
+    "paper_id": "J44HfH4JCg",
+    "title": "Mitigating Hallucination in Large Multi-Modal Models via Robust Instruction Tuning",
+    "abstract": "Despite the promising progress in multi-modal tasks, current large multi-modal models (LMMs) are prone to hallucinating inconsistent descriptions with respect to the associated image and human instructions. This paper addresses this issue by introducing the first large and diverse visual instruction tuning dataset, named Large-scale Robust Visual (LRV)-Instruction. Our dataset comprises 400k visual\ninstructions generated by GPT4, covering 16 vision-and-language tasks with open-ended instructions and answers. Unlike existing studies that primarily focus on positive instruction samples, we design LRV-Instruction to include both positive and negative instructions for more robust visual instruction tuning. Our negative instructions are designed at three semantic levels: (i) Nonexistent Object Manipulation, (ii) Existent Object Manipulation and (iii) Knowledge Manipulation. To efficiently measure the hallucination generated by LMMs, we propose GPT4-Assisted Visual Instruction Evaluation (GAVIE), a stable approach to evaluate visual instruction tuning like human experts. GAVIE does not require human-annotated groundtruth answers and can adapt to diverse instruction formats. We conduct comprehensive experiments to investigate the hallucination of LMMs. Our results demonstrate existing LMMs exhibit significant hallucinations when presented with our negative instructions, particularly Existent Object and Knowledge Manipulation instructions. Moreover, we successfully mitigate hallucination by finetuning MiniGPT4 and mPLUG-Owl on LRV-Instruction while improving performance on several public\ndatasets compared to state-of-the-art methods. Additionally, we observed that a balanced ratio of positive and negative instances in the training data leads to a more robust model. Code and data will be released upon publication.",
+    "keywords": [
+      "instruction tuning",
+      "multimodal large language model",
+      "hallucination",
+      "datasets"
+    ],
+    "primary_area": "datasets and benchmarks",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=J44HfH4JCg",
+    "review_count": 4
+  },
+  {
+    "paper_id": "FHqAzWl2wE",
+    "title": "Multimarginal Generative Modeling with Stochastic Interpolants",
+    "abstract": "Given a set of $K$ probability densities, we consider the multimarginal generative modeling problem of learning a joint distribution that recovers these densities as marginals. The structure of this joint distribution should identify multi-way correspondences among the prescribed marginals. We formalize an approach to this task within a generalization of the stochastic interpolant framework, leading to efficient learning algorithms built upon dynamical transport of measure. Our generative models are defined by velocity and score fields that can be characterized as the minimizers of simple quadratic objectives, and they are defined on a simplex that generalizes the time variable in the usual dynamical transport framework. The resulting transport on the simplex is influenced by all marginals, and we show that multi-way correspondences can be extracted. The identification of such correspondences has applications to style transfer, algorithmic fairness, and data decorruption.  In addition, the multimarginal perspective enables an efficient algorithm for optimizing the dynamical transport cost in the ordinary two-marginal setting. We demonstrate these capacities with several numerical examples.",
+    "keywords": [
+      "multi-marginal",
+      "unsupervised learning",
+      "generative modeling",
+      "measure transport",
+      "optimal transport"
+    ],
+    "primary_area": "generative models",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=FHqAzWl2wE",
+    "review_count": 3
+  },
+  {
+    "paper_id": "KS8mIvetg2",
+    "title": "Proving Test Set Contamination in Black-Box Language Models",
+    "abstract": "Large language models are trained on vast amounts of internet data, prompting concerns that they have memorized public benchmarks. Detecting this type of contamination is challenging because the pretraining data used by proprietary models are often not publicly accessible.\n\nWe propose a procedure for detecting test set contamination of language models with exact false positive guarantees and without access to pretraining data or model weights. Our approach leverages the fact that when there is no data contamination, all orderings of an exchangeable benchmark should be equally likely. In contrast, the tendency for language models to memorize example order means that a contaminated language model will find certain canonical orderings to be much more likely than others. Our test flags potential contamination whenever the likelihood of a canonically ordered benchmark dataset is significantly higher than the likelihood after shuffling the examples.\n\nWe demonstrate that our procedure is sensitive enough to reliably detect contamination in challenging situations, including models as small as 1.4 billion parameters, on small test sets only 1000 examples, and datasets that appear only a few times in the pretraining corpus. Finally, we evaluate LLaMA-2 to apply our test in a realistic setting and find our results to be consistent with existing contamination evaluations.",
+    "keywords": [
+      "language modeling",
+      "memorization",
+      "dataset contamination"
+    ],
+    "primary_area": "societal considerations including fairness, safety, privacy",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=KS8mIvetg2",
+    "review_count": 4
+  },
+  {
+    "paper_id": "JiTVtCUOpS",
+    "title": "Rethinking Channel Dependence for Multivariate Time Series Forecasting: Learning from Leading Indicators",
+    "abstract": "Recently, channel-independent methods have achieved state-of-the-art performance in multivariate time series (MTS) forecasting. Despite reducing overfitting risks, these methods miss potential opportunities in utilizing channel dependence for accurate predictions. We argue that there exist locally stationary lead-lag relationships between variates, i.e., some lagged variates may follow the leading indicators within a short time period. Exploiting such channel dependence is beneficial since leading indicators offer advance information that can be used to reduce the forecasting difficulty of the lagged variates. In this paper, we propose a new method named LIFT that first efficiently estimates leading indicators and their leading steps at each time step and then judiciously allows the lagged variates to utilize the advance information from leading indicators. LIFT plays as a plugin that can be seamlessly collaborated with arbitrary time series forecasting methods. Extensive experiments on six real-world datasets demonstrate that LIFT improves the state-of-the-art methods by 5.4% in average forecasting performance. Our code is available at https://github.com/SJTU-Quant/LIFT.",
+    "keywords": [
+      "Multivariate time series forecasting",
+      "channel dependence",
+      "lead-lag relationships",
+      "distribution shift"
+    ],
+    "primary_area": "general machine learning (i.e., none of the above)",
+    "conference": "ICLR 2024",
+    "venue_id": "ICLR.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=JiTVtCUOpS",
+    "review_count": 4
+  },
+  {
+    "paper_id": "iEeiZlTbts",
+    "title": "No Regrets: Investigating and Improving Regret Approximations for Curriculum Discovery",
+    "abstract": "What data or environments to use for training to improve downstream performance is a longstanding and very topical question in reinforcement learning. \nIn particular, Unsupervised Environment Design (UED) methods have gained recent attention as their adaptive curricula promise to enable agents to be robust to in- and out-of-distribution tasks.\nThis work investigates how existing UED methods select training environments, focusing on task prioritisation metrics.\nSurprisingly, despite methods aiming to maximise regret in theory, the practical approximations do not correlate with regret but with success rate.\nAs a result, a significant portion of an agent's experience comes from environments it has already mastered, offering little to no contribution toward enhancing its abilities. Put differently, current methods fail to predict intuitive measures of *learnability*. Specifically, they are unable to consistently identify those scenarios that the agent can sometimes solve, but not always.\nBased on our analysis, we develop a method that directly trains on scenarios with high learnability. This simple and intuitive approach outperforms existing UED methods in several binary-outcome environments, including the standard domain of Minigrid and a novel setting closely inspired by a real-world robotics problem. \nWe further introduce a new adversarial evaluation procedure for directly measuring robustness, closely mirroring the conditional value at risk (CVaR).\nWe open-source all our code and present visualisations of final policies here: https://github.com/amacrutherford/sampling-for-learnability.",
+    "keywords": [
+      "MARL",
+      "UED",
+      "Robotics"
+    ],
+    "primary_area": "reinforcement_learning",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=iEeiZlTbts",
+    "review_count": 4
+  },
+  {
+    "paper_id": "te6VagJf6G",
+    "title": "Learning to Reason via Program Generation, Emulation, and Search",
+    "abstract": "Program synthesis with language models (LMs) has unlocked a large set of reasoning abilities; code-tuned LMs have proven adept at generating programs that solve a wide variety of algorithmic symbolic manipulation tasks (e.g. word concatenation). However, not all reasoning tasks are easily expressible as code, e.g. tasks involving commonsense reasoning, moral decision-making, and sarcasm understanding. Our goal is to extend a LM’s program synthesis skills to such tasks and evaluate the results via pseudo-programs, namely Python programs where some leaf function calls are left undefined. To that end, we propose, Code Generation and Emulated EXecution (COGEX). COGEX works by (1) training LMs to generate pseudo-programs and (2) teaching them to emulate their generated program’s execution, including those leaf functions, allowing the LM’s knowledge to fill in the execution gaps; and (3) using them to search over many programs to find an optimal one. To adapt the COGEX model to a new task, we introduce a method for performing program search to find a single program whose pseudo-execution yields optimal performance when applied to all the instances of a given dataset. We show that our approach yields large improvements compared to standard in-context learning approaches on a battery of tasks, both algorithmic and soft reasoning. This result thus demonstrates that code synthesis can be applied to a much broader class of problems than previously considered.",
+    "keywords": [
+      "language models",
+      "instruction tuning",
+      "code generation",
+      "reasoning",
+      "program search",
+      "program emulation"
+    ],
+    "primary_area": "natural_language_processing",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=te6VagJf6G",
+    "review_count": 3
+  },
+  {
+    "paper_id": "8puv3c9CPg",
+    "title": "Beyond the Doors of Perception: Vision Transformers Represent Relations Between Objects",
+    "abstract": "Though vision transformers (ViTs) have achieved state-of-the-art performance in a variety of settings, they exhibit surprising failures when performing tasks involving visual relations. This begs the question: how do ViTs attempt to perform tasks that require computing visual relations between objects? Prior efforts to interpret ViTs tend to focus on characterizing relevant low-level visual features. In contrast, we adopt methods from mechanistic interpretability to study the higher-level visual algorithms that ViTs use to perform abstract visual reasoning. We present a case study of a fundamental, yet surprisingly difficult, relational reasoning task: judging whether two visual entities are the same or different. We find that pretrained ViTs fine-tuned on this task often exhibit two qualitatively different stages of processing despite having no obvious inductive biases to do so: 1) a perceptual stage wherein local object features are extracted and stored in a disentangled representation, and 2) a relational stage wherein object representations are compared. In the second stage, we find evidence that ViTs can learn to represent somewhat abstract visual relations, a capability that has long been considered out of reach for artificial neural networks. Finally, we demonstrate that failures at either stage can prevent a model from learning a generalizable solution to our fairly simple tasks. By understanding ViTs in terms of discrete processing stages, one can more precisely diagnose and rectify shortcomings of existing and future models.",
+    "keywords": [
+      "visual reasoning",
+      "mechanistic interpretability",
+      "transformers",
+      "cognitive science"
+    ],
+    "primary_area": "interpretability_and_explainability",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=8puv3c9CPg",
+    "review_count": 4
+  },
+  {
+    "paper_id": "qrfp4eeZ47",
+    "title": "FactorizePhys: Matrix Factorization for Multidimensional Attention in Remote Physiological Sensing",
+    "abstract": "Remote photoplethysmography (rPPG) enables non-invasive extraction of blood volume pulse signals through imaging, transforming spatial-temporal data into time series signals. Advances in end-to-end rPPG approaches have focused on this transformation where attention mechanisms are crucial for feature extraction. However, existing methods compute attention disjointly across spatial, temporal, and channel dimensions. Here, we propose the Factorized Self-Attention Module (FSAM), which jointly computes multidimensional attention from voxel embeddings using nonnegative matrix factorization. To demonstrate FSAM's effectiveness, we developed FactorizePhys, an end-to-end 3D-CNN architecture for estimating blood volume pulse signals from raw video frames. Our approach adeptly factorizes voxel embeddings to achieve comprehensive spatial, temporal, and channel attention, enhancing performance of generic signal extraction tasks. Furthermore, we deploy FSAM within an existing 2D-CNN-based rPPG architecture to illustrate its versatility. FSAM and FactorizePhys are thoroughly evaluated against state-of-the-art rPPG methods, each representing different types of architecture and attention mechanism. We perform ablation studies to investigate the architectural decisions and hyperparameters of FSAM. Experiments on four publicly available datasets and intuitive visualization of learned spatial-temporal features substantiate the effectiveness of FSAM and enhanced cross-dataset generalization in estimating rPPG signals, suggesting its broader potential as a multidimensional attention mechanism. The code is accessible at https://github.com/PhysiologicAILab/FactorizePhys.",
+    "keywords": [
+      "Time-series estimation",
+      "remote photo-plethysmography",
+      "spatial-temporal attention",
+      "non-negative matrix factorization"
+    ],
+    "primary_area": "deep_learning_architectures",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=qrfp4eeZ47",
+    "review_count": 3
+  },
+  {
+    "paper_id": "BRZYhVHvSg",
+    "title": "Multi-Group Proportional Representation in Retrieval",
+    "abstract": "Image search and retrieval tasks can perpetuate harmful stereotypes, erase cultural identities, and amplify social disparities. Current approaches to mitigate these representational harms balance the number of retrieved items across population groups defined by a small number of (often binary) attributes. However, most existing methods overlook intersectional groups determined by combinations of\ngroup attributes, such as gender, race, and ethnicity. We introduce Multi-Group Proportional Representation (MPR), a novel metric that measures representation across intersectional groups. We develop practical methods for estimating MPR, provide theoretical guarantees, and propose optimization algorithms to ensure MPR in retrieval. We demonstrate that existing methods optimizing for equal and proportional representation metrics may fail to promote MPR. Crucially, our work shows that optimizing MPR yields more proportional representation across multiple intersectional groups specified by a rich function class, often with minimal compromise in retrieval accuracy. Code is provided at https://github.com/alex-oesterling/multigroup-proportional-representation.",
+    "keywords": [
+      "Fairness",
+      "Proportional Representation",
+      "Multi-Group Fairness"
+    ],
+    "primary_area": "fairness",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=BRZYhVHvSg",
+    "review_count": 3
+  },
+  {
+    "paper_id": "oEKFPSOWpp",
+    "title": "NeuralSteiner: Learning Steiner Tree for Overflow-avoiding Global Routing in Chip Design",
+    "abstract": "Global routing plays a critical role in modern chip design. The routing paths generated by global routers often form a rectilinear Steiner tree (RST). Recent advances from the machine learning community have shown the power of learning-based route generation; however, the yielded routing paths by the existing approaches often suffer from considerable overflow, thus greatly hindering their application in practice.\nWe propose NeuralSteiner, an accurate approach to overflow-avoiding global routing in chip design. The key idea of NeuralSteiner approach is to learn Steiner trees: we first predict the locations of highly likely Steiner points by adopting a neural network considering full-net spatial and overflow information, then select appropriate points by running a graph-based post-processing algorithm, and finally connect these points with the input pins to yield overflow-avoiding RSTs. NeuralSteiner offers two advantages over previous learning-based models. First, by using the learning scheme, NeuralSteiner ensures the connectivity of generated routes while significantly reducing congestion. Second, NeuralSteiner can effectively scale to large nets and transfer to unseen chip designs without any modifications or fine-tuning.  Extensive experiments over public large-scale benchmarks reveal that, compared with the state-of-the-art deep generative methods, NeuralSteiner achieves up to a 99.8\\% reduction in overflow while speeding up the generation and maintaining a slight wirelength loss within only 1.8\\%.",
+    "keywords": [
+      "Global routing",
+      "chip design",
+      "neural network",
+      "Steiner tree",
+      "deep learning",
+      "congestion"
+    ],
+    "primary_area": "machine_learning_for_other_sciences_and_fields",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=oEKFPSOWpp",
+    "review_count": 4
+  },
+  {
+    "paper_id": "eHzIwAhj06",
+    "title": "The Group Robustness is in the Details: Revisiting Finetuning under Spurious Correlations",
+    "abstract": "Modern machine learning models are prone to over-reliance on spurious correlations, which can often lead to poor performance on minority groups. In this paper, we identify surprising and nuanced behavior of finetuned models on worst-group accuracy via comprehensive experiments on four well-established benchmarks across vision and language tasks. We first show that the commonly used class-balancing techniques of mini-batch upsampling and loss upweighting can induce a decrease in worst-group accuracy (WGA) with training epochs, leading to performance no better than without class-balancing. While in some scenarios, removing data to create a class-balanced subset is more effective, we show this depends on group structure and propose a mixture method which can outperform both techniques. Next, we show that scaling pretrained models is generally beneficial for worst-group accuracy, but only in conjunction with appropriate class-balancing. Finally, we identify spectral imbalance in finetuning features as a potential source of group disparities --- minority group covariance matrices incur a larger spectral norm than majority groups once conditioned on the classes. Our results show more nuanced interactions of modern finetuned models with group robustness than was previously known. Our code is available at https://github.com/tmlabonte/revisiting-finetuning.",
+    "keywords": [
+      "spurious correlations",
+      "group robustness",
+      "distribution shift",
+      "class balancing"
+    ],
+    "primary_area": "fairness",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=eHzIwAhj06",
+    "review_count": 4
+  },
+  {
+    "paper_id": "x7AD0343Jz",
+    "title": "Limits of Transformer Language Models on Learning to Compose Algorithms",
+    "abstract": "We analyze the capabilities of Transformer language models in learning compositional discrete tasks. To this end, we evaluate training LLaMA models and prompting GPT-4 and Gemini on four tasks demanding to learn a composition of several discrete sub-tasks. In particular, we measure how well these models can reuse primitives observable in the sub-tasks to learn the composition task. Our results indicate that compositional learning in state-of-the-art Transformer language models is highly sample inefficient: LLaMA requires more data samples than relearning all sub-tasks from scratch to learn the compositional task; in-context prompting with few samples is unreliable and fails at executing the sub-tasks or correcting the errors in multi-round code generation. Further, by leveraging complexity theory, we support these findings with a theoretical analysis focused on the sample inefficiency of gradient descent in memorizing feedforward models. We open source our code at https://github.com/IBM/limitations-lm-algorithmic-compositional-learning.",
+    "keywords": [
+      "Few-shot Compositional Learning",
+      "Compositionality",
+      "Sample Efficiency",
+      "Algorithmic Learning",
+      "Large Language Models",
+      "Transformers"
+    ],
+    "primary_area": "natural_language_processing",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=x7AD0343Jz",
+    "review_count": 4
+  },
+  {
+    "paper_id": "Es2Ey2tGmM",
+    "title": "Constrained Diffusion Models via Dual Training",
+    "abstract": "Diffusion models have attained prominence for their ability to synthesize a probability distribution for a given dataset via a diffusion process,  enabling the generation of new data points with high fidelity. However, diffusion processes are prone to generating samples that reflect biases in a training dataset. To address this issue, we develop constrained diffusion models by imposing diffusion constraints based on desired distributions that are informed by requirements. Specifically, we cast the training of diffusion models under requirements as a constrained distribution optimization problem that aims to reduce the distribution difference between original and generated data while obeying constraints on the distribution of generated data. We show that our constrained diffusion models generate new data from a mixture data distribution that achieves the optimal trade-off among objective and constraints. To train constrained diffusion models, we develop a dual training algorithm and characterize the optimality of the trained constrained diffusion model. We empirically demonstrate the effectiveness of our constrained models in two constrained generation tasks: (i) we consider a dataset with one or more underrepresented classes where we train the model with constraints to ensure fairly sampling from all classes during inference; (ii) we fine-tune a pre-trained diffusion model to sample from a new dataset while avoiding overfitting.",
+    "keywords": [
+      "Constrained diffusion model",
+      "constrained optimization",
+      "Lagrangian method",
+      "dual algorithm"
+    ],
+    "primary_area": "diffusion_based_models",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=Es2Ey2tGmM",
+    "review_count": 4
+  },
+  {
+    "paper_id": "MhWaMOkoN3",
+    "title": "Universality in Transfer Learning for Linear Models",
+    "abstract": "We study the problem of transfer learning and fine-tuning in linear models for both regression and binary classification. In particular, we consider the use of stochastic gradient descent (SGD) on a linear model initialized with pretrained weights and using a small training data set from the target distribution. In the asymptotic regime of large models, we provide an exact and rigorous analysis and relate the generalization errors (in regression) and classification errors (in binary classification) for the pretrained and fine-tuned models. In particular, we give conditions under which the fine-tuned model outperforms the pretrained one. An important aspect of our work is that all the results are \"universal\", in the sense that they depend only on the first and second order statistics of the target distribution. They thus extend well beyond the standard Gaussian assumptions commonly made in the literature. Furthermore, our universality results extend beyond standard SGD training to the test error of a classification task trained using ridge regression.",
+    "keywords": [
+      "Gaussian Universality",
+      "Transfer Learning",
+      "Linear Regression",
+      "Binary Classification"
+    ],
+    "primary_area": "learning_theory",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=MhWaMOkoN3",
+    "review_count": 4
+  },
+  {
+    "paper_id": "tBRNC6YemY",
+    "title": "Gorilla: Large Language Model Connected with Massive APIs",
+    "abstract": "Large Language Models (LLMs) have seen an impressive wave of advances, with\nmodels now excelling in a variety of tasks, such as mathematical reasoning and\nprogram synthesis. However, their potential to effectively use tools via API calls\nremains unfulfilled. This is a challenging task even for today’s state-of-the-art\nLLMs such as GPT-4 largely due to their unawareness of what APIs are available\nand how to use them in a frequently updated tool set. We develop Gorilla, a\nfinetuned LLaMA model that surpasses the performance of GPT-4 on writing API\ncalls. Trained with the novel Retriever Aware Training (RAT), when combined\nwith a document retriever, Gorilla demonstrates a strong capability to adapt to\ntest-time document changes, allowing flexible user updates or version changes.\nIt also substantially mitigates the issue of hallucination, commonly encountered\nwhen prompting LLMs directly. To evaluate the model’s ability, we introduce\nAPIBench, a comprehensive dataset consisting of HuggingFace, TorchHub, and\nTensorHub APIs. The successful integration of the retrieval system with Gorilla\ndemonstrates the potential for LLMs to use tools more accurately, keep up with\nfrequently updated documentation, and consequently increase the reliability and\napplicability of their outputs. Gorilla’s code, model, data, and demo are available\nat: https://gorilla.cs.berkeley.edu",
+    "keywords": [
+      "LLM",
+      "Tool Use",
+      "APIs",
+      "Function Calling"
+    ],
+    "primary_area": "generative_models",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=tBRNC6YemY",
+    "review_count": 4
+  },
+  {
+    "paper_id": "yCh1z6Dcto",
+    "title": "Stepping Forward on the Last Mile",
+    "abstract": "Continuously adapting pre-trained models to local data on resource constrained edge devices is the \\emph{last mile} for model deployment. However, as models increase in size and depth, backpropagation requires a large amount of memory, which becomes prohibitive for edge devices. In addition, most existing low power neural processing engines (e.g., NPUs, DSPs, MCUs, etc.) are designed as fixed-point inference accelerators, without training capabilities. Forward gradients, solely based on directional derivatives computed from two forward calls, have been recently used for model training, with substantial savings in computation and memory. However, the performance of quantized training with fixed-point forward gradients remains unclear. In this paper, we investigate the feasibility of on-device training using fixed-point forward gradients, by conducting comprehensive experiments across a variety of deep learning benchmark tasks in both vision and audio domains. We propose a series of algorithm enhancements that further reduce the memory footprint, and the accuracy gap compared to backpropagation. An empirical study on how training with forward gradients navigates in the loss landscape is further explored. Our results demonstrate that on the last mile of model customization on edge devices, training with fixed-point forward gradients is a feasible and practical approach.",
+    "keywords": [
+      "On-device model adaptation",
+      "Fixed-point forward gradient learning",
+      "Low memory",
+      "Edge devices"
+    ],
+    "primary_area": "optimization_for_deep_networks",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=yCh1z6Dcto",
+    "review_count": 4
+  },
+  {
+    "paper_id": "XZp1uP0hh2",
+    "title": "Semi-Random Matrix Completion via Flow-Based Adaptive Reweighting",
+    "abstract": "We consider the well-studied problem of completing a rank-$r$, $\\mu$-incoherent matrix $\\mathbf{M} \\in \\mathbb{R}^{d \\times d}$ from incomplete observations. We focus on this problem in the semi-random setting where each entry is independently revealed with probability at least $p = \\frac{\\textup{poly}(r, \\mu, \\log d)}{d}$. \nWhereas multiple nearly-linear time algorithms have been established in the more specialized fully-random setting where each entry is revealed with probablity exactly $p$, the only known nearly-linear time algorithm in the semi-random setting is due to [CG18], whose sample complexity has a polynomial dependence on the inverse accuracy and condition number and thus cannot achieve high-accuracy recovery. \nOur main result is the first high-accuracy nearly-linear time algorithm for solving semi-random matrix completion, and an extension to the noisy observation setting.\nOur result builds upon the recent short-flat decomposition framework of [KLLST23a, KLLST23b] and leverages fast algorithms for flow problems on graphs to solve adaptive reweighting subproblems efficiently.",
+    "keywords": [
+      "matrix completion",
+      "semi-random model",
+      "flow solver",
+      "short-flat decomposition",
+      "adaptive reweighting"
+    ],
+    "primary_area": "learning_theory",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=XZp1uP0hh2",
+    "review_count": 5
+  },
+  {
+    "paper_id": "ZdWTN2HOie",
+    "title": "Stochastic Amortization: A Unified Approach to Accelerate Feature and Data Attribution",
+    "abstract": "Many tasks in explainable machine learning, such as data valuation and feature attribution, perform expensive computation for each data point and are intractable for large datasets. These methods require efficient approximations, and although amortizing the process by learning a network to directly predict the desired output is a promising solution, training such models with exact labels is often infeasible. We therefore explore training amortized models with noisy labels, and we find that this is inexpensive and surprisingly effective. Through theoretical analysis of the label noise and experiments with various models and datasets, we show that this approach tolerates high noise levels and significantly accelerates several feature attribution and data valuation methods, often yielding an order of magnitude speedup over existing approaches.",
+    "keywords": [
+      "Amortization",
+      "feature attribution",
+      "data valuation",
+      "stochastic optimization"
+    ],
+    "primary_area": "interpretability_and_explainability",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=ZdWTN2HOie",
+    "review_count": 4
+  },
+  {
+    "paper_id": "a560KLF3v5",
+    "title": "Unelicitable Backdoors via Cryptographic Transformer Circuits",
+    "abstract": "The rapid proliferation of open-source language models significantly increases the risks of downstream backdoor attacks. These backdoors can introduce dangerous behaviours during model deployment and can evade detection by conventional cybersecurity monitoring systems. In this paper, we introduce a novel class of backdoors in transformer models, that, in contrast to prior art, are unelicitable in nature. Unelicitability prevents the defender from triggering the backdoor, making it impossible to properly evaluate ahead of deployment even if given full white-box access and using automated techniques, such as red-teaming or certain formal verification methods. We show that our novel construction is not only unelicitable thanks to using cryptographic techniques, but also has favourable robustness properties.\nWe confirm these properties in empirical investigations, and provide evidence that our backdoors can withstand state-of-the-art mitigation strategies. Additionally, we expand on previous work by showing that our universal backdoors, while not completely undetectable in white-box settings, can be harder to detect than some existing designs. By demonstrating the feasibility of seamlessly integrating backdoors into transformer models, this paper fundamentally questions the efficacy of pre-deployment detection strategies. This offers new insights into the offence-defence balance in AI safety and security.",
+    "keywords": [
+      "Backdoor attacks",
+      "Transformers",
+      "handcrafting model parameters",
+      "cryptographic circuits"
+    ],
+    "primary_area": "safety_in_machine_learning",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=a560KLF3v5",
+    "review_count": 5
+  },
+  {
+    "paper_id": "KjNEzWRIqn",
+    "title": "Synatra: Turning Indirect Knowledge into Direct Demonstrations for Digital Agents at Scale",
+    "abstract": "LLMs can now act as autonomous agents that interact with digital environments and complete specific objectives (e.g., arranging an online meeting). However, accuracy is still far from satisfactory, partly due to a lack of large-scale, direct demonstrations for digital tasks. Obtaining supervised data from humans is costly, and automatic data collection through exploration or reinforcement learning relies on complex environmental and content setup, resulting in datasets that lack comprehensive coverage of various scenarios. On the other hand, there is abundant knowledge that may indirectly assist task completion, such as online tutorials that were created for human consumption. In this work, we present Synatra, an approach that effectively transforms this indirect knowledge into direct supervision at scale. We define different types of indirect knowledge, and carefully study the available sources to obtain it, methods to encode the structure of direct demonstrations, and finally methods to transform indirect knowledge into direct demonstrations. We use 100k such synthetically-created demonstrations to finetune a 7B CodeLlama, and demonstrate that the resulting agent surpasses all comparably sized models on three web-based task benchmarks Mind2Web, MiniWoB++ and WebArena, as well as surpassing GPT-3.5 on WebArena and Mind2Web. In addition, while synthetic demonstrations prove to be only 3% the cost of human demonstrations (at $0.031 each), we show that the synthetic demonstrations can be more effective than an identical number of human demonstrations collected from limited domains.",
+    "keywords": [
+      "AI agents",
+      "sythetic data",
+      "web navigation"
+    ],
+    "primary_area": "natural_language_processing",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=KjNEzWRIqn",
+    "review_count": 4
+  },
+  {
+    "paper_id": "aVh9KRZdRk",
+    "title": "Learning to grok: Emergence of in-context learning and skill composition in modular arithmetic tasks",
+    "abstract": "Large language models can solve tasks that were not present in the training set. This capability is believed to be due to in-context learning and skill composition. In this work, we study the emergence of in-context learning and skill composition in a collection of modular arithmetic tasks. Specifically, we consider a finite collection of linear modular functions $z = a  x + b  y \\text{ mod } p$ labeled by the vector $(a, b) \\in \\mathbb{Z}_p^2$. We use some of these tasks for pre-training and the rest for out-of-distribution testing. We empirically show that a GPT-style transformer exhibits a transition from in-distribution to out-of-distribution generalization as the number of pre-training tasks increases. We find that the smallest model capable of out-of-distribution generalization requires two transformer blocks, while for deeper models, the out-of-distribution generalization phase is *transient*, necessitating early stopping. Finally, we perform an interpretability study of the pre-trained models, revealing highly structured representations in both attention heads and MLPs; and discuss the learned algorithms. Notably, we find an algorithmic shift in deeper models, as we go from few to many in-context examples.",
+    "keywords": [
+      "In-Context Learning",
+      "Grokking",
+      "Modular Arithmetic",
+      "Interpretability"
+    ],
+    "primary_area": "interpretability_and_explainability",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=aVh9KRZdRk",
+    "review_count": 4
+  },
+  {
+    "paper_id": "Hlcek7AYgP",
+    "title": "Neural Embeddings Rank: Aligning 3D latent dynamics with movements",
+    "abstract": "Aligning neural dynamics with movements is a fundamental goal in neuroscience and brain-machine interfaces. However, there is still a lack of dimensionality reduction methods that can effectively align low-dimensional latent dynamics with movements. To address this gap, we propose Neural Embeddings Rank (NER), a technique that embeds neural dynamics into a 3D latent space and contrasts the embeddings based on movement ranks. NER learns to regress continuous representations of neural dynamics (i.e., embeddings) on continuous movements. We apply NER and six other dimensionality reduction techniques to neurons in the primary motor cortex (M1), dorsal premotor cortex (PMd), and primary somatosensory cortex (S1) as monkeys perform reaching tasks. Only NER aligns latent dynamics with both hand position and direction, visualizable in 3D. NER reveals consistent latent dynamics in M1 and PMd across sixteen sessions over a year. Using a linear regression decoder, NER explains 86\\% and 97\\% of the variance in velocity and position, respectively. Linear models trained on data from one session successfully decode velocity, position, and direction in held-out test data from different dates and cortical areas (64\\%, 88\\%, and 90\\%). NER also reveals distinct latent dynamics in S1 during consistent movements and in M1 during curved reaching tasks. The code is available at https://github.com/NeuroscienceAI/NER.",
+    "keywords": [
+      "Dimensionality reduction",
+      "Latent dynamics",
+      "Brain-machine interfaces",
+      "Neural decoding",
+      "Contrastive learning"
+    ],
+    "primary_area": "neuroscience_and_cognitive_science",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=Hlcek7AYgP",
+    "review_count": 3
+  },
+  {
+    "paper_id": "Q5RYn6jagC",
+    "title": "Understanding the Limits of Vision Language Models Through the Lens of the Binding Problem",
+    "abstract": "Recent work has documented striking heterogeneity in the performance of state-of-the-art vision language models (VLMs), including both multimodal language models and text-to-image models. These models are able to describe and generate a diverse array of complex, naturalistic images, yet they exhibit surprising failures on basic multi-object reasoning tasks -- such as counting, localization, and simple forms of visual analogy -- that humans perform with near perfect accuracy. To better understand this puzzling pattern of successes and failures, we turn to theoretical accounts of the binding problem in cognitive science and neuroscience, a fundamental problem that arises when a shared set of representational resources must be used to represent distinct entities (e.g., to represent multiple objects in an image), necessitating the use of serial processing to avoid interference. We find that many of the puzzling failures of state-of-the-art VLMs can be explained as arising due to the binding problem, and that these failure modes are strikingly similar to the limitations exhibited by rapid, feedforward processing in the human brain.",
+    "keywords": [
+      "visual reasoning",
+      "foundation models",
+      "multi-object reasoning",
+      "cognitive science"
+    ],
+    "primary_area": "neuroscience_and_cognitive_science",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=Q5RYn6jagC",
+    "review_count": 4
+  },
+  {
+    "paper_id": "Cc0ckJlJF2",
+    "title": "Reward Machines for Deep RL in Noisy and Uncertain Environments",
+    "abstract": "Reward Machines provide an automaton-inspired structure for specifying instructions, safety constraints, and other temporally extended reward-worthy behaviour. By exposing the underlying structure of a reward function, they enable the decomposition of an RL task, leading to impressive gains in sample efficiency. Although Reward Machines and similar formal specifications have a rich history of application towards sequential decision-making problems, prior frameworks have traditionally ignored ambiguity and uncertainty when interpreting the domain-specific vocabulary forming the building blocks of the reward function. Such uncertainty critically arises in many real-world settings due to factors like partial observability or noisy sensors. In this work, we explore the use of Reward Machines for Deep RL in noisy and uncertain environments. We characterize this problem as a POMDP and propose a suite of RL algorithms that exploit task structure under uncertain interpretation of the domain-specific vocabulary. Through theory and experiments, we expose pitfalls in naive approaches to this problem while simultaneously demonstrating how task structure can be successfully leveraged under noisy interpretations of the vocabulary.",
+    "keywords": [
+      "Reward Machines",
+      "LTL",
+      "Linear Temporal Logic",
+      "Automata",
+      "RL",
+      "Reinforcement Learning",
+      "Formal Language"
+    ],
+    "primary_area": "reinforcement_learning",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=Cc0ckJlJF2",
+    "review_count": 4
+  },
+  {
+    "paper_id": "uSKzEaj9zJ",
+    "title": "Nonlocal Attention Operator: Materializing Hidden Knowledge Towards Interpretable Physics Discovery",
+    "abstract": "Despite recent popularity of attention-based neural architectures in core AI fields like natural language processing (NLP) and computer vision (CV), their potential in modeling complex physical systems remains under-explored. Learning problems in physical systems are often characterized as discovering operators that map between function spaces based on a few instances of function pairs. This task frequently presents a severely ill-posed PDE inverse problem. In this work, we propose a novel neural operator architecture based on the attention mechanism, which we coin Nonlocal Attention Operator (NAO), and explore its capability towards developing a foundation physical model. In particular, we show that the attention mechanism is equivalent to a double integral operator that enables nonlocal interactions among spatial tokens, with a data-dependent kernel characterizing the inverse mapping from data to the hidden parameter field of the underlying operator. As such, the attention mechanism extracts global prior information from training data generated by multiple systems, and suggests the exploratory space in the form of a nonlinear kernel map. Consequently, NAO can address ill-posedness and rank deficiency in inverse PDE problems by encoding regularization and achieving generalizability. Lastly, we empirically demonstrate the advantages of NAO over baseline neural models in terms of the generalizability to unseen data resolutions and system states. Our work not only suggests a novel neural operator architecture for learning an interpretable foundation model of physical systems, but also offers a new perspective towards understanding the attention mechanism.",
+    "keywords": [
+      "Foundation Model",
+      "Neural Operators",
+      "Inverse PDE Problems",
+      "Physical Modeling"
+    ],
+    "primary_area": "machine_learning_for_physical_sciences",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=uSKzEaj9zJ",
+    "review_count": 4
+  },
+  {
+    "paper_id": "RfSvAom7sS",
+    "title": "Sample Efficient Bayesian Learning of Causal Graphs from Interventions",
+    "abstract": "Causal discovery is a fundamental problem with applications spanning various areas in science and engineering. It is well understood that solely using observational data, one can only orient the causal graph up to its Markov equivalence class, necessitating interventional data to learn the complete causal graph. Most works in the literature design causal discovery policies with perfect interventions, i.e., they have access to infinite interventional samples. This study considers a Bayesian approach for learning causal graphs with limited interventional samples, mirroring real-world scenarios where such samples are usually costly to obtain. By leveraging the recent result of Wienöbst et al. [2023] on uniform DAG sampling in polynomial time, we can efficiently enumerate all the cut configurations and their corresponding interventional distributions of a target set, and further track their posteriors. Given any number of interventional samples, our proposed algorithm randomly intervenes on a set of target vertices that cut all the edges in the graph and returns a causal graph according to the posterior of each target set. When the number of interventional samples is large enough, we show theoretically that our proposed algorithm will return the true causal graph with high probability. We compare our algorithm against various baseline methods on simulated datasets, demonstrating its superior accuracy measured by the structural Hamming distance between the learned DAG and the ground truth. Additionally, we present a case study showing how this algorithm could be modified to answer more general causal questions without learning the whole graph. As an example, we illustrate that our method can be used to estimate the causal effect of a variable that cannot be intervened.",
+    "keywords": [
+      "Causal Discovery",
+      "Bayesian Learning",
+      "Sample Efficiency"
+    ],
+    "primary_area": "causal_inference",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=RfSvAom7sS",
+    "review_count": 4
+  },
+  {
+    "paper_id": "NfOFbPpYII",
+    "title": "Non-asymptotic Convergence of Training Transformers for Next-token Prediction",
+    "abstract": "Transformers have achieved extraordinary success in modern machine learning due to their excellent ability to handle sequential data, especially in next-token prediction (NTP) tasks. However, the theoretical understanding of their performance in NTP is limited, with existing studies focusing mainly on asymptotic performance. This paper provides a fine-grained non-asymptotic analysis of the training dynamics of a one-layer transformer consisting of a self-attention module followed by a feed-forward layer. We first characterize the essential structural properties of training datasets for NTP using a mathematical framework based on partial orders. \nThen, we design a two-stage training algorithm, where the pre-processing stage for training the feed-forward layer and the main stage for training the attention layer exhibit fast convergence performance. Specifically, both layers converge sub-linearly to the direction of their corresponding max-margin solutions. We also show that the cross-entropy loss enjoys a linear convergence rate. Furthermore, we show that the trained transformer presents non-trivial prediction ability with dataset shift, which sheds light on the remarkable generalization performance of transformers. Our analysis technique involves the development of novel properties on the attention gradient and further in-depth analysis of how these properties contribute to the convergence of the training process. Our experiments further validate our theoretical findings.",
+    "keywords": [
+      "Transformer",
+      "Convergence Rate",
+      "Next-token Prediction",
+      "Self-attention",
+      "Implicit Bias"
+    ],
+    "primary_area": "learning_theory",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=NfOFbPpYII",
+    "review_count": 4
+  },
+  {
+    "paper_id": "JEflV4nRlH",
+    "title": "What Makes and Breaks Safety Fine-tuning? A Mechanistic Study",
+    "abstract": "Safety fine-tuning helps align Large Language Models (LLMs) with human preferences for their safe deployment. To better understand the underlying factors that make models safe via safety fine-tuning, we design a synthetic data generation framework that captures salient aspects of an unsafe input by modeling the interaction between the task the model is asked to perform (e.g., “design”) versus the specific concepts the task is asked to be performed upon (e.g., a “cycle” vs. a “bomb”). Using this, we investigate three well-known safety fine-tuning methods—supervised safety fine-tuning, direct preference optimization, and unlearning—and provide significant evidence demonstrating that these methods minimally transform MLP weights to specifically align unsafe inputs into its weights’ null space. This yields a clustering of inputs based on whether the model deems them safe or not. Correspondingly, when an adversarial input (e.g., a jailbreak) is provided, its activations are closer to safer samples, leading to the model processing such an input as if it were safe. Code is available at https://github.com/fiveai/understanding_safety_finetuning.",
+    "keywords": [
+      "Mechanistic Interpretability",
+      "AI Safety",
+      "Safety fine tuning",
+      "Large Language Models"
+    ],
+    "primary_area": "interpretability_and_explainability",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=JEflV4nRlH",
+    "review_count": 4
+  },
+  {
+    "paper_id": "doaJTihgIZ",
+    "title": "Dynamics of Supervised and Reinforcement Learning in the Non-Linear Perceptron",
+    "abstract": "The ability of a brain or a neural network to efficiently learn depends crucially on both the task structure and the learning rule.\nPrevious works have analyzed the dynamical equations describing learning in the relatively simplified context of the perceptron under assumptions of a student-teacher framework or a linearized output. \nWhile these assumptions have facilitated theoretical understanding, they have precluded a detailed understanding of the roles of the nonlinearity and input-data distribution in determining the learning dynamics, limiting the applicability of the theories to real biological or artificial neural networks.\nHere, we use a stochastic-process approach to derive flow equations describing learning, applying this framework to the case of a nonlinear perceptron performing binary classification. \nWe characterize the effects of the learning rule (supervised or reinforcement learning, SL/RL) and input-data distribution on the perceptron's learning curve and the forgetting curve as subsequent tasks are learned.\nIn particular, we find that the input-data noise differently affects the learning speed under SL vs. RL, as well as determines how quickly learning of a task is overwritten by subsequent learning. Additionally, we verify our approach with real data using the MNIST dataset.\nThis approach points a way toward analyzing learning dynamics for more-complex circuit architectures.",
+    "keywords": [
+      "Learning Dynamics",
+      "non-linear perceptron",
+      "supervised learning",
+      "reinforcement learning"
+    ],
+    "primary_area": "learning_theory",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=doaJTihgIZ",
+    "review_count": 3
+  },
+  {
+    "paper_id": "me1MpmENpw",
+    "title": "Semantics and Spatiality of Emergent Communication",
+    "abstract": "When artificial agents are jointly trained to perform collaborative tasks using a communication channel, they develop opaque goal-oriented communication protocols. Good task performance is often considered sufficient evidence that meaningful communication is taking place, but existing empirical results show that communication strategies induced by common objectives can be counterintuitive whilst solving the task nearly perfectly. In this work, we identify a goal-agnostic prerequisite to meaningful communication, which we term semantic consistency, based on the idea that messages should have similar meanings across instances. We provide a formal definition for this idea, and use it to compare the two most common objectives in the field of emergent communication: discrimination and reconstruction. We prove, under mild assumptions, that semantically inconsistent communication protocols can be optimal solutions to the discrimination task, but not to reconstruction. We further show that the reconstruction objective encourages a stricter property, spatial meaningfulness, which also accounts for the distance between messages. Experiments with emergent communication games validate our theoretical results. These findings demonstrate an inherent advantage of distance-based communication goals, and contextualize previous empirical discoveries.",
+    "keywords": [
+      "emergent communication",
+      "Lewis' games"
+    ],
+    "primary_area": "natural_language_processing",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=me1MpmENpw",
+    "review_count": 4
+  },
+  {
+    "paper_id": "Yu7H8ZOuI2",
+    "title": "Sample-Efficient Geometry Reconstruction from Euclidean Distances using Non-Convex Optimization",
+    "abstract": "The problem of finding suitable point embedding or geometric configurations given only Euclidean distance information of point pairs arises both as a core task and as a sub-problem in a variety of machine learning applications. In this paper, we aim to solve this problem given a minimal number of distance samples. \nTo this end, we leverage continuous and non-convex rank minimization formulations of the problem and establish a local convergence  \nguarantee for a variant of iteratively reweighted least squares (IRLS), which applies if a minimal random set of observed distances is provided.\n As a technical tool, we establish a restricted isometry property (RIP) restricted to a tangent space of the manifold of symmetric rank-$r$ matrices given random Euclidean distance  measurements, which might be of independent interest for the analysis of other non-convex approaches.  Furthermore, we assess data efficiency, scalability and generalizability of different reconstruction algorithms through numerical experiments with simulated data as well as real-world data, demonstrating the proposed algorithm's ability to identify the underlying geometry from fewer distance samples compared to the state-of-the-art.\n \n The Matlab code can be found at \\href{https://github.com/ipsita-ghosh-1/EDG-IRLS}{github\\_SEGRED}",
+    "keywords": [
+      "Euclidean distance geometry",
+      "non-convex optimization",
+      "iteratively reweighted least squares",
+      "low-rank",
+      "data efficiency",
+      "convergence guarnatees",
+      "restricted isometry property",
+      "dual basis"
+    ],
+    "primary_area": "optimization",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=Yu7H8ZOuI2",
+    "review_count": 4
+  },
+  {
+    "paper_id": "S7THlpvH8i",
+    "title": "Normalization Layer Per-Example Gradients are Sufficient to Predict Gradient Noise Scale in Transformers",
+    "abstract": "Per-example gradient norms are a vital ingredient for estimating gradient noise scale (GNS) with minimal variance. Observing the tensor contractions required to compute them, we propose a method with minimal FLOPs in 3D or greater tensor regimes by simultaneously computing the norms while computing the parameter gradients. Using this method we are able to observe the GNS of different layers at higher accuracy than previously possible. We find that the total GNS of contemporary transformer models is predicted well by the GNS of only the normalization layers. As a result, focusing only on the normalization layer, we develop a custom kernel to compute the per-example gradient norms while performing the LayerNorm backward pass with zero throughput overhead. Tracking GNS on only those layers, we are able to guide a practical batch size schedule that reduces training time by 18% on a Chinchilla-optimal language model.",
+    "keywords": [
+      "Efficient deep learning",
+      "gradient noise scale",
+      "critical batch size",
+      "language models"
+    ],
+    "primary_area": "optimization_for_deep_networks",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=S7THlpvH8i",
+    "review_count": 4
+  },
+  {
+    "paper_id": "wm9JZq7RCe",
+    "title": "An Analysis of Tokenization: Transformers under Markov Data",
+    "abstract": "While there has been a large body of research attempting to circumvent tokenization for language modeling (Clark et al. 2022, Xue et al. 2022), the current consensus is that it is a necessary initial step for designing state-of-the-art performant language models. In this paper, we investigate tokenization from a theoretical point of view by studying the behavior of transformers on simple data generating processes. When trained on data drawn from certain simple $k^{\\text{th}}$-order Markov processes for $k > 1$, transformers exhibit a surprising phenomenon - in the absence of tokenization, they empirically are incredibly slow or fail to learn the right distribution and predict characters according to a unigram model (Makkuva et al. 2024). With the addition of tokenization, however, we empirically observe that transformers break through this barrier and are able to model the probabilities of sequences drawn from the source near-optimally, achieving small cross-entropy loss. With this observation as starting point, we study the end-to-end cross-entropy loss achieved by transformers with and without tokenization. With the appropriate tokenization, we show that even the simplest unigram models (over tokens) learnt by transformers are able to model the probability of sequences drawn from $k^{\\text{th}}$-order Markov sources near optimally. Our analysis provides a justification for the use of tokenization in practice through studying the behavior of transformers on Markovian data.",
+    "keywords": [
+      "Tokenization",
+      "LLMs",
+      "interpretability"
+    ],
+    "primary_area": "interpretability_and_explainability",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=wm9JZq7RCe",
+    "review_count": 4
+  },
+  {
+    "paper_id": "M2UzLRoqic",
+    "title": "Reducing Transformer Key-Value Cache Size with Cross-Layer Attention",
+    "abstract": "Key-value (KV) caching plays an essential role in accelerating decoding for transformer-based autoregressive large language models (LLMs). However, the amount of memory required to store the KV cache can become prohibitive at long sequence lengths and large batch sizes. Since the invention of the transformer, two of the most effective interventions discovered for reducing the size of the KV cache have been Multi-Query Attention (MQA) and its generalization, Grouped-Query Attention (GQA). MQA and GQA both modify the design of the attention block so that multiple query heads can share a single key/value head, reducing the number of distinct key/value heads by a large factor while only minimally degrading accuracy. In this paper, we show that it is possible to take Multi-Query Attention a step further by also sharing key and value heads between adjacent layers, yielding a new attention design we call Cross-Layer Attention (CLA). With CLA, we find that it is possible to reduce the size of the KV cache by another $2\\times$ while maintaining nearly the same accuracy as unmodified MQA. In experiments training 1B- and 3B-parameter models from scratch, we demonstrate that CLA provides a Pareto improvement over the memory/accuracy tradeoffs which are possible with traditional MQA, potentially enabling future models to operate at longer sequence lengths and larger batch sizes than would otherwise be possible.",
+    "keywords": [
+      "transformers",
+      "attention",
+      "KV cache",
+      "LLMs"
+    ],
+    "primary_area": "deep_learning_architectures",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=M2UzLRoqic",
+    "review_count": 3
+  },
+  {
+    "paper_id": "qo7NtGMr2u",
+    "title": "Symmetry Discovery Beyond Affine Transformations",
+    "abstract": "Symmetry detection has been shown to improve various machine learning tasks. In the context of continuous symmetry detection, current state of the art experiments are limited to the detection of affine transformations. Under the manifold assumption, we outline a framework for discovering continuous symmetry in data beyond the affine transformation group. We also provide a similar framework for discovering discrete symmetry. We experimentally compare our method to an existing method known as LieGAN and show that our method is competitive at detecting affine symmetries for large sample sizes and superior than LieGAN for small sample sizes. We also show our method is able to detect continuous symmetries beyond the affine group and is  generally more computationally efficient than LieGAN.",
+    "keywords": [
+      "symmetry detection",
+      "isometries",
+      "infinitesimal generators",
+      "Killing vectors",
+      "Riemannian metric",
+      "transformation groups",
+      "manifold learning"
+    ],
+    "primary_area": "interpretability_and_explainability",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=qo7NtGMr2u",
+    "review_count": 4
+  },
+  {
+    "paper_id": "3ZAfFoAcUI",
+    "title": "On the Inductive Bias of Stacking Towards Improving Reasoning",
+    "abstract": "Given the increasing scale of model sizes, efficient training strategies like gradual stacking have garnered interest. Stacking enables efficient training by gradually growing the depth of a model in stages and using layers from a smaller model in an earlier stage to initialize the next stage. Although efficient for training, the model biases induced by such growing approaches are largely unexplored. In this work, we examine this fundamental aspect of gradual stacking, going beyond its efficiency benefits. We propose a variant of gradual stacking called MIDAS that can speed up language model training by up to 40\\%. Furthermore we discover an intriguing phenomenon: MIDAS is not only training-efficient but surprisingly also has an inductive bias towards improving downstream tasks, especially tasks that require reasoning abilities like reading comprehension and math problems, despite having similar or slightly worse perplexity compared to baseline training. To further analyze this inductive bias, we construct {\\em reasoning primitives} – simple synthetic tasks that are building blocks for reasoning – and find that a model pretrained with stacking is significantly better than standard pretraining on these primitives, with and without fine-tuning. This provides stronger and more robust evidence for this inductive bias towards reasoning. These findings of training efficiency and inductive bias towards reasoning are verified at 1B, 2B and 8B parameter language models. Finally, we conjecture the underlying reason for this inductive bias by exploring the connection of stacking to looped models and provide strong supporting empirical analysis.",
+    "keywords": [
+      "stacking",
+      "language model",
+      "reasoning",
+      "inductive bias",
+      "efficient training"
+    ],
+    "primary_area": "optimization_for_deep_networks",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=3ZAfFoAcUI",
+    "review_count": 4
+  },
+  {
+    "paper_id": "UwvjJZWjPT",
+    "title": "Inductive biases of multi-task learning and finetuning: multiple regimes of feature reuse",
+    "abstract": "Neural networks are often trained on multiple tasks, either simultaneously (multi-task learning, MTL) or sequentially (pretraining and subsequent finetuning, PT+FT). In particular, it is common practice to pretrain neural networks on a large auxiliary task before finetuning on a downstream task with fewer samples. Despite the prevalence of this approach, the inductive biases that arise from learning multiple tasks are poorly characterized. In this work, we address this gap. We describe novel implicit regularization penalties associated with MTL and PT+FT in diagonal linear networks and single-hidden-layer ReLU networks. These penalties indicate that MTL and PT+FT induce the network to reuse features in different ways. 1) Both MTL and PT+FT exhibit biases towards feature reuse between tasks, and towards sparsity in the set of learned features. We show a \"conservation law\" that implies a direct tradeoff between these two biases. 2) PT+FT exhibits a novel \"nested feature selection\" regime, not described by either the \"lazy\" or \"rich\" regimes identified in prior work, which biases it to *rely on a sparse subset* of the features learned during pretraining. This regime is much narrower for MTL. 3) PT+FT (but not MTL) in ReLU networks benefits from features that are correlated between the auxiliary and main task. We confirm these findings empirically with teacher-student models, and introduce a technique -- weight rescaling following pretraining -- that can elicit the nested feature selection regime. Finally, we validate our theory in deep neural networks trained on image classification. We find that weight rescaling improves performance when it causes models to display signatures of nested feature selection. Our results suggest that nested feature selection may be an important inductive bias for finetuning neural networks.",
+    "keywords": [
+      "multi-task learning",
+      "implicit regularization",
+      "finetuning",
+      "pretraining",
+      "implicit bias"
+    ],
+    "primary_area": "learning_theory",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=UwvjJZWjPT",
+    "review_count": 4
+  },
+  {
+    "paper_id": "wDirCeTIoz",
+    "title": "Communication Efficient Distributed Training with Distributed Lion",
+    "abstract": "The Lion optimizer has been a promising competitor with the AdamW for training large AI models, with advantages in memory, computation, and sample efficiency. In this paper, we introduce Distributed Lion, an innovative adaptation of Lion for distributed training environments. Leveraging the sign operator in Lion, our Distributed Lion only requires to communicate binary or lower-precision vectors\nbetween workers to the center server, significantly reducing the communication cost.  \nOur theoretical analysis confirms Distributed Lion's convergence properties. Empirical results demonstrate its robustness across a range of tasks, worker counts, and batch sizes, on both vision and language problems. Notably, Distributed Lion attains comparable performance to standard Lion or AdamW optimizers applied on aggregated gradients, but with significantly reduced communication bandwidth. This feature is particularly advantageous for training large models. In addition, we also demonstrate that \\mavolion{} presents a more favorable performance-bandwidth balance compared to existing efficient distributed methods such as deep gradient compression and ternary gradients.",
+    "keywords": [
+      "Distributed Optimization"
+    ],
+    "primary_area": "infrastructure",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=wDirCeTIoz",
+    "review_count": 4
+  },
+  {
+    "paper_id": "DlYNGpCuwa",
+    "title": "Aligning LLM Agents by Learning Latent Preference from User Edits",
+    "abstract": "We study interactive learning of language agents based on user edits made to the agent's output. In a typical setting such as writing assistants, the user interacts with a language agent to generate a response given a context, and may optionally edit the agent response to personalize it based on their latent preference, in addition to improving the correctness. The edit feedback is naturally generated, making it a suitable candidate for improving the agent's alignment with the user's preference, and for reducing the cost of user edits over time. We propose a learning framework, PRELUDE that infers a description of the user's latent preference based on historic edit data and using it to define a prompt policy that drives future response generation. This avoids fine-tuning the agent, which is costly, challenging to scale with the number of users, and may even degrade its performance on other tasks. Furthermore, learning descriptive preference improves interpretability, allowing the user to view and modify the learned preference. However, user preference can be complex and vary based on context, making it challenging to learn. To address this, we propose a simple yet effective algorithm named CIPHER that leverages a large language model (LLM) to infer the user preference for a given context based on user edits. In the future, CIPHER retrieves inferred preferences from the k-closest contexts in the history, and forms an aggregate preference for response generation. We introduce two interactive environments -- summarization and email writing, for evaluation using a GPT-4 simulated user. We compare with algorithms that directly retrieve user edits but do not learn descriptive preference, and algorithms that learn context-agnostic preference. On both tasks, CIPHER outperforms baselines by achieving the lowest edit distance cost. Meanwhile, CIPHER has a lower computational expense, as using learned preference results in a shorter prompt than directly using user edits. Our further analysis reports that the user preference learned by CIPHER shows significant similarity to the ground truth latent preference.",
+    "keywords": [
+      "NLP",
+      "LLM",
+      "preference learning",
+      "user feedback",
+      "user edits"
+    ],
+    "primary_area": "natural_language_processing",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=DlYNGpCuwa",
+    "review_count": 4
+  },
+  {
+    "paper_id": "1sLdprsbmk",
+    "title": "Can Models Learn Skill Composition from Examples?",
+    "abstract": "As large language models (LLMs) become increasingly advanced, their ability to exhibit compositional generalization---the capacity to combine learned skills in novel ways not encountered during training---has garnered significant attention. This type of generalization, particularly in scenarios beyond training data, is also of great interest in the study of AI safety and alignment. A recent study introduced the Skill-Mix evaluation, where models are tasked with composing a short paragraph demonstrating the use of a specified $k$-tuple of language skills. While small models struggled with composing even with $k=3$, larger models like GPT-4 performed reasonably well with $k=5$ and $6$.\n\nIn this paper, we employ a setup akin to Skill-Mix to evaluate the capacity of smaller models to learn compositional generalization from examples. Utilizing a diverse set of language skills---including rhetorical, literary, reasoning, theory of mind, and common sense---GPT was used to generate text samples that exhibit random subsets of $k$ skills. Subsequent fine-tuning of 7B and 13B parameter models on these combined skill texts, for increasing values of $k$, revealed the following findings: (1) Training on combinations of $k=2$ and $3$ skills results in noticeable improvements in the ability to compose texts with $k=4$ and $5$ skills, despite models never having seen such examples during training. (2) When skill categories are split into training and held-out groups, models significantly improve at composing texts with held-out skills during testing despite having only seen training skills during fine-tuning, illustrating the efficacy of the training approach even with previously unseen skills.\n\nThis study also suggests that incorporating skill-rich (potentially synthetic) text into training can substantially enhance the compositional capabilities of models.",
+    "keywords": [
+      "Skill Composition",
+      "Large Language Model"
+    ],
+    "primary_area": "generative_models",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=1sLdprsbmk",
+    "review_count": 4
+  },
+  {
+    "paper_id": "pPSWHsgqRp",
+    "title": "Smoothie: Label Free Language Model Routing",
+    "abstract": "Large language models (LLMs) are increasingly used in applications where LLM inputs may span many different tasks. Recent work has found that the choice of LLM is consequential, and different LLMs may be good for different input samples. Prior approaches have thus explored how engineers might select an LLM to use for each sample (i.e. _routing_). While existing routing methods mostly require training auxiliary models on human-annotated data, our work explores whether it is possible to perform _unsupervised_ routing. We propose Smoothie, a weak supervision-inspired routing approach that requires no labeled data. Given a set of outputs from different LLMs, Smoothie constructs a latent variable graphical model over embedding representations of observable LLM outputs and unknown “true” outputs. Using this graphical model, we estimate sample-dependent quality scores for each LLM, and route each sample to the LLM with the highest corresponding score. We find that Smoothie's LLM quality-scores correlate with ground-truth model quality (correctly identifying the optimal model on 9/14 tasks), and that Smoothie outperforms baselines for routing by up to 10 points accuracy.",
+    "keywords": [
+      "large language models",
+      "weak supervision",
+      "graphical models",
+      "routing"
+    ],
+    "primary_area": "natural_language_processing",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=pPSWHsgqRp",
+    "review_count": 4
+  },
+  {
+    "paper_id": "CSjVSnvTbG",
+    "title": "Bisimulation Metrics are Optimal Transport Distances, and Can be Computed Efficiently",
+    "abstract": "We propose a new framework for formulating optimal transport distances between Markov chains. Previously known formulations studied couplings between the entire joint distribution induced by the chains, and derived solutions via a reduction to dynamic programming (DP) in an appropriately defined Markov decision process. This formulation has, however, not led to particularly efficient algorithms so far, since computing the associated DP operators requires fully solving a static optimal transport problem, and these operators need to be applied numerous times during the overall optimization process. In this work, we develop an alternative perspective by considering couplings between a ``flattened'' version of the joint distributions that we call discounted occupancy couplings, and show that calculating optimal transport distances in the full space of joint distributions can be equivalently formulated as solving a linear program (LP) in this reduced space. This LP formulation formulation allows us to port several algorithmic ideas from other areas of optimal transport theory. In particular, our formulation makes it possible to introduce an appropriate notion of entropy regularization into the optimization problem, which in turn enables us to directly calculate optimal transport distances via a Sinkhorn-like method we call Sinkhorn Value Iteration (SVI). We show both theoretically and empirically that this method converges quickly to an optimal coupling, essentially at the same computational cost of running vanilla Sinkhorn in each pair of states. Along the way, we point out that our optimal transport distance exactly matches the common notion of bisimulation metrics between Markov chains, and thus our results also apply to computing such metrics, and in fact our algorithm turns out to be significantly more efficient than the best known methods developed so far for this purpose.",
+    "keywords": [
+      "Optimal transport",
+      "Markov chains",
+      "bisimulation metrics",
+      "Markov decision processes"
+    ],
+    "primary_area": "reinforcement_learning",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=CSjVSnvTbG",
+    "review_count": 3
+  },
+  {
+    "paper_id": "XHCYZNmqnv",
+    "title": "Detecting Brittle Decisions for Free: Leveraging Margin Consistency in Deep Robust Classifiers",
+    "abstract": "Despite extensive research on adversarial training strategies to improve robustness, the decisions of even the most robust deep learning models can still be quite sensitive to imperceptible perturbations, creating serious risks when deploying them for high-stakes real-world applications. While detecting such cases may be critical, evaluating a model's vulnerability at a per-instance level using adversarial attacks is computationally too intensive and unsuitable for real-time deployment scenarios. The input space margin is the exact score to detect non-robust samples and is intractable for deep neural networks. This paper introduces the concept of margin consistency -- a property that links the input space margins and the logit margins in robust models -- for efficient detection of vulnerable samples. First, we establish that margin consistency is a necessary and sufficient condition to use a model's logit margin as a score for identifying non-robust samples. Next, through comprehensive empirical analysis of various robustly trained models on CIFAR10 and CIFAR100 datasets, we show that they indicate high margin consistency with a strong correlation between their input space margins and the logit margins. Then, we show that we can effectively use the logit margin to confidently detect brittle decisions with such models. Finally, we address cases where the model is not sufficiently margin-consistent by learning a pseudo-margin from the feature representation. Our findings highlight the potential of leveraging deep representations to efficiently assess adversarial vulnerability in deployment scenarios.",
+    "keywords": [
+      "adversarial robustness",
+      "empirical robustness estimation",
+      "classification",
+      "vulnerability detection"
+    ],
+    "primary_area": "machine_vision",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=XHCYZNmqnv",
+    "review_count": 4
+  },
+  {
+    "paper_id": "8iPobEKUUA",
+    "title": "Efficient Minimum Bayes Risk Decoding using Low-Rank Matrix Completion Algorithms",
+    "abstract": "Minimum Bayes Risk (MBR) decoding is a powerful decoding strategy widely used for text generation tasks but its quadratic computational complexity limits its practical application. This paper presents a novel approach for approximating MBR decoding using matrix completion techniques, focusing on a machine translation task. We formulate MBR decoding as a matrix completion problem, where the utility metric scores between candidate hypotheses and reference translations form a low-rank matrix. First we empirically show that the scores matrices indeed have a low-rank structure. Then we exploit this by only computing a random subset of the scores and efficiently recover the missing entries in the matrix by applying the Alternating Least Squares (ALS) algorithm, thereby enabling fast approximation of the MBR decoding process. Our experimental results on machine translation tasks demonstrate that the proposed method requires 1/16 utility metric computations compared to the vanilla MBR decoding while achieving equal translation quality measured by COMET on the WMT22 dataset (en<>de, en<>ru). We also benchmark our method against other approximation methods and we show significant gains in quality.",
+    "keywords": [
+      "Machine Translation",
+      "Minimum Bayes Risk",
+      "Natural Language Processing",
+      "Low-Rank Matrix Completion"
+    ],
+    "primary_area": "natural_language_processing",
+    "conference": "NeurIPS 2024",
+    "venue_id": "NeurIPS.cc/2024/Conference",
+    "year": 2024,
+    "url": "https://openreview.net/forum?id=8iPobEKUUA",
+    "review_count": 4
+  }
+]

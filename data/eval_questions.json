@@ -1,0 +1,98 @@
+[
+  {
+    "id": 1,
+    "query": "Approximating Minimum Bayes Risk decoding with matrix completion, where a reviewer notes experiments only use EN-DE and EN-RU on PaLM 8B",
+    "has_data": true,
+    "target_paper_id": "8iPobEKUUA",
+    "target_review_id": "JK5vOYx9o7",
+    "justification": "Praca 'Efficient Minimum Bayes Risk Decoding using Low-Rank Matrix Completion Algorithms' (8iPobEKUUA) opisuje redukcję kosztu dekodowania MBR, a recenzja JK5vOYx9o7 zarzuca ograniczenie eksperymentów tylko do dwóch par językowych (EN-DE, EN-RU) oraz jednego modelu PaLM 8B."
+  },
+  {
+    "id": 2,
+    "query": "Reducing the computational cost of training language models by gradually growing model depth in stages, criticized for only testing small 1B and 2B models",
+    "has_data": true,
+    "target_paper_id": "3ZAfFoAcUI",
+    "target_review_id": "ZvGNUwLc4R",
+    "justification": "Praca 'On the Inductive Bias of Stacking Towards Improving Reasoning' (3ZAfFoAcUI) bada przyspieszenie treningu przez stopniowe powiększanie głębokości modelu, a recenzent ZvGNUwLc4R wskazuje, że testowane modele (1B i 2B) są zbyt małe w porównaniu do modeli 7B i 13B."
+  },
+  {
+    "id": 3,
+    "query": "Iterative trial-and-error prompting strategy for LLM reasoning criticized by a reviewer for being restricted to binary trees instead of graph structures",
+    "has_data": true,
+    "target_paper_id": "qBL04XXex6",
+    "target_review_id": "w7bvJ5iRWP",
+    "justification": "Publikacja 'Boosting of Thoughts' (qBL04XXex6) proponuje iteracyjne uczenie na błędach w promptingu, a recenzja w7bvJ5iRWP punktuje ograniczenie struktury wyłącznie do drzew binarnych."
+  },
+  {
+    "id": 4,
+    "query": "Which review criticizes the use of Rouge-L in Equation 3 as too weak for free-generation results and suggests replacing it with an entailment model?",
+    "has_data": true,
+    "target_paper_id": "AqN23oqraW",
+    "target_review_id": "2mTTJZa647",
+    "justification": "Recenzja 2mTTJZa647 do pracy 'KoLA' (AqN23oqraW) w sekcji Weaknesses wprost krytykuje użycie metryki Rouge-L w Równaniu 3 dla wolnej generacji tekstu i proponuje zastąpienie jej modelem entailment."
+  },
+  {
+    "id": 5,
+    "query": "Evaluating Transformer language models on learning compositional discrete algorithms, where a reviewer questions why the PEN and PERM datasets are needed",
+    "has_data": true,
+    "target_paper_id": "x7AD0343Jz",
+    "target_review_id": "9DIRWfvxxd",
+    "justification": "Praca 'Limits of Transformer Language Models on Learning to Compose Algorithms' (x7AD0343Jz) bada zadania kompozycyjne, a recenzja 9DIRWfvxxd kwestionuje celowość wprowadzenia zbiorów PEN i PERM."
+  },
+  {
+    "id": 6,
+    "query": "Reviewer criticism that baseline comparisons for digital agents are unfair because RAG methods were omitted and CodeActAgent was not fine-tuned out-of-the-box",
+    "has_data": true,
+    "target_paper_id": "KjNEzWRIqn",
+    "target_review_id": "7iDVZTIfsM",
+    "justification": "Recenzent 7iDVZTIfsM w pracy 'Synatra' (KjNEzWRIqn) zarzuca nieuczciwe porównanie eksperymentalne, wskazując na pominięcie metod RAG oraz brak odpowiedniego fine-tuningu dla AgentLM i CodeActAgent."
+  },
+  {
+    "id": 7,
+    "query": "Using pseudo-programs and program emulation for language model reasoning, where a reviewer criticizes the lack of a precise definition of soft reasoning",
+    "has_data": true,
+    "target_paper_id": "te6VagJf6G",
+    "target_review_id": "ru4zfozGZq",
+    "justification": "Praca 'Learning to Reason via Program Generation, Emulation, and Search' (te6VagJf6G) wprowadza pojęcie pseudo-programów, a recenzent ru4zfozGZq wskazuje na brak precyzyjnej definicji i słabą motywację."
+  },
+  {
+    "id": 8,
+    "query": "Combining automaton-inspired Reward Machines with Deep RL in noisy environments, criticized for unclear performance without ground-truth RMs",
+    "has_data": true,
+    "target_paper_id": "Cc0ckJlJF2",
+    "target_review_id": "jOmNHO0jCQ",
+    "justification": "Praca 'Reward Machines for Deep RL in Noisy and Uncertain Environments' (Cc0ckJlJF2) analizuje RM w zaszumionym środowisku, a recenzja jOmNHO0jCQ pyta o działanie metody bez dostępu do ground-truth RMs."
+  },
+  {
+    "id": 9,
+    "query": "How can controlled text generation be achieved via Language Model Arithmetic to customize style and vocabulary?",
+    "has_data": true,
+    "target_paper_id": "SLw9fp4yI6",
+    "target_review_id": "qLlG2bPTFf",
+    "justification": "Praca 'Controlled Text Generation via Language Model Arithmetic' (SLw9fp4yI6) dotyczy bezpośrednio sterowania generacją tekstu i dostosowywania stylu oraz słownictwa za pomocą arytmetyki na modelach językowych."
+  },
+  {
+    "id": 10,
+    "query": "Classification with a reject option for a fixed predictor in NLP applied to decontextualization",
+    "has_data": true,
+    "target_paper_id": "dCHbFDsCZz",
+    "target_review_id": "0hp45EzgNz",
+    "justification": "Praca 'Learning to Reject with a Fixed Predictor: Application to Decontextualization' (dCHbFDsCZz) bada klasyfikację z opcją odrzucenia (reject option) dla zamrożonego predyktora w NLP."
+  },
+  {
+    "id": 11,
+    "query": "Why AI is completely useless in modern society?",
+    "has_data": false,
+    "target_paper_id": null,
+    "target_review_id": null,
+    "justification": "Pytanie publicystyczne spoza zakresu prac naukowych ICLR/NeurIPS 2024. System powinien wykryć niskie podobieństwo (< 0.38) i poinformować o braku danych."
+  },
+  {
+    "id": 12,
+    "query": "What are the best surgical techniques for knee ligament reconstruction in professional athletes?",
+    "has_data": false,
+    "target_paper_id": null,
+    "target_review_id": null,
+    "justification": "Pytanie z dziedziny medycyny/ortopedii — całkowity brak powiązanych publikacji w bazie ML. System powinien zwrócić komunikat o braku podstaw do odpowiedzi."
+  }
+]

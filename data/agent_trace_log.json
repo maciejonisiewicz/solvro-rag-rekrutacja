@@ -1,0 +1,16 @@
+[
+  {
+    "step_number": 1,
+    "tool_name": "vector_search",
+    "tool_input": "Approximating Minimum Bayes Risk decoding with matrix completion",
+    "observation": "Found 4 semantic candidates (top score=0.6787).",
+    "decision": "Semantic confidence high; proceed with vector results."
+  },
+  {
+    "step_number": 2,
+    "tool_name": "fetch_additional_paper_reviews",
+    "tool_input": "8iPobEKUUA",
+    "observation": "Fetched supplementary review JK5vOYx9o7 for paper 8iPobEKUUA.",
+    "decision": "Context enriched with multi-reviewer perspective; finish execution."
+  }
+]
