@@ -114,9 +114,10 @@ Przygotowano zestaw ewaluacyjny `data/eval_questions.json` składający się z *
 1. Utworzenie środowiska i instalacja zależności:
 ```bash
 python3 -m venv .venv
-source .venv\Scripts\activate. #na macu .venv/bin/activate
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
+
 
 2. (Opcjonalnie) Pobranie danych z OpenReview API v2:
 ```bash
