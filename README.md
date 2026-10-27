@@ -4,6 +4,12 @@ Aplikacja do przeszukiwania publikacji naukowych i oficjalnych recenzji z konfer
 
 > **Zakres:** jest to system retrieval i przygotowywania kontekstu dla RAG, **bez podłączonego generatywnego LLM**. Agent jest deterministycznym kontrolerem narzędzi wyszukiwawczych, a nie autonomicznym modelem językowym. Wyniki ewaluacji dotyczą odnajdywania źródeł, nie jakości wygenerowanych odpowiedzi.
 
+## Podgląd aplikacji
+
+![Interfejs asystenta przeglądu literatury RAG — wyniki wyszukiwania recenzji OpenReview](assets/app-preview.png)
+
+*Przykład wyszukiwania recenzji publikacji KoLA. Interfejs pokazuje źródła, deklaracje autorów i uwagi recenzenta.*
+  
 ## Dane
 
 - **80 publikacji**: po 40 z ICLR 2024 i NeurIPS 2024.
