@@ -5,3 +5,9 @@ __pycache__/
 .DS_Store
 .env
 uruchom.command
+# Generated vector index and runtime logs
+data/chroma_db/
+data/agent_trace_log.json
+data/last_query_context.json
+data/evaluation_agent_trace_log.json
+data/evaluation_last_query_context.json
