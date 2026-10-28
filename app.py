@@ -5,6 +5,7 @@ from typing import Literal
 import streamlit as st
 
 from agent_rag import AgentStep, LiteratureReviewAssistant, RetrievedSource
+from rag_system import LiteratureReviewRAG
 from evaluate import FullEvaluationReport, run_evaluation, EVALUATION_VERSION
 
 RetrievalMode = Literal[
@@ -25,8 +26,15 @@ def display_decimal(value: float | None, digits: int = 3) -> str:
 
 
 @st.cache_resource
+def get_rag() -> LiteratureReviewRAG:
+    # Cache expensive index/model only; assistant settings are per session.
+    return LiteratureReviewRAG()
+
+
 def get_assistant() -> LiteratureReviewAssistant:
-    return LiteratureReviewAssistant(similarity_threshold=0.38, top_k=4, max_steps=3)
+    return LiteratureReviewAssistant(
+        similarity_threshold=0.38, top_k=4, max_steps=3, rag=get_rag()
+    )
 
 
 def render_sidebar() -> tuple[RetrievalMode, str | None, int, float]:
@@ -58,9 +66,22 @@ def render_sidebar() -> tuple[RetrievalMode, str | None, int, float]:
 
 
 def render_source_card(index: int, source: RetrievedSource) -> None:
+    """Show a paper-only card in the ablation; otherwise show review evidence."""
+    if source.is_abstract_only:
+        header = (
+            f"[{index}] {source.title} ({source.conference}) — "
+            f"Abstrakt publikacji | {source.score_type}: {source.similarity_score:.3f}"
+        )
+        with st.expander(header, expanded=(index == 1)):
+            st.markdown(f"📄 **[Strona publikacji ({source.paper_id})]({source.paper_url})**")
+            st.markdown("#### Deklaracje autorów — abstrakt")
+            st.markdown(source.author_abstract or "Brak abstraktu w zapisanych danych.")
+            st.caption("Tryb tylko z abstraktami: opinie recenzentów są celowo pominięte.")
+        return
+
     header = (
         f"[{index}] {source.title} ({source.conference}) — "
-        f"Wynik: {source.similarity_score:.3f} | Ocena: {source.rating}"
+        f"{source.score_type}: {source.similarity_score:.3f} | Ocena: {source.rating}"
     )
     with st.expander(header, expanded=(index == 1)):
         col1, col2, col3 = st.columns([2, 2, 1])
@@ -70,7 +91,6 @@ def render_source_card(index: int, source: RetrievedSource) -> None:
             st.markdown(f"📄 **[Strona publikacji ({source.paper_id})]({source.paper_url})**")
         with col3:
             st.markdown(f"🏛️ **{source.conference}**")
-
         st.divider()
         left_col, right_col = st.columns(2)
         with left_col:
@@ -78,13 +98,18 @@ def render_source_card(index: int, source: RetrievedSource) -> None:
             st.markdown(source.author_abstract or "Brak abstraktu w zapisanych danych.")
         with right_col:
             st.markdown("#### Opinia recenzenta")
-            if source.reviewer_strengths:
-                st.markdown("**Mocne strony wskazane przez recenzenta**")
-                st.markdown(source.reviewer_strengths)
-            if source.reviewer_weaknesses:
-                st.markdown("**Zastrzeżenia i ograniczenia wskazane przez recenzenta**")
-                st.markdown(source.reviewer_weaknesses)
-            if not source.reviewer_strengths and not source.reviewer_weaknesses:
+            reviewer_fields = (
+                ("Podsumowanie recenzenta", source.reviewer_summary),
+                ("Mocne strony wskazane przez recenzenta", source.reviewer_strengths),
+                ("Zastrzeżenia wskazane przez recenzenta", source.reviewer_weaknesses),
+                ("Ograniczenia wskazane przez recenzenta", source.reviewer_limitations),
+                ("Pytania recenzenta", source.reviewer_questions),
+            )
+            for label, content in reviewer_fields:
+                if content:
+                    st.markdown(f"**{label}**")
+                    st.markdown(content)
+            if not any(content for _, content in reviewer_fields):
                 st.caption("Brak tych pól w zapisanych danych recenzji.")
 
 
@@ -212,7 +237,7 @@ def render_evaluation_section(assistant: LiteratureReviewAssistant) -> None:
         }
         for item in report.method_comparison
     ]
-    st.dataframe(comparison_rows, use_container_width=True, hide_index=True)
+    st.dataframe(comparison_rows, width="stretch", hide_index=True)
 
     st.markdown("#### 2. Różnorodność wyników wyszukiwania")
     diversity = report.diversity_analysis
@@ -241,18 +266,18 @@ def render_evaluation_section(assistant: LiteratureReviewAssistant) -> None:
                 "Pytanie": result.query,
                 "Target paper": result.target_paper_id,
                 "Target review": result.target_review_id or "N/A — paper-level",
-                "Wektor — paper rank": result.vector_paper_rank or "—",
-                "BM25 — paper rank": result.bm25_paper_rank or "—",
-                "Hybryda — paper rank": result.hybrid_paper_rank or "—",
-                "Agent — paper rank": result.agent_paper_rank or "—",
-                "Abstrakty — paper rank": result.abstract_only_paper_rank or "—",
-                "Wektor — review rank": result.vector_review_rank or "—",
-                "BM25 — review rank": result.bm25_review_rank or "—",
-                "Hybryda — review rank": result.hybrid_review_rank or "—",
-                "Agent — review rank": result.agent_review_rank or "—",
+                "Wektor — paper rank": str(result.vector_paper_rank or "—"),
+                "BM25 — paper rank": str(result.bm25_paper_rank or "—"),
+                "Hybryda — paper rank": str(result.hybrid_paper_rank or "—"),
+                "Agent — paper rank": str(result.agent_paper_rank or "—"),
+                "Abstrakty — paper rank": str(result.abstract_only_paper_rank or "—"),
+                "Wektor — review rank": str(result.vector_review_rank or "—"),
+                "BM25 — review rank": str(result.bm25_review_rank or "—"),
+                "Hybryda — review rank": str(result.hybrid_review_rank or "—"),
+                "Agent — review rank": str(result.agent_review_rank or "—"),
             }
         )
-    st.dataframe(question_rows, use_container_width=True, hide_index=True)
+    st.dataframe(question_rows, width="stretch", hide_index=True)
 
     st.markdown("#### 4. Pytania bez wystarczających danych")
     unanswerable_rows = [
@@ -265,7 +290,7 @@ def render_evaluation_section(assistant: LiteratureReviewAssistant) -> None:
         }
         for item in report.unanswerable_results
     ]
-    st.dataframe(unanswerable_rows, use_container_width=True, hide_index=True)
+    st.dataframe(unanswerable_rows, width="stretch", hide_index=True)
 
     if report.failure_cases:
         st.markdown("#### 5. Analiza przypadków nietrafnych")

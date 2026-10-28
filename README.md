@@ -29,6 +29,12 @@ Aplikacja pokazuje tytuły prac, identyfikatory i odnośniki OpenReview, fragmen
 
 
 
+## Wiarygodność kontekstu i ablacja
+
+Wyszukiwanie recenzji wykorzystuje pola `summary`, `strengths`, `weaknesses`, `limitations` oraz `questions`. W znalezionych źródłach i budowanym promptcie zachowywane są pełne pola recenzji (z ich nazwami), osobny abstrakt autorów oraz identyfikatory i linki OpenReview. Recenzje mogą zawierać opinie i pytania, nie należy traktować ich jako bezspornych faktów.
+
+**Tryb „Tylko abstrakty”** nie przekazuje do interfejsu ani promptu identyfikatorów recenzji, ich ocen i treści. W tym wariancie źródłem jest wyłącznie publikacja. Wariant abstraktowy tworzy oddzielny indeks BM25 z jednym abstraktem na publikację. Zmiana może wpływać na wynik Paper Hit@5, dlatego wyniki trzeba przeliczyć po wdrożeniu.
+
 ## Instalacja i uruchomienie
 
 **Wymagania:** Python 3.12 (zalecany), Git i dostęp do internetu przy pierwszym uruchomieniu. Projekt uruchamia się z terminala w VS Code, PyCharmie lub systemowego.
@@ -50,6 +56,8 @@ py -3.12 -m venv .venv
 ```
 
 **macOS / Linux:**
+
+Sprawdź `python3 --version` (zalecany Python 3.12; na macOS przetestowano także 3.14). Jeśli masz `python3.12`, możesz użyć go zamiast `python3` poniżej.
 
 ```bash
 python3 -m venv .venv
@@ -91,6 +99,24 @@ python evaluate.py
 
 **Sprawdzone konfiguracje:** Windows — Python 3.12 i 3.14; macOS — Python 3.14. Python 3.15 na Windowsie nie przeszedł instalacji zależności.
 
+
+### Testy automatyczne i dodatkowy holdout
+
+**macOS / Linux:**
+
+```bash
+./.venv/bin/python -m unittest -v test_evaluate test_rag_index test_context_integrity
+./.venv/bin/python holdout_eval.py --run
+```
+
+**Windows (PowerShell):**
+
+```powershell
+.\.venv\Scripts\python.exe -m unittest -v test_evaluate test_rag_index test_context_integrity
+.\.venv\Scripts\python.exe holdout_eval.py --run
+```
+
+Holdout korzysta z zapisanych i wcześniej zweryfikowanych oznaczeń w `data/eval_holdout_verified.json`. Nie służy do dalszego strojenia agenta lub progu odrzucania.
 
 ## Metodologia ewaluacji
 
@@ -150,6 +176,10 @@ solvro-rag-rekrutacja/
 ├── agent_rag.py           # Agent deterministyczny i kontekst źródłowy
 ├── rag_system.py          # ChromaDB, BM25 i wyszukiwanie hybrydowe
 ├── evaluate.py            # Ewaluacja i analiza błędów
+├── holdout_eval.py        # Dodatkowy test na nowych pytaniach
+├── test_evaluate.py       # Testy metryk
+├── test_rag_index.py      # Testy aktualności indeksu
+├── test_context_integrity.py  # Testy źródeł i trybu abstraktowego
 ├── fetch_data.py          # Pobieranie danych z OpenReview
 ├── requirements.txt       # Zależności Pythona
 ├── README.md              # Dokumentacja projektu
@@ -158,7 +188,10 @@ solvro-rag-rekrutacja/
     ├── reviews.json
     ├── sampling_metadata.json
     ├── eval_questions.json
-    └── eval_results.json
+    ├── eval_results.json
+    ├── eval_holdout_candidates.json
+    ├── eval_holdout_verified.json
+    └── eval_holdout_results.json
 ```
 
 Indeks ChromaDB jest generowany lokalnie przy pierwszym uruchomieniu. Pliki indeksu i logi działania nie są przechowywane w repozytorium.

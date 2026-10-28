@@ -19,6 +19,9 @@ class ReviewDocumentMetadata(BaseModel):
     author_abstract: str
     reviewer_strengths: str
     reviewer_weaknesses: str
+    reviewer_limitations: str
+    reviewer_summary: str
+    reviewer_questions: str
 
 
 class LiteratureReviewRAG:
@@ -38,6 +41,7 @@ class LiteratureReviewRAG:
         self.corpus_for_embedding: list[str] = []
         self.corpus_for_bm25: list[str] = []
         self.corpus_abstracts_only: list[str] = []
+        self.abstract_metadata: list[dict[str, Any]] = []
         self.corpus_metadata: list[dict[str, Any]] = []
 
         self._prepare_corpus()
@@ -80,15 +84,8 @@ class LiteratureReviewRAG:
                 f"Reviewer Questions: {questions}"
             )
 
-            abstract_only_text = (
-                f"Paper Title: {paper['title']}\n"
-                f"Keywords: {', '.join(paper.get('keywords', []))}\n"
-                f"Author Abstract: {paper['abstract']}"
-            )
-
             full_bm25_text = f"{review_only_text}\nAuthor Abstract: {paper['abstract']}"
             rating = str(rev.get("scores", {}).get("rating", "N/A"))
-            combined_weaknesses = f"{weaknesses} {limitations}".strip()
 
             meta_model = ReviewDocumentMetadata(
                 review_id=rev["review_id"],
@@ -99,15 +96,38 @@ class LiteratureReviewRAG:
                 review_url=rev["forum_url"],
                 rating=rating,
                 author_abstract=paper["abstract"],
-                reviewer_strengths=strengths[:400] + ("..." if len(strengths) > 400 else ""),
-                reviewer_weaknesses=combined_weaknesses[:500]
-                + ("..." if len(combined_weaknesses) > 500 else ""),
+                # Unabridged reviewer evidence, preserving its original field labels.
+                reviewer_strengths=strengths,
+                reviewer_weaknesses=weaknesses,
+                reviewer_limitations=limitations,
+                reviewer_summary=summary,
+                reviewer_questions=questions,
             )
 
             self.corpus_for_embedding.append(review_only_text)
             self.corpus_for_bm25.append(full_bm25_text)
-            self.corpus_abstracts_only.append(abstract_only_text)
             self.corpus_metadata.append(meta_model.model_dump())
+
+        # One abstract and one BM25 document per paper, not per review.
+        # Legacy test fixtures put conference only on reviews, not papers.
+        conference_by_paper = {
+            rev["paper_id"]: rev.get("conference", "") for rev in self.reviews
+        }
+        for paper in self.papers.values():
+            text = (
+                f"Paper Title: {paper['title']}\n"
+                f"Keywords: {', '.join(paper.get('keywords', []))}\n"
+                f"Author Abstract: {paper['abstract']}"
+            )
+            self.corpus_abstracts_only.append(text)
+            self.abstract_metadata.append({
+                "source_type": "paper_abstract",
+                "paper_id": paper["paper_id"],
+                "conference": paper.get("conference") or conference_by_paper.get(paper["paper_id"], ""),
+                "title": paper["title"],
+                "paper_url": paper["url"],
+                "author_abstract": paper["abstract"],
+            })
 
     def _ensure_index(self, embedding_model_name: str, collection_name: str) -> None:
         """Rebuild an outdated Chroma collection when corpus or model changes.
@@ -180,6 +200,7 @@ class LiteratureReviewRAG:
             results.append(
                 {
                     "score": float(scores[idx]),
+                    "score_type": "bm25",
                     "metadata": meta,
                     "text_snippet": self.corpus_for_bm25[idx],
                 }
@@ -194,26 +215,21 @@ class LiteratureReviewRAG:
         top_k: int = 5,
         conference_filter: str | None = None,
     ) -> list[dict[str, Any]]:
+        """Paper-level BM25: one abstract per paper and no reviewer metadata."""
         tokenized_query = query.lower().split()
         scores = self.bm25_abstracts.get_scores(tokenized_query)
         ranked_indices = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)
-
         results: list[dict[str, Any]] = []
-        seen_papers: set[str] = set()
         for idx in ranked_indices:
-            meta = self.corpus_metadata[idx]
+            meta = self.abstract_metadata[idx]
             if conference_filter and meta["conference"] != conference_filter:
                 continue
-            if meta["paper_id"] in seen_papers:
-                continue
-            seen_papers.add(meta["paper_id"])
-            results.append(
-                {
-                    "score": float(scores[idx]),
-                    "metadata": meta,
-                    "text_snippet": self.corpus_abstracts_only[idx],
-                }
-            )
+            results.append({
+                "score": float(scores[idx]),
+                "score_type": "bm25_abstract",
+                "metadata": dict(meta),
+                "text_snippet": self.corpus_abstracts_only[idx],
+            })
             if len(results) >= top_k:
                 break
         return results
@@ -244,6 +260,7 @@ class LiteratureReviewRAG:
             formatted_results.append(
                 {
                     "score": similarity,
+                    "score_type": "cosine_similarity",
                     "metadata": metadatas_list[i],
                     "text_snippet": documents_list[i],
                 }
@@ -287,6 +304,7 @@ class LiteratureReviewRAG:
             fused_results.append(
                 {
                     "score": round(rrf_scores[rid] * 30.0, 4),
+                    "score_type": "rrf",
                     "metadata": base_item["metadata"],
                     "text_snippet": base_item["text_snippet"],
                 }

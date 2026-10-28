@@ -142,7 +142,7 @@
       "bm25_paper_rank": 1,
       "hybrid_paper_rank": 1,
       "agent_paper_rank": 1,
-      "abstract_only_paper_rank": 51,
+      "abstract_only_paper_rank": 49,
       "vector_review_rank": 7,
       "bm25_review_rank": 1,
       "hybrid_review_rank": 1,
