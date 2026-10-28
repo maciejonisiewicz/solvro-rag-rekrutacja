@@ -38,6 +38,10 @@ class RetrievedSource(BaseModel):
     author_abstract: str
     reviewer_strengths: str
     reviewer_weaknesses: str
+    reviewer_limitations: str = ""
+    reviewer_summary: str = ""
+    reviewer_questions: str = ""
+    is_abstract_only: bool = False
     score_type: str = "cosine_similarity"
     is_supplementary: bool = False
 
@@ -104,6 +108,10 @@ class LiteratureReviewAssistant:
                     author_abstract=str(metadata.get("author_abstract", "")),
                     reviewer_strengths=str(metadata.get("reviewer_strengths", "")),
                     reviewer_weaknesses=str(metadata.get("reviewer_weaknesses", "")),
+                    reviewer_limitations=str(metadata.get("reviewer_limitations", "")),
+                    reviewer_summary=str(metadata.get("reviewer_summary", "")),
+                    reviewer_questions=str(metadata.get("reviewer_questions", "")),
+                    is_abstract_only=metadata.get("source_type") == "paper_abstract",
                     score_type=str(result.get("score_type", score_type)),
                     is_supplementary=bool(supplementary),
                 )
@@ -202,16 +210,26 @@ class LiteratureReviewAssistant:
         sources: list[RetrievedSource],
         supplementary_sources: list[RetrievedSource] | None = None,
     ) -> str:
+        """Construct evidence-bearing context, separating abstracts from reviews."""
         supplementary_sources = supplementary_sources or []
         all_sources = [(source, False) for source in sources] + [
             (source, True) for source in supplementary_sources
         ]
-
         context_blocks: list[str] = []
         for idx, (source, supplementary) in enumerate(all_sources, 1):
+            if source.is_abstract_only:
+                # No review ID/link/opinion/score appears in this ablation.
+                context_blocks.append(
+                    f"[SOURCE {idx}] PAPER ABSTRACT ONLY — no reviewer evidence\n"
+                    f"Paper Title: {source.title} ({source.conference})\n"
+                    f"Paper ID: {source.paper_id}\n"
+                    f"Paper Link: {source.paper_url}\n"
+                    f"Author Claims (Abstract): {source.author_abstract}"
+                )
+                continue
+
             source_kind = (
-                "SUPPLEMENTARY REVIEW — retrieved because it belongs to a cited paper; "
-                "not ranked by query relevance"
+                "SUPPLEMENTARY REVIEW — belongs to a cited paper; not ranked by query relevance"
                 if supplementary
                 else f"RETRIEVAL RESULT — score type: {source.score_type}"
             )
@@ -223,21 +241,24 @@ class LiteratureReviewAssistant:
                 f"Review Link: {source.review_url}\n"
                 f"Reviewer Rating (original field value): {source.rating}\n"
                 f"Author Claims (Abstract): {source.author_abstract}\n"
+                f"Reviewer Summary: {source.reviewer_summary}\n"
                 f"Reviewer Strengths: {source.reviewer_strengths}\n"
-                f"Reviewer Weaknesses & Limitations: {source.reviewer_weaknesses}"
+                f"Reviewer Weaknesses: {source.reviewer_weaknesses}\n"
+                f"Reviewer Limitations: {source.reviewer_limitations}\n"
+                f"Reviewer Questions: {source.reviewer_questions}"
             )
-
         joined_context = "\n\n".join(context_blocks) if context_blocks else "[NO SOURCES RETRIEVED]"
         return (
             "You are a machine-learning literature review assistant. "
             "Answer strictly from the provided OpenReview context.\n"
             "Rules:\n"
             "1. Clearly distinguish author claims (abstracts) from reviewer opinions.\n"
-            "2. Cite every factual claim with [SOURCE X] and include the paper/review link.\n"
+            "2. Cite every factual claim with [SOURCE X] and include the relevant paper/review link.\n"
             "3. Do not infer details absent from the source text.\n"
             "4. If sources disagree, describe the disagreement rather than choosing a side.\n"
-            "5. A supplementary review provides context about the same paper but was not ranked by query relevance.\n"
-            "6. If the evidence is insufficient, explicitly say so.\n\n"
+            "5. A supplementary review adds context but is not a ranked retrieval result.\n"
+            "6. For PAPER ABSTRACT ONLY sources, do not infer or mention reviewer views.\n"
+            "7. If the evidence is insufficient, explicitly say so.\n\n"
             f"CONTEXT:\n{joined_context}\n\n"
             f"USER QUESTION:\n{query}\n\n"
             "ANSWER:"
