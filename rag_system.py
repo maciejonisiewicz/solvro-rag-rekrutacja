@@ -1,3 +1,4 @@
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -54,8 +55,7 @@ class LiteratureReviewRAG:
             metadata={"hnsw:space": "cosine"},
         )
 
-        if self.collection.count() == 0:
-            self._index_documents()
+        self._ensure_index(embedding_model_name, collection_name)
 
     def _prepare_corpus(self) -> None:
         for rev in self.reviews:
@@ -109,19 +109,58 @@ class LiteratureReviewRAG:
             self.corpus_abstracts_only.append(abstract_only_text)
             self.corpus_metadata.append(meta_model.model_dump())
 
-    def _index_documents(self) -> None:
-        ids = [m["review_id"] for m in self.corpus_metadata]
-        embeddings = self.embedding_model.encode(
-            self.corpus_for_embedding,
-            show_progress_bar=True,
-        ).tolist()
+    def _ensure_index(self, embedding_model_name: str, collection_name: str) -> None:
+        """Rebuild an outdated Chroma collection when corpus or model changes.
 
+        The fingerprint is deterministic and covers every indexed text, its metadata,
+        and the embedding model name. Existing collections without a fingerprint
+        are rebuilt once on first run after upgrading.
+        """
+        payload = {
+            "embedding_model": embedding_model_name,
+            "documents": self.corpus_for_embedding,
+            "metadata": self.corpus_metadata,
+        }
+        fingerprint = hashlib.sha256(
+            json.dumps(payload, sort_keys=True, ensure_ascii=False).encode("utf-8")
+        ).hexdigest()
+        previous_metadata = self.collection.metadata or {}
+        is_current = (
+            self.collection.count() == len(self.corpus_metadata)
+            and previous_metadata.get("corpus_fingerprint") == fingerprint
+        )
+        if is_current:
+            return
+
+        if not self.corpus_metadata:
+            raise ValueError("Cannot build Chroma index: no reviews in the corpus.")
+
+        # Calculate embeddings BEFORE replacing an existing collection. If model
+        # encoding fails, the original index is preserved.
+        embeddings = self.embedding_model.encode(
+            self.corpus_for_embedding, show_progress_bar=True
+        ).tolist()
+        self.chroma_client.delete_collection(name=collection_name)
+        self.collection = self.chroma_client.create_collection(
+            name=collection_name,
+            metadata={"hnsw:space": "cosine", "corpus_fingerprint": fingerprint},
+        )
+        self._index_documents(embeddings=embeddings)
+
+    def _index_documents(self, embeddings: list[list[float]] | None = None) -> None:
+        ids = [m["review_id"] for m in self.corpus_metadata]
+        if embeddings is None:
+            embeddings = self.embedding_model.encode(
+                self.corpus_for_embedding,
+                show_progress_bar=True,
+            ).tolist()
         self.collection.add(
             ids=ids,
             documents=self.corpus_for_embedding,
             embeddings=embeddings,
             metadatas=self.corpus_metadata,
         )
+
 
     def search_bm25(
         self,

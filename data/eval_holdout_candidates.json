@@ -1,0 +1,54 @@
+[
+  {
+    "id": 101,
+    "query": "Which TabR review asks why the architecture uses m=96 and questions whether its features can be categorical rather than only continuous?",
+    "has_data": true,
+    "target_paper_id": "rhgIgTSSxW",
+    "target_review_id": "CEBB2izG6I",
+    "justification": "The review's questions explicitly ask why m equals 96 and whether TabR applies to categorical features.",
+    "evidence_field": "questions"
+  },
+  {
+    "id": 102,
+    "query": "Which review of an LLM privacy attack paper questions whether the ACS data had been memorized and asks for better documentation of synthetic dataset creation?",
+    "has_data": true,
+    "target_paper_id": "kmn0BhQk7p",
+    "target_review_id": "5ZYljDrhoa",
+    "justification": "The review's weaknesses raise possible memorization of ACS data and insufficient documentation of the synthetic dataset generation process.",
+    "evidence_field": "weaknesses"
+  },
+  {
+    "id": 103,
+    "query": "Which review argues that a non-linear perceptron gradient-flow analysis relies on very strong Gaussian assumptions and that heavily preprocessed MNIST might not test beyond those assumptions?",
+    "has_data": true,
+    "target_paper_id": "doaJTihgIZ",
+    "target_review_id": "B6vX3HKDRK",
+    "justification": "The review explicitly criticizes the strong Gaussian or multinormal assumptions and questions whether preprocessed MNIST differs meaningfully from them.",
+    "evidence_field": "weaknesses"
+  },
+  {
+    "id": 104,
+    "query": "Which review of emergent agent communication says spatial meaningfulness looks like ordinary clustering in latent space and criticizes the limited MNIST experimental setup?",
+    "has_data": true,
+    "target_paper_id": "me1MpmENpw",
+    "target_review_id": "0O0x60CKfl",
+    "justification": "The review's weaknesses compare spatial meaningfulness to clustering and criticize experiments confined to a small MNIST setup.",
+    "evidence_field": "weaknesses"
+  },
+  {
+    "id": 105,
+    "query": "What is the recommended tire pressure for a 2011 Honda Civic?",
+    "has_data": false,
+    "target_paper_id": null,
+    "target_review_id": null,
+    "justification": "Automotive maintenance advice is outside the ICLR/NeurIPS 2024 review corpus."
+  },
+  {
+    "id": 106,
+    "query": "Which paper from ICLR or NeurIPS 2024 compares the training energy usage of GPT-6 with Claude 5?",
+    "has_data": false,
+    "target_paper_id": null,
+    "target_review_id": null,
+    "justification": "A comparison of later model versions is not substantiated by these 2024 conference reviews; this is a deliberately semantically challenging out-of-scope question."
+  }
+]

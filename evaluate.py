@@ -1,21 +1,30 @@
-"""Evaluation utilities for the OpenReview literature-review RAG.
+"""Reproducible retrieval-only evaluation for the OpenReview literature RAG.
 
-The ground-truth dataset is read from data/eval_questions.json and is never
-regenerated as a side effect of running evaluation.
+Paper Hit@5 uses the five *distinct* papers ranked from retrieval results.
+Review Hit@5 / MRR@5 / binary nDCG@5 use one manually annotated target review
+per question. Other reviews have not been judged; they are not silently granted
+relevance credit merely for belonging to the same paper.
+
+The ground truth in data/eval_questions.json is read-only. No LLM-generated
+answer quality or claim faithfulness is measured here.
 """
 
+from __future__ import annotations
+
+import argparse
+import hashlib
 import json
 import math
 from pathlib import Path
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from pydantic import BaseModel
 
-from agent_rag import LiteratureReviewAssistant
-from rag_system import LiteratureReviewRAG
+if TYPE_CHECKING:
+    from rag_system import LiteratureReviewRAG
 
 SIMILARITY_THRESHOLD = 0.38
-EVALUATION_VERSION = 2
+EVALUATION_VERSION = 3
 
 
 class GroundTruthQuestion(BaseModel):
@@ -106,6 +115,9 @@ class EvaluationMetrics(BaseModel):
     agent_review_mrr: float
     agent_ndcg_at_5: float
     unanswerable_rejection_accuracy: float
+    # Diagnostic for the fixed *vector-score* threshold (not an agent metric).
+    vector_threshold_answerable_acceptance: float | None = None
+    vector_threshold_balanced_accuracy: float | None = None
     abstracts_only_paper_hit_at_5: float = 0.0
     # Review metrics for abstract-only retrieval are deliberately N/A.
     abstracts_only_review_hit_at_5: float | None = None
@@ -121,6 +133,16 @@ class FullEvaluationReport(BaseModel):
     questions_results: list[QuestionEvalDetail]
     unanswerable_results: list[UnanswerableEvalDetail]
     failure_cases: list[FailureCaseDetail]
+    # Additive, backward-compatible fields for auditing the evaluation protocol.
+    ground_truth_sha256: str | None = None
+    evaluation_protocol: str = (
+        "Binary review nDCG@5: only the manually annotated target review is "
+        "relevant; unjudged reviews receive zero *evaluation* credit, not a "
+        "judgment of irrelevance. With one relevant review, its nDCG@5 is "
+        "1/log2(rank+1) if rank<=5, otherwise 0. Paper Hit@5 counts "
+        "five distinct papers. Reject/accept diagnostics use the top vector "
+        "cosine score and a fixed threshold, not the full agent's decision."
+    )
 
 
 def load_ground_truth_dataset(
@@ -135,6 +157,8 @@ def load_ground_truth_dataset(
         )
 
     raw_questions = json.loads(questions_path.read_text(encoding="utf-8"))
+    if not isinstance(raw_questions, list):
+        raise ValueError("Evaluation dataset must be a JSON list of questions.")
     questions = [GroundTruthQuestion.model_validate(item) for item in raw_questions]
 
     if not questions:
@@ -146,6 +170,12 @@ def load_ground_truth_dataset(
 
     if any(question.has_data and not question.target_paper_id for question in questions):
         raise ValueError("Every answerable question must define target_paper_id.")
+
+    for question in questions:
+        if not question.query.strip():
+            raise ValueError(f"Q{question.id:02d} has an empty query.")
+        if question.has_data and not question.justification.strip():
+            raise ValueError(f"Q{question.id:02d} needs a manual relevance justification.")
 
     if any(not question.has_data and question.target_paper_id for question in questions):
         raise ValueError(
@@ -189,28 +219,56 @@ def validate_ground_truth(
                 )
 
 
+def _unique_review_results(
+    results: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Remove repeated fragments of a review, preserving first-seen rank.
+
+    The current index has one document per review; this guard prevents future
+    chunking changes from counting the same review multiple times.
+    """
+    seen: set[str] = set()
+    unique: list[dict[str, Any]] = []
+    for item in results:
+        review_id = str(item["metadata"].get("review_id") or "")
+        if not review_id:
+            raise ValueError("Review retrieval result is missing metadata.review_id.")
+        if review_id not in seen:
+            seen.add(review_id)
+            unique.append(item)
+    return unique
+
+
 def find_rank_of_target(
     results: list[dict[str, Any]],
     target_paper_id: str,
     target_review_id: str | None,
 ) -> tuple[int | None, int | None]:
-    """Return (review rank, deduplicated paper rank); ranks are 1-based."""
-    review_rank = None
-    if target_review_id is not None:
-        for rank, result in enumerate(results, start=1):
-            if result["metadata"]["review_id"] == target_review_id:
-                review_rank = rank
-                break
+    """Return (review rank, distinct-paper rank), both one-based.
 
+    Review rank treats duplicate chunks as one review. Paper rank likewise
+    counts unique papers rather than review chunks.
+    """
+    review_rank: int | None = None
+    seen_reviews: set[str] = set()
     seen_papers: set[str] = set()
-    paper_rank = None
-    for result in results:
-        paper_id = result["metadata"]["paper_id"]
-        if paper_id in seen_papers:
-            continue
-        seen_papers.add(paper_id)
-        if paper_id == target_paper_id:
-            paper_rank = len(seen_papers)
+    paper_rank: int | None = None
+    for item in results:
+        meta = item["metadata"]
+        paper_id = meta["paper_id"]
+        review_id = meta.get("review_id")
+
+        if paper_id not in seen_papers:
+            seen_papers.add(paper_id)
+            if paper_id == target_paper_id:
+                paper_rank = len(seen_papers)
+
+        if review_id and review_id not in seen_reviews:
+            seen_reviews.add(review_id)
+            if review_id == target_review_id and paper_id == target_paper_id:
+                review_rank = len(seen_reviews)
+
+        if paper_rank is not None and (review_rank is not None or target_review_id is None):
             break
 
     return review_rank, paper_rank
@@ -220,47 +278,28 @@ def compute_ndcg_at_k(
     results: list[dict[str, Any]],
     target_paper_id: str,
     target_review_id: str | None,
-    relevant_review_ids: set[str],
+    relevant_review_ids: set[str] | None = None,
     k: int = 5,
 ) -> float | None:
-    """Compute review-level nDCG with qrels derived from annotated paper/review IDs.
+    """Binary nDCG@k against the *manually annotated* target review only.
 
-    Relevance policy: target review = 2; other reviews of the target paper = 1;
-    all other documents = 0. This reflects the current evaluation protocol and
-    should be revisited if each individual review is manually labelled.
+    Each question has at most one manually annotated relevant review. Thus the
+    ideal DCG is 1; nDCG is 1/log2(rank+1) if the target is within the first k
+    distinct reviews, otherwise zero. All other reviews are **unjudged**; the
+    zero assigned for scoring is not a claim that they are irrelevant.
+
+    ``relevant_review_ids`` is ignored: kept only for compatibility with old
+    call sites that passed all reviews of a paper as automatic relevance.
     """
+    if k < 1:
+        raise ValueError("k must be a positive integer")
     if target_review_id is None:
         return None
 
-    qrels = set(relevant_review_ids)
-    qrels.add(target_review_id)
-
-    dcg = 0.0
-    for rank, result in enumerate(results[:k], start=1):
-        metadata = result["metadata"]
-        review_id = metadata["review_id"]
-        paper_id = metadata["paper_id"]
-
-        if review_id == target_review_id and paper_id == target_paper_id:
-            relevance = 2
-        elif review_id in qrels and paper_id == target_paper_id:
-            relevance = 1
-        else:
-            relevance = 0
-
-        if relevance:
-            dcg += (2**relevance - 1) / math.log2(rank + 1)
-
-    ideal_relevances = sorted(
-        [2 if review_id == target_review_id else 1 for review_id in qrels],
-        reverse=True,
-    )[:k]
-    idcg = sum(
-        (2**relevance - 1) / math.log2(rank + 1)
-        for rank, relevance in enumerate(ideal_relevances, start=1)
-    )
-
-    return dcg / idcg if idcg else 0.0
+    review_rank, _ = find_rank_of_target(results, target_paper_id, target_review_id)
+    if review_rank is None or review_rank > k:
+        return 0.0
+    return 1.0 / math.log2(review_rank + 1)
 
 
 def _safe_ratio(numerator: float, denominator: int) -> float:
@@ -271,9 +310,25 @@ def _review_metric_or_none(value: float, denominator: int) -> float | None:
     return round(value / denominator, 3) if denominator else None
 
 
-def run_evaluation(rag: LiteratureReviewRAG | None = None) -> FullEvaluationReport:
-    questions = load_ground_truth_dataset()
-    rag_engine = rag or LiteratureReviewRAG()
+def run_evaluation(
+    rag: LiteratureReviewRAG | None = None,
+    *,
+    questions_path: str | Path = "data/eval_questions.json",
+    report_path: str | Path = "data/eval_results.json",
+    save_report: bool = True,
+) -> FullEvaluationReport:
+    """Run fixed-ground-truth retrieval evaluation and optionally save its report.
+
+    Paths are configurable for unit tests; default calls are compatible with
+    the existing Streamlit UI and the command ``python evaluate.py``.
+    """
+    # Heavy ML imports occur only when evaluation is run, so the pure metrics
+    # can be unit-tested without loading sentence transformers / ChromaDB.
+    from agent_rag import LiteratureReviewAssistant
+    from rag_system import LiteratureReviewRAG
+
+    questions = load_ground_truth_dataset(questions_path)
+    rag_engine = rag if rag is not None else LiteratureReviewRAG()
     validate_ground_truth(questions, rag_engine)
 
     answerable = [question for question in questions if question.has_data]
@@ -292,15 +347,12 @@ def run_evaluation(rag: LiteratureReviewRAG | None = None) -> FullEvaluationRepo
         for method in ("vector", "bm25", "hybrid", "agent", "abstracts")
     }
 
-    reviews_by_paper: dict[str, set[str]] = {}
-    for review in rag_engine.reviews:
-        reviews_by_paper.setdefault(review["paper_id"], set()).add(review["review_id"])
-
     recommended_papers: set[str] = set()
     conference_counts = {"ICLR 2024": 0, "NeurIPS 2024": 0}
     unique_papers_per_query: list[int] = []
     failure_cases: list[FailureCaseDetail] = []
     detailed_results: list[QuestionEvalDetail] = []
+    answerable_threshold_accepted = 0
 
     # Reuse the already initialized RAG engine; do not load a second embedding model.
     assistant = LiteratureReviewAssistant(
@@ -310,8 +362,9 @@ def run_evaluation(rag: LiteratureReviewRAG | None = None) -> FullEvaluationRepo
         rag=rag_engine,
     )
     # Keep evaluation traces separate from a user's latest interactive query.
-    assistant.context_log_path = Path("data/evaluation_last_query_context.json")
-    assistant.trace_log_path = Path("data/evaluation_agent_trace_log.json")
+    trace_dir = Path(report_path).parent
+    assistant.context_log_path = trace_dir / "evaluation_last_query_context.json"
+    assistant.trace_log_path = trace_dir / "evaluation_agent_trace_log.json"
 
     for question in answerable:
         assert question.target_paper_id is not None
@@ -321,13 +374,21 @@ def run_evaluation(rag: LiteratureReviewRAG | None = None) -> FullEvaluationRepo
         # Retrieve the full small corpus so paper-level deduplication and ranks
         # are not distorted by an arbitrary 20-document cutoff.
         retrieval_k = max(len(rag_engine.reviews), len(rag_engine.papers), 1)
-        vector_results = rag_engine.search_vector(question.query, top_k=retrieval_k)
-        bm25_results = rag_engine.search_bm25(question.query, top_k=retrieval_k)
-        hybrid_results = rag_engine.search_hybrid(question.query, top_k=retrieval_k)
+        vector_results = _unique_review_results(
+            rag_engine.search_vector(question.query, top_k=retrieval_k)
+        )
+        if vector_results and float(vector_results[0]["score"]) >= SIMILARITY_THRESHOLD:
+            answerable_threshold_accepted += 1
+        bm25_results = _unique_review_results(
+            rag_engine.search_bm25(question.query, top_k=retrieval_k)
+        )
+        hybrid_results = _unique_review_results(
+            rag_engine.search_hybrid(question.query, top_k=retrieval_k)
+        )
         abstract_results = rag_engine.search_abstracts_only(question.query, top_k=retrieval_k)
 
         agent_payload = assistant.run_agent(question.query)
-        agent_results = [
+        agent_results = _unique_review_results([
             {
                 "score": source.similarity_score,
                 "metadata": {
@@ -338,7 +399,7 @@ def run_evaluation(rag: LiteratureReviewRAG | None = None) -> FullEvaluationRepo
                 },
             }
             for source in agent_payload.sources
-        ]
+        ])
 
         vector_top5 = vector_results[:5]
         unique_for_query = {item["metadata"]["paper_id"] for item in vector_top5}
@@ -389,12 +450,10 @@ def run_evaluation(rag: LiteratureReviewRAG | None = None) -> FullEvaluationRepo
                     stats[method]["review_hits"] += 1
                     # MRR@5: a target outside the first five contributes zero.
                     stats[method]["rr_sum"] += 1.0 / review_rank
-                relevant_ids = reviews_by_paper.get(target_paper_id, set())
                 ndcg = compute_ndcg_at_k(
                     results,
                     target_paper_id,
                     target_review_id,
-                    relevant_review_ids=relevant_ids,
                     k=5,
                 )
                 if ndcg is not None:
@@ -404,17 +463,22 @@ def run_evaluation(rag: LiteratureReviewRAG | None = None) -> FullEvaluationRepo
         if target_review_id is not None and (
             hits["vector"][0] is False or hits["bm25"][0] is False
         ):
-            if question.id == 4:
+            if hits["vector"][0] is False and hits["bm25"][0] is True:
                 probable_cause = (
-                    "Q04 asks for a specific technical criticism (ROUGE-L in Equation 3). "
-                    "Dense retrieval can under-rank a rare exact term; compare the lexical "
-                    "and hybrid rankings rather than assuming the hybrid method fixed it."
+                    "The exact annotated review is outside the vector Top-5 but "
+                    "inside the BM25 Top-5. Rare technical terms or exact wording "
+                    "may be better captured lexically; inspect the source text."
+                )
+            elif hits["bm25"][0] is False and hits["vector"][0] is True:
+                probable_cause = (
+                    "The exact annotated review is outside the BM25 Top-5 but "
+                    "inside the vector Top-5. Vocabulary mismatch may reduce "
+                    "lexical matching; inspect the source text."
                 )
             else:
                 probable_cause = (
-                    "The target review was not in the Top-5 for at least one baseline. "
-                    "Inspect the query wording, relevant review fields, and the ranks from "
-                    "the vector, BM25, hybrid, and agent methods."
+                    "Neither baseline retrieved the annotated review in Top-5. "
+                    "Inspect query specificity, review text, and source rankings."
                 )
 
             failure_cases.append(
@@ -465,14 +529,14 @@ def run_evaluation(rag: LiteratureReviewRAG | None = None) -> FullEvaluationRepo
     unanswerable_correct = 0
     for question in unanswerable:
         vector_results = rag_engine.search_vector(question.query, top_k=1)
-        top_score = round(float(vector_results[0]["score"]), 3) if vector_results else 0.0
-        rejected = top_score < SIMILARITY_THRESHOLD
+        raw_top_score = float(vector_results[0]["score"]) if vector_results else 0.0
+        rejected = raw_top_score < SIMILARITY_THRESHOLD
         unanswerable_correct += int(rejected)
         unanswerable_results.append(
             UnanswerableEvalDetail(
                 id=question.id,
                 query=question.query,
-                max_similarity_score=top_score,
+                max_similarity_score=round(raw_top_score, 3),
                 threshold=SIMILARITY_THRESHOLD,
                 correctly_rejected=rejected,
             )
@@ -501,7 +565,8 @@ def run_evaluation(rag: LiteratureReviewRAG | None = None) -> FullEvaluationRepo
         evaluation_unit=(
             f"Paper-level Hit@5 uses all {paper_denominator} answerable questions; "
             f"review-level Hit@5/MRR/nDCG@5 use only {review_denominator} questions "
-            "with a manually annotated target review. Abstract-only review metrics are N/A."
+            "with a manually annotated target review (binary nDCG: one relevant "
+            "review only). Abstract-only review metrics are N/A."
         ),
         vector_paper_hit_at_5=_safe_ratio(stats["vector"]["paper_hits"], paper_denominator),
         vector_review_hit_at_5=_safe_ratio(stats["vector"]["review_hits"], review_denominator),
@@ -519,6 +584,19 @@ def run_evaluation(rag: LiteratureReviewRAG | None = None) -> FullEvaluationRepo
         agent_ndcg_at_5=round(_safe_ratio(stats["agent"]["ndcg_sum"], review_denominator), 3),
         unanswerable_rejection_accuracy=_safe_ratio(
             unanswerable_correct, len(unanswerable)
+        ),
+        vector_threshold_answerable_acceptance=_safe_ratio(
+            answerable_threshold_accepted, paper_denominator
+        ),
+        vector_threshold_balanced_accuracy=(
+            round(
+                (
+                    _safe_ratio(answerable_threshold_accepted, paper_denominator)
+                    + _safe_ratio(unanswerable_correct, len(unanswerable))
+                ) / 2,
+                3,
+            )
+            if unanswerable else None
         ),
         abstracts_only_paper_hit_at_5=_safe_ratio(
             stats["abstracts"]["paper_hits"], paper_denominator
@@ -562,14 +640,18 @@ def run_evaluation(rag: LiteratureReviewRAG | None = None) -> FullEvaluationRepo
         questions_results=detailed_results,
         unanswerable_results=unanswerable_results,
         failure_cases=failure_cases,
+        ground_truth_sha256=hashlib.sha256(
+            Path(questions_path).read_bytes()
+        ).hexdigest(),
     )
 
-    report_path = Path("data/eval_results.json")
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    report_path.write_text(
-        json.dumps(report.model_dump(), ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
+    if save_report:
+        destination = Path(report_path)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_text(
+            json.dumps(report.model_dump(), ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
     return report
 
 
@@ -582,7 +664,7 @@ def print_console_report(report: FullEvaluationReport) -> None:
 
     print("\n" + "=" * 100)
     print(" RETRIEVAL EVALUATION (paper-level and review-level metrics)")
-    print("=" * 100)
+    print("=" * 100) 
     print(report.metrics.evaluation_unit)
     for method in report.method_comparison:
         print(
@@ -597,6 +679,17 @@ def print_console_report(report: FullEvaluationReport) -> None:
         "\nUnanswerable rejection accuracy: "
         f"{percentage(metrics.unanswerable_rejection_accuracy)}"
     )
+    print(
+        "Vector threshold answerable acceptance: "
+        f"{percentage(metrics.vector_threshold_answerable_acceptance)} "
+        f"(threshold={SIMILARITY_THRESHOLD:.2f}, {len(report.questions_results)} questions)"
+    )
+    print(
+        "Vector threshold balanced accuracy: "
+        f"{percentage(metrics.vector_threshold_balanced_accuracy)} "
+        "(diagnostic only; threshold not independently validated)"
+    )
+    print("Note: one annotated review per query; unjudged reviews get no nDCG credit.")
     print("\nUnanswerable query details:")
     for result in report.unanswerable_results:
         status = "REJECTED" if result.correctly_rejected else "NOT REJECTED"
@@ -618,5 +711,30 @@ def print_console_report(report: FullEvaluationReport) -> None:
             print(f"  Possible cause: {failure.probable_cause}")
 
 
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Evaluate the RAG retrieval methods on fixed, manually labelled sources."
+    )
+    parser.add_argument(
+        "--questions", default="data/eval_questions.json",
+        help="Path to an existing, manually annotated JSON question set.",
+    )
+    parser.add_argument(
+        "--output", default="data/eval_results.json",
+        help="Destination for the evaluation report (JSON).",
+    )
+    parser.add_argument(
+        "--no-save", action="store_true",
+        help="Print evaluation without rewriting the JSON report.",
+    )
+    args = parser.parse_args()
+    report = run_evaluation(
+        questions_path=args.questions,
+        report_path=args.output,
+        save_report=not args.no_save,
+    )
+    print_console_report(report)
+
+
 if __name__ == "__main__":
-    print_console_report(run_evaluation())
+    main()

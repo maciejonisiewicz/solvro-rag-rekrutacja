@@ -44,34 +44,52 @@ Zbiór pytań referencyjnych znajduje się w `data/eval_questions.json`, a zapis
 
 ## Metodologia ewaluacji
 
-Zbiór zawiera **12 pytań**: 10 z odpowiedzią w danych i 2 bez wystarczających danych. Metryki **Paper Hit@5** są liczone na 10 pytaniach z odpowiedzią. Metryki **Review Hit@5**, **MRR@5** i **nDCG@5** są liczone wyłącznie na **8 pytaniach z ręcznie oznaczoną docelową recenzją**. Dla wariantu tylko z abstraktami metryki recenzji nie mają zastosowania (N/A).
+Zamrożony zbiór główny (`data/eval_questions.json`) zawiera **12 pytań**: 10 z odpowiedzią w danych i 2 bez wystarczających danych. **Paper Hit@5** mierzymy na 10 pytaniach z odpowiedzią, a **Review Hit@5, MRR@5 i nDCG@5** na 8 pytaniach z ręcznie wskazaną konkretną recenzją. Wariant tylko z abstraktami nie ma metryk recenzji (N/A).
 
-### Wyniki lokalnej ewaluacji
+**Definicja nDCG@5 (ewaluacja v3):** oceniamy jedną ręcznie wskazaną recenzję jako trafną (`relevance=1`); inne, nieocenione recenzje otrzymują `0`, co *nie oznacza*, że są obiektywnie nietrafne. Przy jednym oznaczonym źródle nDCG@5 i MRR@5 są silnie powiązane. Wyników nDCG v3 nie należy porównywać bezpośrednio z wcześniejszą metodą częściowej trafności recenzji z tej samej publikacji.
 
-| Metoda | Paper Hit@5 | Review Hit@5 | MRR@5 | nDCG@5 |
+### Wyniki głównej ewaluacji (10 pytań z odpowiedzią, 8 ze wskazaną recenzją)
+
+| Metoda | Paper Hit@5 | Review Hit@5 | MRR@5 | nDCG@5 (v3) |
 |---|---:|---:|---:|---:|
-| Wektorowe (ChromaDB) | 100% | 87,5% | 0.542 | 0.615 |
-| BM25 (abstrakty + recenzje) | 100% | 100% | 0.917 | **0.930** |
-| Hybrydowe (RRF) | 100% | 100% | 0.906 | 0.870 |
-| Agent deterministyczny | 100% | 100% | **1.000** | 0.903 |
+| Wektorowe (ChromaDB) | 100% | 87,5% | 0.542 | 0.624 |
+| BM25 (abstrakty + recenzje) | 100% | 100% | 0.917 | 0.938 |
+| Hybrydowe (RRF) | 100% | 100% | 0.906 | 0.929 |
+| Agent deterministyczny | 100% | 100% | **1.000** | **1.000** |
 | Tylko abstrakty | 90% | N/A | N/A | N/A |
 
-**Interpretacja:** agent osiąga najwyższe MRR@5, natomiast BM25 osiąga najwyższe nDCG@5. Samo dodanie hybrydy nie poprawia każdej metryki względem BM25.
+Agent umieścił wszystkie osiem oznaczonych recenzji na pierwszym miejscu w *głównym* zbiorze. Heurystyki agenta były jednak dopracowywane przy znajomości tego niewielkiego zestawu, dlatego wyniki mogą być optymistyczne.
 
-### Analiza błędu: Q04
+### Dodatkowy test holdout (4 nowe pytania z odpowiedzią + 2 bez danych)
 
-Pytanie dotyczy krytyki **ROUGE-L w Equation 3** i propozycji użycia modelu entailment. Prawidłowa recenzja: `2mTTJZa647` dla publikacji `AqN23oqraW` (*KoLA: Carefully Benchmarking World Knowledge of Large Language Models*).
+Dodatkowe pytania dotyczą innych publikacji niż główne oznaczenia. Zostały ręcznie sprawdzone pod kątem wskazanych źródeł przed uruchomieniem porównania. Test jest **niewielki i eksploracyjny**, a nie statystycznie reprezentatywny. Opis „holdout” oznacza tutaj pytania niewykorzystywane do wcześniejszego dopasowania heurystyk; nie oznacza pełnej niezależności od korpusu i procesu przygotowywania testu.
+
+| Metoda | Paper Hit@5 | Review Hit@5 | MRR@5 | nDCG@5 (v3) |
+|---|---:|---:|---:|---:|
+| Wektorowe (ChromaDB) | 100% | 100% | 0.750 | 0.815 |
+| BM25 (abstrakty + recenzje) | 100% | 100% | **0.875** | **0.908** |
+| Hybrydowe (RRF) | 100% | 100% | **0.875** | **0.908** |
+| Agent deterministyczny | 100% | 100% | 0.750 | 0.815 |
+| Tylko abstrakty | 100% | N/A | N/A | N/A |
+
+Na tych czterech nowych pytaniach wszystkie metody odnajdują docelowe recenzje w Top 5, ale BM25 i RRF mają wyższe MRR i nDCG niż agent. **Nie dostrajano agenta na podstawie tych wyników.**
+
+### Analiza błędu Q04
+
+Pytanie z zestawu głównego dotyczy krytyki **ROUGE-L w Equation 3** i propozycji użycia modelu entailment. Oznaczona recenzja: `2mTTJZa647` dla publikacji `AqN23oqraW` (*KoLA: Carefully Benchmarking World Knowledge of Large Language Models*).
 
 - Wektorowe: pozycja **7**.
 - BM25: pozycja **1**.
 - Hybrydowe: pozycja **1**.
-- Agent po poprawkach: pozycja **1**.
+- Agent: pozycja **1**.
 
-Ten przykład pokazuje ograniczenie dopasowania semantycznego dla rzadkich, dokładnych terminów technicznych. Nie dowodzi jednak przewagi jednej metody dla dowolnych zapytań.
+To konkretny przykład, w którym dokładne terminy techniczne lepiej wyszukuje metoda leksykalna. Nie dowodzi przewagi BM25 w całej populacji zapytań.
 
-### Pytania bez danych
+### Odrzucanie pytań bez danych
 
-Przy progu podobieństwa **0.38** oba pytania zostały prawidłowo odrzucone: Q11 (wynik 0.292) i Q12 (0.168). Lokalna skuteczność odrzucenia: **2/2**.
+Przy progu podobieństwa wektorowego **0.38** w zestawie głównym oba pytania bez odpowiedzi zostały odrzucone (Q11: `0.292`, Q12: `0.168`), a wszystkie 10 pytań z odpowiedzią zostało zaakceptowanych. To diagnostyka **progu wektorowego**, a nie osobny pomiar jakości generacji lub całego agenta.
+
+W dodatkowym teście holdout poprawnie odrzucono **1/2** pytań bez danych (H105: `0.140`). Pytanie H106 (`0.384`) zostało błędnie zaakceptowane. Czułość progu jest ograniczeniem systemu; **nie dostrajano progu po obejrzeniu wyniku holdout**.
 
 ## Struktura projektu
 
@@ -96,10 +114,11 @@ data/
 
 - Niewielki zbiór ewaluacyjny (8 pytań z docelową recenzją) ogranicza możliwość uogólniania wyników.
 - Dodatkowe sortowanie agenta na podstawie terminów technicznych jest heurystyką, a nie trenowanym rerankerem; wymaga testów na większym zbiorze.
-- Próg odrzucenia 0.38 zweryfikowano lokalnie tylko na dwóch pytaniach bez odpowiedzi.
+- Próg odrzucenia 0.38 nie odrzucił jednego z dwóch pytań bez danych w dodatkowym teście holdout; wymaga odrębnego strojenia i walidacji.
 - Metryki retrieval nie oceniają prawdziwości ani jakości końcowej odpowiedzi LLM, ponieważ model generatywny nie jest podłączony.
-- Możliwe rozwinięcia: większy zbiór ground truth, niezależny zbiór testowy, analiza czasu odpowiedzi i kosztu, reranker cross-encoder oraz generacja odpowiedzi z cytowaniami.
+- Dodatkowy holdout jest mały (4 pytania z odpowiedzią, 2 bez danych), więc jego wyniki również nie pozwalają wnioskować o skuteczności na szerokiej populacji zapytań.
+- Możliwe rozwinięcia: większy niezależnie przygotowany zbiór testowy, analiza czasu odpowiedzi i kosztu, reranker cross-encoder oraz generacja odpowiedzi z cytowaniami.
 
 ## Powtarzalność
 
-Wyniki podane wyżej pochodzą z lokalnego raportu `data/eval_results.json` po poprawkach rankingu agenta. Przed porównywaniem kolejnych zmian należy zachować wersję danych, konfigurację indeksu, próg odrzucenia i ten sam zestaw pytań.
+Wyniki pochodzą z raportów `data/eval_results.json` (zbiór główny, ewaluacja v3) oraz `data/eval_holdout_results.json` (dodatkowy test). Pytania i ręczne oznaczenia przechowywane są oddzielnie od indeksowanych źródeł. Przy powtarzaniu porównań należy zachować wersję danych, konfigurację indeksu, próg odrzucenia i ten sam zestaw pytań. Testy metryk: `python -m unittest -v test_evaluate`; test indeksu: `python -m unittest -v test_rag_index`.
