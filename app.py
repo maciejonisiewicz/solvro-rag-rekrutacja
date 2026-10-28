@@ -237,7 +237,7 @@ def render_evaluation_section(assistant: LiteratureReviewAssistant) -> None:
         }
         for item in report.method_comparison
     ]
-    st.dataframe(comparison_rows, use_container_width=True, hide_index=True)
+    st.dataframe(comparison_rows, width="stretch", hide_index=True)
 
     st.markdown("#### 2. Różnorodność wyników wyszukiwania")
     diversity = report.diversity_analysis
@@ -266,18 +266,18 @@ def render_evaluation_section(assistant: LiteratureReviewAssistant) -> None:
                 "Pytanie": result.query,
                 "Target paper": result.target_paper_id,
                 "Target review": result.target_review_id or "N/A — paper-level",
-                "Wektor — paper rank": result.vector_paper_rank or "—",
-                "BM25 — paper rank": result.bm25_paper_rank or "—",
-                "Hybryda — paper rank": result.hybrid_paper_rank or "—",
-                "Agent — paper rank": result.agent_paper_rank or "—",
-                "Abstrakty — paper rank": result.abstract_only_paper_rank or "—",
-                "Wektor — review rank": result.vector_review_rank or "—",
-                "BM25 — review rank": result.bm25_review_rank or "—",
-                "Hybryda — review rank": result.hybrid_review_rank or "—",
-                "Agent — review rank": result.agent_review_rank or "—",
+                "Wektor — paper rank": str(result.vector_paper_rank or "—"),
+                "BM25 — paper rank": str(result.bm25_paper_rank or "—"),
+                "Hybryda — paper rank": str(result.hybrid_paper_rank or "—"),
+                "Agent — paper rank": str(result.agent_paper_rank or "—"),
+                "Abstrakty — paper rank": str(result.abstract_only_paper_rank or "—"),
+                "Wektor — review rank": str(result.vector_review_rank or "—"),
+                "BM25 — review rank": str(result.bm25_review_rank or "—"),
+                "Hybryda — review rank": str(result.hybrid_review_rank or "—"),
+                "Agent — review rank": str(result.agent_review_rank or "—"),
             }
         )
-    st.dataframe(question_rows, use_container_width=True, hide_index=True)
+    st.dataframe(question_rows, width="stretch", hide_index=True)
 
     st.markdown("#### 4. Pytania bez wystarczających danych")
     unanswerable_rows = [
@@ -290,7 +290,7 @@ def render_evaluation_section(assistant: LiteratureReviewAssistant) -> None:
         }
         for item in report.unanswerable_results
     ]
-    st.dataframe(unanswerable_rows, use_container_width=True, hide_index=True)
+    st.dataframe(unanswerable_rows, width="stretch", hide_index=True)
 
     if report.failure_cases:
         st.markdown("#### 5. Analiza przypadków nietrafnych")
