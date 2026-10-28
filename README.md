@@ -28,18 +28,26 @@ Aplikacja do przeszukiwania publikacji naukowych i oficjalnych recenzji z konfer
 Aplikacja pokazuje tytuły prac, identyfikatory i odnośniki OpenReview, fragmenty abstraktów i ocen recenzentów, przebieg narzędzi agenta oraz kontekst do ewentualnej generacji odpowiedzi.
 
 
+
 ## Instalacja i uruchomienie
 
-Projekt został przetestowany lokalnie na **Pythonie 3.14.0** (macOS). Do uruchomienia potrzebne są Python, Git oraz połączenie z internetem przy pierwszym pobraniu modelu embeddingowego.
+**Wymagania:** Python 3.12 (zalecany), Git i dostęp do internetu przy pierwszym uruchomieniu. Projekt uruchamia się z terminala w VS Code, PyCharmie lub systemowego.
 
-### 1. Pobranie repozytorium
+### 1. Pobranie projektu
 
 ```bash
 git clone https://github.com/maciejonisiewicz/solvro-rag-rekrutacja.git
 cd solvro-rag-rekrutacja
 ```
 
-### 2. Utworzenie środowiska i instalacja zależności
+### 2. Instalacja zależności
+
+**Windows (PowerShell):**
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
 
 **macOS / Linux:**
 
@@ -49,31 +57,39 @@ source .venv/bin/activate
 python -m pip install -r requirements.txt
 ```
 
-**Windows (PowerShell):**
+### 3. Uruchomienie aplikacji
+
+**Windows:**
 
 ```powershell
-py -m venv .venv
-.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m streamlit run app.py --server.fileWatcherType none
 ```
 
-### 3. Uruchomienie aplikacji
+**macOS / Linux:**
 
 ```bash
 python -m streamlit run app.py --server.fileWatcherType none
 ```
 
-Otwórz w przeglądarce adres wyświetlony przez Streamlit (zwykle `http://localhost:8501`).
+Otwórz `http://localhost:8501`. Indeks ChromaDB zostanie utworzony automatycznie z danych w repozytorium.
 
-Dane publikacji i recenzji są dołączone w katalogu `data/`. **Nie trzeba pobierać ich ponownie.** Przy pierwszym uruchomieniu indeks ChromaDB jest budowany lokalnie na podstawie zapisanych danych. Model embeddingowy może zostać pobrany z Hugging Face. Opcja `--server.fileWatcherType none` pozwala ominąć problemy obserwatora plików w niektórych środowiskach.
+### 4. Ewaluacja
 
-### 4. Powtórzenie ewaluacji
+Zatrzymaj aplikację (`Ctrl+C`), a następnie uruchom:
+
+**Windows:**
+
+```powershell
+.\.venv\Scripts\python.exe evaluate.py
+```
+
+**macOS / Linux:**
 
 ```bash
 python evaluate.py
 ```
 
-Ewaluację można też uruchomić z poziomu aplikacji. Pytania referencyjne znajdują się w `data/eval_questions.json`, a zapisane wyniki w `data/eval_results.json`. Ponowne uruchomienie ewaluacji nie powinno nadpisywać ręcznie oznaczonego ground truth.
+**Sprawdzone konfiguracje:** Windows — Python 3.12 i 3.14; macOS — Python 3.14. Python 3.15 na Windowsie nie przeszedł instalacji zależności.
 
 
 ## Metodologia ewaluacji
