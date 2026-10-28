@@ -120,7 +120,7 @@ def synthesize(
     if not prompt:
         return SynthesisResult(status="insufficient_evidence", reason="Brak kontekstu do generowania.")
 
-    name = model_name or os.getenv("RAG_LLM_MODEL", "google:gemini-3.8-flash")
+    name = model_name or os.getenv("RAG_LLM_MODEL", "google:gemini-3.5-flash-lite")
     if model_call is None and not (os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")):
         return SynthesisResult(
             status="retrieval_only", reason="Brak GOOGLE_API_KEY: wyświetl źródła i zapisany prompt; nie generowano odpowiedzi.",
@@ -163,7 +163,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Optional OpenReview literature synthesis using PydanticAI")
     parser.add_argument("--query", required=True, help="Research question")
     parser.add_argument("--conference", default=None, help="Optional exact conference filter")
-    parser.add_argument("--model", default=None, help="PydanticAI model id, e.g. google:gemini-3.8-flash")
+    parser.add_argument("--model", default=None, help="PydanticAI model id, e.g. google:gemini-3.5-flash-lite")
     args = parser.parse_args()
 
     from agent_rag import LiteratureReviewAssistant  # load corpus only when called as CLI

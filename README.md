@@ -88,10 +88,18 @@ W interfejsie Streamlit wybierz **Gemini Asystent** w menu bocznym. Dostępne s�
 python -m pip install -r requirements-llm.txt
 ```
 
-W [Google AI Studio](https://aistudio.google.com/api-keys) wygeneruj klucz API. **Nie wklejaj go do kodu, commita ani do komunikatora.** W terminalu macOS/Linux ustaw go interaktywnie (wpisywane znaki nie będą widoczne):
+W [Google AI Studio](https://aistudio.google.com/api-keys) wygeneruj klucz API. **Nie wklejaj go do kodu, commita ani do komunikatora.** W terminalu z powłoką zsh ustaw go interaktywnie (wpisywane znaki nie będą widoczne):
 
 ```bash
 read -rs 'GOOGLE_API_KEY?Wklej klucz Google Gemini: '
+export GOOGLE_API_KEY
+```
+
+W powłoce **Bash** (np. Linux) użyj:
+
+```bash
+read -r -s -p "Wklej klucz Google Gemini: " GOOGLE_API_KEY
+echo
 export GOOGLE_API_KEY
 ```
 
