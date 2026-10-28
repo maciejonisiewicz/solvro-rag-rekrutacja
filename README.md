@@ -67,49 +67,183 @@ Dla Q106 pytającego o porównanie zużycia energii GPT-6 i Claude 5 wynik wekto
 
 ## Uruchomienie
 
-**Wymagania:** Python 3.12 (zalecany) lub sprawdzona konfiguracja macOS z Pythonem 3.14, Git; internet przy pierwszym pobraniu embeddingów. Do trybu Gemini wymagany jest własny klucz Google AI Studio. Python 3.15 nie był zweryfikowany.
+**Wymagania:** Git, Python **3.12** (zalecany), dostęp do internetu podczas pierwszego pobrania modelu embeddingowego. Przetestowano także macOS z Pythonem 3.14. Python 3.15 nie był weryfikowany. **Tryb offline nie wymaga klucza Gemini.**
+
+Poniższe instrukcje wykonuj **po kolei, po jednej komendzie**. Najpierw opisano Windows, a następnie macOS/Linux. Nie kopiuj tekstów objaśnień do terminala.
+
+### Windows — PowerShell (zalecana ścieżka)
+
+**1. Przejdź do katalogu użytkownika** (nie uruchamiaj `git clone` w `C:\Windows\System32`):
+
+```powershell
+cd $HOME
+```
+
+**2. Pobierz repozytorium:**
+
+```powershell
+git clone https://github.com/maciejonisiewicz/solvro-rag-rekrutacja.git
+```
+
+**3. Wejdź do projektu:**
+
+```powershell
+cd solvro-rag-rekrutacja
+```
+
+**4. Utwórz środowisko Python 3.12:**
+
+```powershell
+py -3.12 -m venv .venv
+```
+
+**5. Zainstaluj biblioteki:**
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
+**6. Uruchom aplikację:**
+
+```powershell
+.\.venv\Scripts\python.exe -m streamlit run app.py
+```
+
+Polecenia powyżej **nie wymagają aktywacji `.venv`**, więc działają również wtedy, gdy PowerShell blokuje skrypty `*.ps1`. Uruchamiaj je z katalogu projektu.
+
+**Opcjonalnie: aktywacja środowiska.** Jeśli chcesz używać krótszych poleceń `python ...`, możesz aktywować środowisko:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+Jeżeli PowerShell wyświetli `running scripts is disabled on this system`, **nie musisz zmieniać zabezpieczeń** — używaj poleceń z `.\.venv\Scripts\python.exe` pokazanych wyżej. Alternatywnie, aby odblokować lokalną aktywację **tylko w obecnym oknie PowerShell**, wykonaj:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned -Force
+```
+
+A potem ponownie uruchom `Activate.ps1`. Ustawienie dla `Process` jest tymczasowe; w środowisku z politykami firmowymi może być nadal blokowane.
+
+### macOS / Linux — Terminal (zsh lub Bash)
+
+**1. Przejdź do katalogu użytkownika:**
+
+```bash
+cd ~
+```
+
+**2. Pobierz repozytorium:**
 
 ```bash
 git clone https://github.com/maciejonisiewicz/solvro-rag-rekrutacja.git
+```
+
+**3. Wejdź do projektu:**
+
+```bash
 cd solvro-rag-rekrutacja
+```
+
+**4. Utwórz środowisko Python:**
+
+```bash
 python3 -m venv .venv
+```
+
+**5. Aktywuj środowisko:**
+
+```bash
 source .venv/bin/activate
+```
+
+**6. Zainstaluj biblioteki:**
+
+```bash
 python -m pip install -r requirements.txt
+```
+
+**7. Uruchom aplikację:**
+
+```bash
 python -m streamlit run app.py
 ```
 
-W Windows PowerShell zamiast `source` użyj `\.venv\Scripts\Activate.ps1`; Python można uruchamiać także jako `py -3.12`. Aplikacja działa lokalnie pod `http://localhost:8501` i przy pierwszym uruchomieniu tworzy bazę ChromaDB w `data/chroma_db/`.
+### Co zobaczysz po uruchomieniu?
 
-W interfejsie Streamlit wybierz **Gemini Asystent** w menu bocznym. Dostępne są dwa tryby: **Tylko źródła (offline)** oraz **Gemini — odpowiedź z cytowaniami**. Główna strona `app.py` pozostaje wyszukiwarką i panelem ewaluacji.
+Aplikacja działa lokalnie pod **http://localhost:8501**. Przy pierwszym wyszukiwaniu może pobrać model embeddingowy i automatycznie utworzyć indeks ChromaDB w `data/chroma_db/`. Nie zamykaj terminala, w którym działa Streamlit; aby zakończyć pracę, naciśnij `Ctrl+C`.
+
+Główna strona **app** zawiera wyszukiwarkę RAG i panel ewaluacji. W lewym menu wybierz **Gemini Asystent**. Dostępne tryby: **Tylko źródła (offline)** oraz **Gemini — odpowiedź z cytowaniami**.
 
 ### Opcjonalna integracja PydanticAI + Gemini
+
+**Bez klucza API** wyszukiwanie i tryb offline nadal działają. Generowanie odpowiedzi jest opcjonalne i może wykorzystać limit lub spowodować opłatę u dostawcy.
+
+**Windows PowerShell — doinstaluj bibliotekę:**
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements-llm.txt
+```
+
+**macOS / Linux — doinstaluj bibliotekę** (w aktywnym `.venv`):
 
 ```bash
 python -m pip install -r requirements-llm.txt
 ```
 
-W [Google AI Studio](https://aistudio.google.com/api-keys) wygeneruj klucz API. **Nie wklejaj go do kodu, commita ani do komunikatora.** W terminalu z powłoką zsh ustaw go interaktywnie (wpisywane znaki nie będą widoczne):
+W [Google AI Studio](https://aistudio.google.com/api-keys) wygeneruj swój klucz API. **Nie wklejaj klucza do kodu, commita, pliku README ani komunikatora.**
 
-```bash
+**Windows PowerShell — ustaw klucz bez jego wyświetlania:**
+
+```powershell
+$env:GOOGLE_API_KEY = [System.Net.NetworkCredential]::new('', (Read-Host 'Wklej klucz Google Gemini' -AsSecureString)).Password
+```
+
+**macOS zsh — wpisz klucz interaktywnie:**
+
+```zsh
 read -rs 'GOOGLE_API_KEY?Wklej klucz Google Gemini: '
+```
+
+Następnie, w tym samym terminalu:
+
+```zsh
 export GOOGLE_API_KEY
 ```
 
-W powłoce **Bash** (np. Linux) użyj:
+**Linux Bash — wpisz klucz interaktywnie:**
 
 ```bash
-read -r -s -p "Wklej klucz Google Gemini: " GOOGLE_API_KEY
+read -r -s -p 'Wklej klucz Google Gemini: ' GOOGLE_API_KEY
+```
+
+Zakończ ukryte wprowadzanie nową linią:
+
+```bash
 echo
+```
+
+A następnie udostępnij zmienną programowi:
+
+```bash
 export GOOGLE_API_KEY
 ```
 
-Przykładowe wywołanie modułu, z modelem, który działał w testowanej konfiguracji (dostępność i opłaty zależą od konta):
+**Test generowania z terminala — Windows:**
+
+```powershell
+.\.venv\Scripts\python.exe llm_synthesis.py --query "Which review criticizes ROUGE-L in Equation 3?" --model google:gemini-3.5-flash-lite
+```
+
+**Test generowania z terminala — macOS / Linux:**
 
 ```bash
 python llm_synthesis.py --query "Which review criticizes ROUGE-L in Equation 3?" --model google:gemini-3.5-flash-lite
 ```
 
-Bez `GOOGLE_API_KEY` polecenie przechodzi w `retrieval_only`: pokazuje źródła i zachowuje kontekst zamiast symulować odpowiedź. Błędy dostawcy również nie usuwają wyników retrievalu. Zlecenie generacji może zużyć limit API lub naliczyć opłatę.
+Oczekiwany wynik testu przy dostępnym API: `STATUS: generated`, recenzja `2mTTJZa647` publikacji KoLA oraz cytowanie `[SOURCE 1]`. Dostępność modelu i opłaty zależą od konta. Bez klucza API polecenie powinno przejść w `retrieval_only`: zachowuje wyniki wyszukiwania i kontekst bez udawania odpowiedzi; błędy dostawcy również nie usuwają źródeł.
+
+**Test generowania w Streamlit:** jeśli aplikacja była uruchomiona **przed** ustawieniem `GOOGLE_API_KEY`, zatrzymaj ją (`Ctrl+C`) i uruchom ponownie **z tego samego terminala, w którym ustawiono klucz**. Potem wybierz **Gemini Asystent → Gemini — odpowiedź z cytowaniami**. Aby sprawdzić tryb offline, wybierz **Tylko źródła (offline)** — klucz nie jest potrzebny.
 
 ## Ewaluacja retrieval
 
@@ -184,22 +318,45 @@ Szczegółowa metodologia, dowody i ograniczenia: [`docs/faithfulness_review_rep
 
 ## Uruchamianie testów i eksperymentów
 
+Poniższe polecenia uruchamiaj z katalogu projektu w aktywnym środowisku `.venv`. Na Windowsie, **jeżeli nie aktywujesz środowiska**, zamień początkowe `python` na `.\.venv\Scripts\python.exe` (bez zmiany reszty polecenia).
+
+**Testy automatyczne (offline):**
+
 ```bash
-# Testy offline (bez klucza API, o ile testy są uruchamiane w izolacji)
 python -m unittest -v test_evaluate test_rag_index test_context_integrity test_chunking test_retrieval_ablation test_evidence_gate test_llm_synthesis test_streamlit_llm_bridge test_faithfulness_collect
+```
 
-# Raport główny i dodatkowy (uruchomienie raportów może nadpisać bieżące pliki wynikowe)
+**Raporty ewaluacji** — uruchomienie może nadpisać bieżące pliki wynikowe:
+
+```bash
 python evaluate.py
+```
+
+```bash
 python holdout_eval.py --run
+```
 
-# Ablacja na kontrolowanych tekstach recenzji
+**Porównanie metod przy kontrolowanej treści recenzji:**
+
+```bash
 python retrieval_ablation.py
+```
 
-# Decyzje agenta dotyczące wystarczalności danych
+**Audyt decyzji agenta — zestaw główny:**
+
+```bash
 python agent_abstention_audit.py --questions data/eval_questions.json
-python agent_abstention_audit.py --questions data/eval_holdout_verified.json
+```
 
-# Zliczenie wcześniejszych adnotacji faithfulness (bez ponownego wywołania Gemini)
+**Audyt decyzji agenta — zestaw dodatkowy:**
+
+```bash
+python agent_abstention_audit.py --questions data/eval_holdout_verified.json
+```
+
+**Zliczenie istniejących adnotacji faithfulness** (bez wywoływania Gemini):
+
+```bash
 python faithfulness_collect.py score --file data/experiments/faithfulness_manual_audit_reviewed.json
 ```
 
