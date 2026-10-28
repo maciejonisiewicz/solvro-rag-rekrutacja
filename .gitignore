@@ -11,3 +11,18 @@ data/agent_trace_log.json
 data/last_query_context.json
 data/evaluation_agent_trace_log.json
 data/evaluation_last_query_context.json
+
+# Local experiment logs and draft audit
+data/experiments/agent_audit_last_context.json
+
+# Local experiment logs and draft audit
+data/experiments/agent_audit_last_trace.json
+
+# Local experiment logs and draft audit
+data/experiments/evaluation_agent_trace_log.json
+
+# Local experiment logs and draft audit
+data/experiments/evaluation_last_query_context.json
+
+# Local experiment logs and draft audit
+data/experiments/faithfulness_manual_audit.json

@@ -43,6 +43,11 @@ class LiteratureReviewRAG:
         self.corpus_abstracts_only: list[str] = []
         self.abstract_metadata: list[dict[str, Any]] = []
         self.corpus_metadata: list[dict[str, Any]] = []
+        # BM25 and source metadata remain at REVIEW level. Chroma indexes CHUNKS,
+        # which are collapsed to unique reviews before returning results.
+        self.chunk_documents: list[str] = []
+        self.chunk_metadata: list[dict[str, Any]] = []
+        self.chunk_ids: list[str] = []
 
         self._prepare_corpus()
 
@@ -54,6 +59,7 @@ class LiteratureReviewRAG:
 
         self.chroma_client = chromadb.PersistentClient(path=str(self.data_path / "chroma_db"))
         self.embedding_model = SentenceTransformer(embedding_model_name)
+        self._prepare_chunks()
         self.collection = self.chroma_client.get_or_create_collection(
             name=collection_name,
             metadata={"hnsw:space": "cosine"},
@@ -129,6 +135,55 @@ class LiteratureReviewRAG:
                 "author_abstract": paper["abstract"],
             })
 
+    def _chunk_document(self, text: str) -> list[str]:
+        """Create overlapping windows below the model's max input length.
+
+        The real SentenceTransformer tokenizer defines the token boundaries;
+        the whitespace fallback is used only by lightweight offline test doubles.
+        Original, unabridged reviewer fields live in corpus_metadata.
+        """
+        tokenizer = getattr(self.embedding_model, "tokenizer", None)
+        model_limit = getattr(self.embedding_model, "max_seq_length", 256) or 256
+        window = min(192, max(16, model_limit - 8))
+        overlap = min(32, window // 5)
+        step = window - overlap
+
+        if tokenizer is not None:
+            tokens = tokenizer.encode(text, add_special_tokens=False, truncation=False)
+            decode = lambda values: tokenizer.decode(
+                values, skip_special_tokens=True, clean_up_tokenization_spaces=False
+            )
+        else:
+            tokens = text.split()
+            decode = lambda values: " ".join(values)
+
+        if len(tokens) <= window:
+            return [text]
+
+        chunks: list[str] = []
+        for start in range(0, len(tokens), step):
+            window_tokens = tokens[start:start + window]
+            if not window_tokens:
+                break
+            chunks.append(decode(window_tokens))
+            if start + window >= len(tokens):
+                break
+        return chunks
+
+    def _prepare_chunks(self) -> None:
+        for review_text, review_meta in zip(self.corpus_for_embedding, self.corpus_metadata):
+            chunks = self._chunk_document(review_text)
+            for index, text in enumerate(chunks):
+                chunk_id = f"{review_meta['review_id']}:chunk:{index:04d}"
+                self.chunk_ids.append(chunk_id)
+                self.chunk_documents.append(text)
+                self.chunk_metadata.append({
+                    **review_meta,
+                    "chunk_id": chunk_id,
+                    "chunk_index": index,
+                    "chunk_count": len(chunks),
+                })
+
     def _ensure_index(self, embedding_model_name: str, collection_name: str) -> None:
         """Rebuild an outdated Chroma collection when corpus or model changes.
 
@@ -138,27 +193,27 @@ class LiteratureReviewRAG:
         """
         payload = {
             "embedding_model": embedding_model_name,
-            "documents": self.corpus_for_embedding,
-            "metadata": self.corpus_metadata,
+            "documents": self.chunk_documents,
+            "metadata": self.chunk_metadata,
         }
         fingerprint = hashlib.sha256(
             json.dumps(payload, sort_keys=True, ensure_ascii=False).encode("utf-8")
         ).hexdigest()
         previous_metadata = self.collection.metadata or {}
         is_current = (
-            self.collection.count() == len(self.corpus_metadata)
+            self.collection.count() == len(self.chunk_metadata)
             and previous_metadata.get("corpus_fingerprint") == fingerprint
         )
         if is_current:
             return
 
-        if not self.corpus_metadata:
+        if not self.chunk_metadata:
             raise ValueError("Cannot build Chroma index: no reviews in the corpus.")
 
         # Calculate embeddings BEFORE replacing an existing collection. If model
         # encoding fails, the original index is preserved.
         embeddings = self.embedding_model.encode(
-            self.corpus_for_embedding, show_progress_bar=True
+            self.chunk_documents, show_progress_bar=True
         ).tolist()
         self.chroma_client.delete_collection(name=collection_name)
         self.collection = self.chroma_client.create_collection(
@@ -168,17 +223,17 @@ class LiteratureReviewRAG:
         self._index_documents(embeddings=embeddings)
 
     def _index_documents(self, embeddings: list[list[float]] | None = None) -> None:
-        ids = [m["review_id"] for m in self.corpus_metadata]
+        ids = self.chunk_ids
         if embeddings is None:
             embeddings = self.embedding_model.encode(
-                self.corpus_for_embedding,
+                self.chunk_documents,
                 show_progress_bar=True,
             ).tolist()
         self.collection.add(
             ids=ids,
-            documents=self.corpus_for_embedding,
+            documents=self.chunk_documents,
             embeddings=embeddings,
-            metadatas=self.corpus_metadata,
+            metadatas=self.chunk_metadata,
         )
 
 
@@ -245,30 +300,31 @@ class LiteratureReviewRAG:
 
         results = self.collection.query(
             query_embeddings=query_embedding,
-            n_results=min(top_k * 3, len(self.corpus_metadata)),
+            # Fetch extra chunks to retrieve enough DISTINCT reviews.
+            n_results=min(max(top_k * 25, 100), len(self.chunk_ids)),
             where=where_filter,
         )
 
-        formatted_results: list[dict[str, Any]] = []
-        ids_list = results.get("ids", [[]])[0]
+        # Chroma ranks chunks, but retrieval metrics and RRF rank REVIEWS.
+        # Keep each review's highest-scoring chunk; never count it twice.
+        best_by_review: dict[str, dict[str, Any]] = {}
         metadatas_list = results.get("metadatas", [[]])[0]
         distances_list = results.get("distances", [[]])[0]
         documents_list = results.get("documents", [[]])[0]
-
-        for i in range(len(ids_list)):
-            similarity = 1.0 - float(distances_list[i])
-            formatted_results.append(
-                {
+        for meta, distance, document in zip(metadatas_list, distances_list, documents_list):
+            review_id = str(meta["review_id"])
+            similarity = 1.0 - float(distance)
+            previous = best_by_review.get(review_id)
+            if previous is None or similarity > previous["score"]:
+                best_by_review[review_id] = {
                     "score": similarity,
                     "score_type": "cosine_similarity",
-                    "metadata": metadatas_list[i],
-                    "text_snippet": documents_list[i],
+                    "metadata": meta,
+                    "text_snippet": document,
                 }
-            )
-            if len(formatted_results) >= top_k:
-                break
-
-        return formatted_results
+        return sorted(
+            best_by_review.values(), key=lambda item: item["score"], reverse=True
+        )[:top_k]
 
     def search_hybrid(
         self,

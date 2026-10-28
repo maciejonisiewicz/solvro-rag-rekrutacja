@@ -1,0 +1,2 @@
+# Optional: separate from baseline requirements; install only if using LLM generation.
+pydantic-ai-slim[google]
