@@ -4,18 +4,18 @@
     "evaluation_unit": "Paper-level Hit@5 uses all 4 answerable questions; review-level Hit@5/MRR/nDCG@5 use only 4 questions with a manually annotated target review (binary nDCG: one relevant review only). Abstract-only review metrics are N/A.",
     "vector_paper_hit_at_5": 1.0,
     "vector_review_hit_at_5": 1.0,
-    "vector_review_mrr": 0.75,
-    "vector_ndcg_at_5": 0.815,
+    "vector_review_mrr": 0.875,
+    "vector_ndcg_at_5": 0.908,
     "bm25_paper_hit_at_5": 1.0,
     "bm25_review_hit_at_5": 1.0,
     "bm25_review_mrr": 0.875,
     "bm25_ndcg_at_5": 0.908,
     "hybrid_review_hit_at_5": 1.0,
-    "hybrid_review_mrr": 0.875,
-    "hybrid_ndcg_at_5": 0.908,
+    "hybrid_review_mrr": 1.0,
+    "hybrid_ndcg_at_5": 1.0,
     "agent_review_hit_at_5": 1.0,
-    "agent_review_mrr": 0.75,
-    "agent_ndcg_at_5": 0.815,
+    "agent_review_mrr": 1.0,
+    "agent_ndcg_at_5": 1.0,
     "unanswerable_rejection_accuracy": 0.5,
     "vector_threshold_answerable_acceptance": 1.0,
     "vector_threshold_balanced_accuracy": 0.75,
@@ -29,8 +29,8 @@
       "method_name": "1. Wyszukiwanie Wektorowe (ChromaDB)",
       "paper_hit_at_5": 1.0,
       "review_hit_at_5": 1.0,
-      "review_mrr": 0.75,
-      "ndcg_at_5": 0.815
+      "review_mrr": 0.875,
+      "ndcg_at_5": 0.908
     },
     {
       "method_name": "2. Baseline (BM25 - Abstrakty + Recenzje)",
@@ -43,15 +43,15 @@
       "method_name": "3. Wyszukiwanie Hybrydowe (RRF: Wektor + BM25)",
       "paper_hit_at_5": 1.0,
       "review_hit_at_5": 1.0,
-      "review_mrr": 0.875,
-      "ndcg_at_5": 0.908
+      "review_mrr": 1.0,
+      "ndcg_at_5": 1.0
     },
     {
       "method_name": "4. Agent deterministyczny z narzędziami (limit 3 kroki)",
       "paper_hit_at_5": 1.0,
       "review_hit_at_5": 1.0,
-      "review_mrr": 0.75,
-      "ndcg_at_5": 0.815
+      "review_mrr": 1.0,
+      "ndcg_at_5": 1.0
     },
     {
       "method_name": "5. Tylko Abstrakty (bez recenzji)",
@@ -63,11 +63,11 @@
   ],
   "diversity_analysis": {
     "total_papers_in_db": 80,
-    "unique_papers_recommended_top5": 8,
-    "catalog_coverage_ratio": 0.1,
-    "iclr_2024_share_in_top5": 0.55,
-    "neurips_2024_share_in_top5": 0.45,
-    "avg_unique_papers_per_query_top5": 2.0
+    "unique_papers_recommended_top5": 9,
+    "catalog_coverage_ratio": 0.113,
+    "iclr_2024_share_in_top5": 0.6,
+    "neurips_2024_share_in_top5": 0.4,
+    "avg_unique_papers_per_query_top5": 2.25
   },
   "questions_results": [
     {
@@ -80,10 +80,10 @@
       "hybrid_paper_rank": 1,
       "agent_paper_rank": 1,
       "abstract_only_paper_rank": 4,
-      "vector_review_rank": 2,
+      "vector_review_rank": 1,
       "bm25_review_rank": 2,
-      "hybrid_review_rank": 2,
-      "agent_review_rank": 2,
+      "hybrid_review_rank": 1,
+      "agent_review_rank": 1,
       "abstract_only_review_rank": null,
       "vector_review_hit_at_5": true,
       "bm25_review_hit_at_5": true,
@@ -146,7 +146,7 @@
       "vector_review_rank": 2,
       "bm25_review_rank": 1,
       "hybrid_review_rank": 1,
-      "agent_review_rank": 2,
+      "agent_review_rank": 1,
       "abstract_only_review_rank": null,
       "vector_review_hit_at_5": true,
       "bm25_review_hit_at_5": true,
@@ -159,14 +159,14 @@
     {
       "id": 105,
       "query": "What is the recommended tire pressure for a 2011 Honda Civic?",
-      "max_similarity_score": 0.14,
+      "max_similarity_score": 0.208,
       "threshold": 0.38,
       "correctly_rejected": true
     },
     {
       "id": 106,
       "query": "Which paper from ICLR or NeurIPS 2024 compares the training energy usage of GPT-6 with Claude 5?",
-      "max_similarity_score": 0.384,
+      "max_similarity_score": 0.48,
       "threshold": 0.38,
       "correctly_rejected": false
     }
