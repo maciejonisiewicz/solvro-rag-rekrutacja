@@ -79,10 +79,16 @@ def render_source_card(index: int, source: RetrievedSource) -> None:
             st.caption("Tryb tylko z abstraktami: opinie recenzentów są celowo pominięte.")
         return
 
-    header = (
-        f"[{index}] {source.title} ({source.conference}) — "
-        f"{source.score_type}: {source.similarity_score:.3f} | Ocena: {source.rating}"
-    )
+    if source.is_supplementary:
+        header = (
+            f"[{index}] {source.title} ({source.conference}) — "
+            "recenzja uzupełniająca (poza rankingiem)"
+        )
+    else:
+        header = (
+            f"[{index}] {source.title} ({source.conference}) — "
+            f"{source.score_type}: {source.similarity_score:.3f} | Ocena: {source.rating}"
+        )
     with st.expander(header, expanded=(index == 1)):
         col1, col2, col3 = st.columns([2, 2, 1])
         with col1:
@@ -120,17 +126,35 @@ def execute_search(
     conference: str | None,
     top_k: int,
     threshold: float,
-) -> tuple[list[RetrievedSource], str | None, bool, list[AgentStep]]:
+) -> tuple[
+    list[RetrievedSource],
+    list[RetrievedSource],
+    str | None,
+    bool,
+    list[AgentStep],
+]:
     assistant.top_k = top_k
     assistant.similarity_threshold = threshold
 
     if mode == "Agent Wieloetapowy z Narzędziami (Limit 3 kroki)":
         payload = assistant.run_agent(query=query, conference=conference)
-        return payload.sources, payload.constructed_prompt, payload.has_sufficient_data, payload.agent_trace
+        return (
+            payload.sources,
+            payload.supplementary_sources,
+            payload.constructed_prompt,
+            payload.has_sufficient_data,
+            payload.agent_trace,
+        )
 
     if mode == "Wyszukiwanie Wektorowe (ChromaDB)":
         payload = assistant.process_query(query=query, conference=conference)
-        return payload.sources, payload.constructed_prompt, payload.has_sufficient_data, payload.agent_trace
+        return (
+            payload.sources,
+            [],
+            payload.constructed_prompt,
+            payload.has_sufficient_data,
+            payload.agent_trace,
+        )
 
     if mode == "Wyszukiwanie Hybrydowe (RRF: Wektor + BM25)":
         raw_results = assistant.rag.search_hybrid(
@@ -165,7 +189,7 @@ def execute_search(
         ),
         decision="Zakończono pojedyncze wyszukiwanie." if has_data else "Odrzucono zapytanie jako spoza zakresu.",
     )
-    return sources, prompt, has_data, [step]
+    return sources, [], prompt, has_data, [step]
 
 
 def render_evaluation_section(assistant: LiteratureReviewAssistant) -> None:
@@ -340,7 +364,7 @@ def main() -> None:
                 st.warning("Wpisz pytanie badawcze.")
             else:
                 with st.spinner("Wyszukiwanie źródeł..."):
-                    sources, prompt, has_data, trace = execute_search(
+                    sources, supplementary_sources, prompt, has_data, trace = execute_search(
                         assistant=assistant,
                         query=query.strip(),
                         mode=mode,
@@ -351,6 +375,9 @@ def main() -> None:
                 st.session_state["last_search"] = {
                     "query": query.strip(),
                     "sources": [source.model_dump() for source in sources],
+                    "supplementary_sources": [
+                        source.model_dump() for source in supplementary_sources
+                    ],
                     "prompt": prompt,
                     "has_data": has_data,
                     "trace": [step.model_dump() for step in trace],
@@ -380,10 +407,22 @@ def main() -> None:
                 with source_tab:
                     for index, raw_source in enumerate(result["sources"], 1):
                         render_source_card(index, RetrievedSource.model_validate(raw_source))
+                    extra_sources = result.get("supplementary_sources", [])
+                    if extra_sources:
+                        st.markdown(
+                            f"#### Recenzje uzupełniające ({len(extra_sources)}) — poza rankingiem"
+                        )
+                        for index, raw_source in enumerate(
+                            extra_sources, start=len(result["sources"]) + 1
+                        ):
+                            render_source_card(index, RetrievedSource.model_validate(raw_source))
                 with prompt_tab:
                     st.code(result["prompt"] or "", language="markdown")
                 with json_tab:
-                    st.json(result["sources"])
+                    st.json({
+                        "ranked_sources": result["sources"],
+                        "supplementary_sources": result.get("supplementary_sources", []),
+                    })
 
     with evaluation_tab:
         render_evaluation_section(assistant)
