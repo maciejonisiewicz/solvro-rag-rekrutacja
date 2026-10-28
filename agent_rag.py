@@ -8,6 +8,7 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from rag_system import LiteratureReviewRAG
+from evidence_gate import required_model_entities, has_joint_model_support
 
 
 STOPWORDS = {
@@ -275,7 +276,13 @@ class LiteratureReviewAssistant:
             conference_filter=conference,
         )
         top_score = float(raw_results[0]["score"]) if raw_results else 0.0
-        has_data = bool(raw_results) and top_score >= self.similarity_threshold
+        # Similarity scores are retrieval signals, not evidence of factual support.
+        model_support = has_joint_model_support(query, raw_results[: self.top_k])
+        has_data = (
+            bool(raw_results)
+            and top_score >= self.similarity_threshold
+            and model_support
+        )
 
         sources = self._to_sources(raw_results[: self.top_k], score_type="cosine_similarity") if has_data else []
         prompt = self.build_prompt(query, sources) if has_data else None
@@ -289,7 +296,11 @@ class LiteratureReviewAssistant:
             decision=(
                 "Accept semantic retrieval and build source-grounded prompt."
                 if has_data
-                else "Insufficient semantic similarity; report missing evidence."
+                else (
+                    "Named model versions are not jointly supported by one retrieved source; abstain."
+                    if not model_support
+                    else "Insufficient semantic similarity; report missing evidence."
+                )
             ),
         )
 
@@ -399,11 +410,23 @@ class LiteratureReviewAssistant:
                 )
             )
 
-        has_data = bool(current_results) and (
-            top_vector_score >= self.similarity_threshold or exact_technical_match
+        # Check explicit model versions against the FINAL top-k evidence.
+        # This is a conservative consistency gate, not an entailment verifier.
+        ranked_candidates = current_results[: self.top_k]
+        model_support = has_joint_model_support(query, ranked_candidates)
+        has_data = (
+            bool(current_results)
+            and (top_vector_score >= self.similarity_threshold or exact_technical_match)
+            and model_support
         )
+        if current_results and not model_support and trace:
+            expected = ", ".join(required_model_entities(query))
+            trace[-1].decision = (
+                f"Abstain: named model versions ({expected}) are not jointly "
+                "supported by any one of the top-ranked sources."
+            )
 
-        ranked_results = current_results[: self.top_k] if has_data else []
+        ranked_results = ranked_candidates if has_data else []
         sources = self._to_sources(
             ranked_results,
             score_type="rrf" if needs_hybrid and len(trace) >= 2 else "cosine_similarity",
