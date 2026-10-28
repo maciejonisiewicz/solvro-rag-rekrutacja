@@ -1,0 +1,272 @@
+{
+  "method_comparison": {
+    "bm25_review_plus_abstract": {
+      "paper_hit_at_5": 1.0,
+      "review_hit_at_5": 1.0,
+      "review_mrr_at_5": 0.917,
+      "review_ndcg_at_5": 0.938
+    },
+    "bm25_review_only": {
+      "paper_hit_at_5": 1.0,
+      "review_hit_at_5": 1.0,
+      "review_mrr_at_5": 0.917,
+      "review_ndcg_at_5": 0.938
+    },
+    "bm25_same_chunks": {
+      "paper_hit_at_5": 1.0,
+      "review_hit_at_5": 1.0,
+      "review_mrr_at_5": 0.838,
+      "review_ndcg_at_5": 0.877
+    },
+    "vector_same_chunks": {
+      "paper_hit_at_5": 0.9,
+      "review_hit_at_5": 0.875,
+      "review_mrr_at_5": 0.656,
+      "review_ndcg_at_5": 0.712
+    }
+  },
+  "questions_results": [
+    {
+      "id": 1,
+      "target_paper_id": "8iPobEKUUA",
+      "target_review_id": "JK5vOYx9o7",
+      "methods": {
+        "bm25_review_plus_abstract": {
+          "paper_rank": 1,
+          "review_rank": 3
+        },
+        "bm25_review_only": {
+          "paper_rank": 1,
+          "review_rank": 3
+        },
+        "bm25_same_chunks": {
+          "paper_rank": 1,
+          "review_rank": 2
+        },
+        "vector_same_chunks": {
+          "paper_rank": 1,
+          "review_rank": 4
+        }
+      }
+    },
+    {
+      "id": 2,
+      "target_paper_id": "3ZAfFoAcUI",
+      "target_review_id": "ZvGNUwLc4R",
+      "methods": {
+        "bm25_review_plus_abstract": {
+          "paper_rank": 1,
+          "review_rank": 1
+        },
+        "bm25_review_only": {
+          "paper_rank": 1,
+          "review_rank": 1
+        },
+        "bm25_same_chunks": {
+          "paper_rank": 1,
+          "review_rank": 1
+        },
+        "vector_same_chunks": {
+          "paper_rank": 6,
+          "review_rank": 8
+        }
+      }
+    },
+    {
+      "id": 3,
+      "target_paper_id": "qBL04XXex6",
+      "target_review_id": "w7bvJ5iRWP",
+      "methods": {
+        "bm25_review_plus_abstract": {
+          "paper_rank": 1,
+          "review_rank": 1
+        },
+        "bm25_review_only": {
+          "paper_rank": 1,
+          "review_rank": 1
+        },
+        "bm25_same_chunks": {
+          "paper_rank": 1,
+          "review_rank": 1
+        },
+        "vector_same_chunks": {
+          "paper_rank": 1,
+          "review_rank": 2
+        }
+      }
+    },
+    {
+      "id": 4,
+      "target_paper_id": "AqN23oqraW",
+      "target_review_id": "2mTTJZa647",
+      "methods": {
+        "bm25_review_plus_abstract": {
+          "paper_rank": 1,
+          "review_rank": 1
+        },
+        "bm25_review_only": {
+          "paper_rank": 1,
+          "review_rank": 1
+        },
+        "bm25_same_chunks": {
+          "paper_rank": 4,
+          "review_rank": 5
+        },
+        "vector_same_chunks": {
+          "paper_rank": 1,
+          "review_rank": 1
+        }
+      }
+    },
+    {
+      "id": 5,
+      "target_paper_id": "x7AD0343Jz",
+      "target_review_id": "9DIRWfvxxd",
+      "methods": {
+        "bm25_review_plus_abstract": {
+          "paper_rank": 1,
+          "review_rank": 1
+        },
+        "bm25_review_only": {
+          "paper_rank": 1,
+          "review_rank": 1
+        },
+        "bm25_same_chunks": {
+          "paper_rank": 1,
+          "review_rank": 1
+        },
+        "vector_same_chunks": {
+          "paper_rank": 1,
+          "review_rank": 2
+        }
+      }
+    },
+    {
+      "id": 6,
+      "target_paper_id": "KjNEzWRIqn",
+      "target_review_id": "7iDVZTIfsM",
+      "methods": {
+        "bm25_review_plus_abstract": {
+          "paper_rank": 1,
+          "review_rank": 1
+        },
+        "bm25_review_only": {
+          "paper_rank": 1,
+          "review_rank": 1
+        },
+        "bm25_same_chunks": {
+          "paper_rank": 1,
+          "review_rank": 1
+        },
+        "vector_same_chunks": {
+          "paper_rank": 1,
+          "review_rank": 1
+        }
+      }
+    },
+    {
+      "id": 7,
+      "target_paper_id": "te6VagJf6G",
+      "target_review_id": "ru4zfozGZq",
+      "methods": {
+        "bm25_review_plus_abstract": {
+          "paper_rank": 1,
+          "review_rank": 1
+        },
+        "bm25_review_only": {
+          "paper_rank": 1,
+          "review_rank": 1
+        },
+        "bm25_same_chunks": {
+          "paper_rank": 1,
+          "review_rank": 1
+        },
+        "vector_same_chunks": {
+          "paper_rank": 1,
+          "review_rank": 1
+        }
+      }
+    },
+    {
+      "id": 8,
+      "target_paper_id": "Cc0ckJlJF2",
+      "target_review_id": "jOmNHO0jCQ",
+      "methods": {
+        "bm25_review_plus_abstract": {
+          "paper_rank": 1,
+          "review_rank": 1
+        },
+        "bm25_review_only": {
+          "paper_rank": 1,
+          "review_rank": 1
+        },
+        "bm25_same_chunks": {
+          "paper_rank": 1,
+          "review_rank": 1
+        },
+        "vector_same_chunks": {
+          "paper_rank": 1,
+          "review_rank": 1
+        }
+      }
+    },
+    {
+      "id": 9,
+      "target_paper_id": "SLw9fp4yI6",
+      "target_review_id": null,
+      "methods": {
+        "bm25_review_plus_abstract": {
+          "paper_rank": 1,
+          "review_rank": null
+        },
+        "bm25_review_only": {
+          "paper_rank": 1,
+          "review_rank": null
+        },
+        "bm25_same_chunks": {
+          "paper_rank": 1,
+          "review_rank": null
+        },
+        "vector_same_chunks": {
+          "paper_rank": 1,
+          "review_rank": null
+        }
+      }
+    },
+    {
+      "id": 10,
+      "target_paper_id": "dCHbFDsCZz",
+      "target_review_id": null,
+      "methods": {
+        "bm25_review_plus_abstract": {
+          "paper_rank": 1,
+          "review_rank": null
+        },
+        "bm25_review_only": {
+          "paper_rank": 1,
+          "review_rank": null
+        },
+        "bm25_same_chunks": {
+          "paper_rank": 1,
+          "review_rank": null
+        },
+        "vector_same_chunks": {
+          "paper_rank": 1,
+          "review_rank": null
+        }
+      }
+    }
+  ],
+  "protocol": "Development-set ablation, same manually annotated target reviews as evaluate.py; BM25 and vector_same_chunks index identical chunk texts. BM25 uses whitespace lexical tokenization, vector uses SentenceTransformer. Each chunk's score is merged to its review by MAX before ranking; one annotated target review per question, other reviews unjudged. Vector relies on Chroma approximate nearest neighbor retrieval; results need not match BM25 ranking depth exactly. Do not infer answer faithfulness or tune against the frozen holdout.",
+  "ground_truth_sha256": "4c3f158cae34417c7e6b40f95586681f83eea37916c4bbcddf43b3af4011d068",
+  "answerable_questions": 10,
+  "review_annotated_questions": 8,
+  "reviews": 308,
+  "chunks": 1344,
+  "text_corpora": {
+    "bm25_review_plus_abstract": "corpus_for_bm25 (review+abstract, review-level)",
+    "bm25_review_only": "corpus_for_embedding (review only, review-level)",
+    "bm25_same_chunks": "chunk_documents (review only, chunk-level, MAX by review)",
+    "vector_same_chunks": "chunk_documents (review only, chunk-level, MAX by review)"
+  }
+}
