@@ -125,6 +125,17 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned -Force
 
 A potem ponownie uruchom `Activate.ps1`. Ustawienie dla `Process` jest tymczasowe; w środowisku z politykami firmowymi może być nadal blokowane.
 
+### Rozwiązywanie problemów — Windows 11 i Smart App Control
+
+Na niektórych komputerach z Windows 11 uruchomienie aplikacji może zakończyć się błędem `OSError: [WinError 4551]`, informującym o zablokowaniu pliku `torch\lib\c10.dll` lub innej biblioteki DLL PyTorch.
+
+Problem może wynikać z włączonej funkcji **Smart App Control** lub innych zasad kontroli aplikacji w Windows. Blokada następuje podczas ładowania zależności PyTorch, zanim uruchomi się logika systemu RAG. Nie dotyczy wszystkich instalacji Windows 11.
+
+**Zalecane rozwiązanie:** uruchomienie projektu w środowisku Linux przez [WSL2](https://learn.microsoft.com/pl-pl/windows/wsl/install), zgodnie z instrukcją dla macOS/Linux powyżej lub poniżej. Pozwala to uniknąć uruchamiania zablokowanych bibliotek DLL Windows bez wyłączania Smart App Control.
+
+Nie zaleca się wyłączania zabezpieczeń Windows wyłącznie w celu uruchomienia projektu. Więcej informacji: [Microsoft — Smart App Control](https://support.microsoft.com/en-us/windows/security/threat-malware-protection/smart-app-control-frequently-asked-questions).
+
+
 ### macOS / Linux — Terminal (zsh lub Bash)
 
 **1. Przejdź do katalogu użytkownika:**
