@@ -125,15 +125,33 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned -Force
 
 A potem ponownie uruchom `Activate.ps1`. Ustawienie dla `Process` jest tymczasowe; w środowisku z politykami firmowymi może być nadal blokowane.
 
-### Rozwiązywanie problemów — Windows 11 i Smart App Control
+#### Windows 11 — problem z Smart App Control i PyTorch (`WinError 4551`)
 
-Na niektórych komputerach z Windows 11 uruchomienie aplikacji może zakończyć się błędem `OSError: [WinError 4551]`, informującym o zablokowaniu pliku `torch\lib\c10.dll` lub innej biblioteki DLL PyTorch.
+Na niektórych komputerach z Windows 11, szczególnie z włączoną funkcją **Smart App Control**, uruchomienie aplikacji może zakończyć się błędem:
 
-Problem może wynikać z włączonej funkcji **Smart App Control** lub innych zasad kontroli aplikacji w Windows. Blokada następuje podczas ładowania zależności PyTorch, zanim uruchomi się logika systemu RAG. Nie dotyczy wszystkich instalacji Windows 11.
+`OSError: [WinError 4551] Zasady kontroli aplikacji zablokowały ten plik.`
 
-**Zalecane rozwiązanie:** uruchomienie projektu w środowisku Linux przez [WSL2](https://learn.microsoft.com/pl-pl/windows/wsl/install), zgodnie z instrukcją dla macOS/Linux powyżej lub poniżej. Pozwala to uniknąć uruchamiania zablokowanych bibliotek DLL Windows bez wyłączania Smart App Control.
+Błąd może dotyczyć `torch\lib\c10.dll` lub innej biblioteki DLL PyTorch, wykorzystywanej przez `sentence-transformers` do generowania embeddingów.
 
-Nie zaleca się wyłączania zabezpieczeń Windows wyłącznie w celu uruchomienia projektu. Więcej informacji: [Microsoft — Smart App Control](https://support.microsoft.com/en-us/windows/security/threat-malware-protection/smart-app-control-frequently-asked-questions).
+Jest to znany problem zgodności niektórych dystrybucji PyTorch z mechanizmami kontroli aplikacji Windows, zgłaszany również w [oficjalnym repozytorium PyTorch](https://github.com/pytorch/pytorch/issues/199711). Blokada następuje podczas importowania zależności, przed uruchomieniem właściwej logiki systemu RAG. Nie występuje na wszystkich komputerach z Windows 11.
+
+**Diagnostyka**
+
+Aby sprawdzić, czy problem dotyczy samego PyTorch, uruchom w PowerShell z katalogu projektu:
+
+```powershell
+.\.venv\Scripts\python.exe -c "import torch; print(torch.__version__)"
+```
+
+Jeśli pojawi się ten sam `WinError 4551`, problem występuje już przy samym imporcie PyTorch, niezależnie od aplikacji Streamlit.
+
+**Możliwe rozwiązanie bez wyłączania zabezpieczeń**
+
+Alternatywą jest uruchomienie projektu w Ubuntu przez **WSL2 (Windows Subsystem for Linux)**. Należy zainstalować i skonfigurować WSL2 według [oficjalnej instrukcji Microsoftu](https://learn.microsoft.com/pl-pl/windows/wsl/install), a następnie pobrać repozytorium i utworzyć nowe środowisko Python wewnątrz Ubuntu, korzystając z instrukcji „macOS / Linux” poniżej.
+
+WSL2 pozwala korzystać z linuksowych bibliotek PyTorch bez ładowania zablokowanych plików DLL Windows. Rozwiązanie wymaga osobnej instalacji zależności i nie zostało przetestowane w ramach tego projektu.
+
+**Nie zaleca się wyłączania Smart App Control wyłącznie w celu uruchomienia aplikacji.**
 
 
 ### macOS / Linux — Terminal (zsh lub Bash)
